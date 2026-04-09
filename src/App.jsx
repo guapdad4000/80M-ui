@@ -284,7 +284,10 @@ const staggerContainer = {
 };
 
 // --- ATM Scrollbar Component ---
-const AtmScrollbar = () => {
+// Accepts optional scrollRef — if provided, scrolls that element instead of window
+const AtmScrollbar = ({ scrollRef: externalScrollRef, zIndexClass = 'z-[100]' }) => {
+  const internalScrollRef = useRef(null);
+  const scrollRef = externalScrollRef || internalScrollRef;
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -292,15 +295,49 @@ const AtmScrollbar = () => {
   const lastScrollY = useRef(0);
   const rafRef = useRef(null);
 
+  const isElementMode = !!externalScrollRef;
+
+  const getScrollInfo = () => {
+    if (isElementMode) {
+      const el = scrollRef.current;
+      if (!el) return { scrollTop: 0, scrollHeight: 0, clientHeight: 0, maxScroll: 0 };
+      const scrollTop = el.scrollTop;
+      const scrollHeight = el.scrollHeight;
+      const clientHeight = el.clientHeight;
+      const maxScroll = scrollHeight - clientHeight;
+      return { scrollTop, scrollHeight, clientHeight, maxScroll };
+    } else {
+      const scrollTop = window.scrollY ?? document.documentElement.scrollTop ?? document.body.scrollTop ?? 0;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+      const maxScroll = scrollHeight - clientHeight;
+      return { scrollTop, scrollHeight, clientHeight, maxScroll };
+    }
+  };
+
+  const scrollBy = (deltaY) => {
+    if (isElementMode) {
+      const el = scrollRef.current;
+      if (el) el.scrollBy({ top: deltaY, left: 0, behavior: 'auto' });
+    } else {
+      window.scrollBy({ top: deltaY, left: 0, behavior: 'auto' });
+    }
+  };
+
+  const scrollTo = (scrollTop) => {
+    if (isElementMode) {
+      const el = scrollRef.current;
+      if (el) el.scrollTo({ top: scrollTop, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: scrollTop, behavior: 'instant' });
+    }
+  };
+
   useEffect(() => {
     let scrollTimeout;
 
     const updateProgress = () => {
-      const scrollTop = window.scrollY ?? document.documentElement.scrollTop ?? document.body.scrollTop ?? 0;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = window.innerHeight;
-
-      const maxScroll = scrollHeight - clientHeight;
+      const { scrollTop, scrollHeight, clientHeight, maxScroll } = getScrollInfo();
       const progress = maxScroll > 0 ? Math.min(1, Math.max(0, scrollTop / maxScroll)) : 0;
 
       setScrollProgress(progress);
@@ -315,7 +352,6 @@ const AtmScrollbar = () => {
     };
 
     const handleScroll = () => {
-      // Cancel any pending RAF and schedule a new one for smooth tracking
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(updateProgress);
 
@@ -326,23 +362,33 @@ const AtmScrollbar = () => {
       }, 150);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Also listen on document for scroll events that may fire there
-    document.addEventListener('scroll', handleScroll, { passive: true });
-    updateProgress();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+    if (isElementMode) {
+      const el = scrollRef.current;
+      if (el) {
+        el.addEventListener('scroll', handleScroll, { passive: true });
+        updateProgress();
+        return () => {
+          el.removeEventListener('scroll', handleScroll);
+          clearTimeout(scrollTimeout);
+          if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+      }
+    } else {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      document.addEventListener('scroll', handleScroll, { passive: true });
+      updateProgress();
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        document.removeEventListener('scroll', handleScroll);
+        clearTimeout(scrollTimeout);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
+    }
+  }, [isElementMode]);
 
   return (
     <>
       <style>{`
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
         @keyframes flameFlicker {
           0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.9; }
           25% { transform: scaleX(1.1) scaleY(1.2); opacity: 1; }
@@ -387,11 +433,11 @@ const AtmScrollbar = () => {
         .screen-flash { animation: flashVintageYellow 1s infinite; }
       `}</style>
       <div
-        className="fixed right-2 top-4 bottom-4 w-16 z-[100] pointer-events-none flex justify-center"
+        className={`fixed right-2 top-4 bottom-4 w-16 ${zIndexClass} pointer-events-none flex justify-center`}
         style={{ pointerEvents: 'none' }}
         onWheel={(e) => {
-          // Wheel scroll anywhere in the scrollbar strip scrolls the page
-          window.scrollBy({ top: e.deltaY, left: 0, behavior: 'auto' });
+          e.stopPropagation();
+          scrollBy(e.deltaY);
         }}
       >
         <div className={`absolute bottom-0 w-12 h-6 transition-all duration-500 ease-out ${isAtBottom ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-50'}`}>
@@ -405,31 +451,20 @@ const AtmScrollbar = () => {
             e.preventDefault();
             const target = e.currentTarget;
             target.setPointerCapture(e.pointerId);
-            
+
             let startY = e.clientY;
-            let startScrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-            
-            // Disable scroll behavior smooth temporarily by setting an inline style on html
-            const docEl = document.documentElement;
-            const originalScrollBehavior = docEl.style.scrollBehavior;
-            docEl.style.scrollBehavior = 'auto';
+            const { scrollTop: startScrollTop, maxScroll } = getScrollInfo();
 
             const handlePointerMove = (moveEvent) => {
               const deltaY = moveEvent.clientY - startY;
-              const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
               if (maxScroll <= 0) return;
-              
-              // The thumb travels from top = -16px to top = (innerHeight - 144)px
-              // The total interactive track height is innerHeight - 128px
               const trackHeight = window.innerHeight - 128;
               const progressDelta = deltaY / trackHeight;
-              
-              const targetScrollY = startScrollY + (progressDelta * maxScroll);
-              window.scrollTo({ top: targetScrollY, behavior: 'instant' });
+              const targetScrollTop = startScrollTop + (progressDelta * maxScroll);
+              scrollTo(Math.max(0, Math.min(maxScroll, targetScrollTop)));
             };
 
             const handlePointerUp = (upEvent) => {
-              docEl.style.scrollBehavior = originalScrollBehavior;
               target.releasePointerCapture(upEvent.pointerId);
               target.removeEventListener('pointermove', handlePointerMove);
               target.removeEventListener('pointerup', handlePointerUp);
@@ -439,9 +474,8 @@ const AtmScrollbar = () => {
             target.addEventListener('pointerup', handlePointerUp);
           }}
           onWheel={(e) => {
-            // Forward wheel events on the thumb directly to page scroll
             e.stopPropagation();
-            window.scrollBy({ top: e.deltaY, left: 0, behavior: 'auto' });
+            scrollBy(e.deltaY);
           }}
           className={`absolute w-14 h-32 flex flex-col items-center transition-transform duration-75 ease-out origin-center scale-75 cursor-grab active:cursor-grabbing pointer-events-auto touch-none ${isScrolling && !isAtBottom ? 'rotate-1' : 'rotate-0'}`}
           style={{ top: `calc(${scrollProgress * 100}% - ${16 + scrollProgress * 96}px)` }}
@@ -1532,6 +1566,9 @@ const portfolioSlides = [
   { img: "/portfolio/life-os.png", title: "Life OS Dashboard", desc: "FULL DASHBOARD APP", subtitle: "Dense product UI organized into a clean command center experience." },
   { img: "/portfolio/cortex-mobile.png", title: "Cortex Mobile", desc: "MOBILE APP", subtitle: "Mobile-first agent interface with glassy motion and compact interactions." },
 ];
+
+// Re-export AtmScrollbar so PortalPage can use the same component
+export { AtmScrollbar };
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);

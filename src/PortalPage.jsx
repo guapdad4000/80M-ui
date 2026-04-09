@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AtmScrollbar } from './App';
 
 // --- Animation Variants ---
 const fadeUp = {
@@ -14,107 +15,7 @@ const staggerContainer = {
 };
 
 // --- Lesson ATM Scrollbar ---
-const LessonAtmScrollbar = ({ scrollRef, zIndexClass = 'z-[130]' }) => {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
-
-  useEffect(() => {
-    const el = scrollRef?.current;
-    if (!el) return undefined;
-
-    let scrollTimeout;
-
-    const updateProgress = () => {
-      const maxScroll = el.scrollHeight - el.clientHeight;
-      const progress = maxScroll > 0 ? Math.min(1, Math.max(0, el.scrollTop / maxScroll)) : 0;
-      setScrollProgress(progress);
-      setIsAtBottom(progress >= 0.98);
-    };
-
-    const handleScroll = () => {
-      updateProgress();
-      setIsScrolling(true);
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => setIsScrolling(false), 150);
-    };
-
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    updateProgress();
-
-    return () => {
-      el.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [scrollRef]);
-
-  const scrollByDelta = (deltaY) => {
-    const el = scrollRef?.current;
-    if (!el) return;
-    el.scrollBy({ top: deltaY, left: 0, behavior: 'auto' });
-  };
-
-  const scrollToProgress = (progress) => {
-    const el = scrollRef?.current;
-    if (!el) return;
-    const maxScroll = el.scrollHeight - el.clientHeight;
-    el.scrollTo({ top: Math.max(0, Math.min(maxScroll, progress * maxScroll)), behavior: 'auto' });
-  };
-
-  return (
-    <div className={`fixed right-2 top-4 bottom-4 w-16 ${zIndexClass} pointer-events-none flex justify-center`}>
-      <div
-        className={`absolute w-14 h-32 flex flex-col items-center transition-transform duration-75 ease-out origin-center scale-75 cursor-grab active:cursor-grabbing pointer-events-auto touch-none ${isScrolling && !isAtBottom ? 'rotate-1' : 'rotate-0'}`}
-        style={{ top: `calc(${scrollProgress * 100}% - ${16 + scrollProgress * 96}px)` }}
-        onPointerDown={(e) => {
-          e.preventDefault();
-          const target = e.currentTarget;
-          target.setPointerCapture(e.pointerId);
-
-          const startY = e.clientY;
-          const startProgress = scrollProgress;
-
-          const handlePointerMove = (moveEvent) => {
-            const trackHeight = window.innerHeight - 128;
-            if (trackHeight <= 0) return;
-            const progressDelta = (moveEvent.clientY - startY) / trackHeight;
-            scrollToProgress(startProgress + progressDelta);
-          };
-
-          const handlePointerUp = (upEvent) => {
-            target.releasePointerCapture(upEvent.pointerId);
-            target.removeEventListener('pointermove', handlePointerMove);
-            target.removeEventListener('pointerup', handlePointerUp);
-          };
-
-          target.addEventListener('pointermove', handlePointerMove);
-          target.addEventListener('pointerup', handlePointerUp);
-        }}
-        onWheel={(e) => {
-          e.stopPropagation();
-          scrollByDelta(e.deltaY);
-        }}
-      >
-        <div className={`absolute bottom-0 w-12 h-6 transition-all duration-500 ease-out ${isAtBottom ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-50'}`}>
-          <div className="absolute bottom-0 w-full h-2 bg-green-500 border border-green-700 rounded-sm rotate-2 shadow-sm"></div>
-          <div className="absolute bottom-1 w-full h-2 bg-green-600 border border-green-800 rounded-sm -rotate-3 shadow-sm left-0.5"></div>
-          <div className="absolute bottom-2 w-11 h-2 bg-green-500 border border-green-700 rounded-sm rotate-1 shadow-sm right-0.5"></div>
-          <div className="absolute bottom-3 w-10 h-2 bg-green-400 border border-green-600 rounded-sm -rotate-2 shadow-sm left-1"></div>
-        </div>
-
-        <div className="w-14 h-32 bg-[#dfddd0] rounded-[4px] shadow-lg border-b-4 border-r-[3px] border-[#b5b3a3] relative p-1 flex flex-col items-center z-10">
-          <div className={`w-12 h-10 rounded-[3px] border-[1.5px] border-[#1f1e1c] flex items-center justify-center p-[2px] shadow-inner mt-0.5 transition-colors duration-200 ${isAtBottom ? 'bg-[#facc15]' : 'bg-[#2e2d2b]'}`}>
-            <div className="w-full h-full rounded-[2px] bg-black/50"></div>
-          </div>
-          <div className="mt-1 w-12 h-[68px] bg-[#d3d1c4] border border-[#b8b6a8] rounded-[2px] relative overflow-hidden">
-            <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0px,transparent_3px,rgba(0,0,0,0.04)_3px,rgba(0,0,0,0.04)_4px)]"></div>
-          </div>
-          <div className="mt-1 w-8 h-2 bg-[#b8b6a8] rounded-full border border-[#9b998d]"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// LessonAtmScrollbar — replaced by unified AtmScrollbar from App.jsx
 
 // --- Shared UI Components ---
 
@@ -913,7 +814,7 @@ const CourseOneContent = ({ onClose }) => {
         </div>{/* close max-w-4xl */}
         </div>{/* close flex-1 overflow-y-auto */}
       </div>
-      <LessonAtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} />
     </motion.div>
   );
 };
@@ -1353,7 +1254,7 @@ const CourseTwoContent = ({ onClose }) => {
         </div>
         </div>{/* close max-w-4xl */}
         </div>{/* close flex-1 overflow-y-auto */}
-      <LessonAtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} />
     </motion.div>
   );
 };
@@ -1435,6 +1336,7 @@ const CourseThreeContent = ({ onClose }) => {
   const [quizStep, setQuizStep] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
   const [quizAnswered, setQuizAnswered] = useState(null);
+  const [quizDone, setQuizDone] = useState(null);
   const [trafficState, setTrafficState] = useState(0);
   const [logView, setLogView] = useState(false);
   const [completedSections, setCompletedSections] = useState([]);
@@ -2130,7 +2032,7 @@ const CourseThreeContent = ({ onClose }) => {
           </div>
 
       </div>{/* close flex-1 overflow-y-auto */}
-      <LessonAtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} />
     </motion.div>
   );
 };
