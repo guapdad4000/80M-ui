@@ -68,3 +68,15 @@
   box-shadow: 0 0 8px #22c55e, 0 0 16px #22c55e;
   background-color: #22c55e;
 }
+
+
+.lesson-scroll-pane {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.lesson-scroll-pane::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
