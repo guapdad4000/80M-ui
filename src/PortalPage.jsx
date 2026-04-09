@@ -41,8 +41,8 @@ const PaperBackground = () => (
 );
 
 
-const QuizModal = ({ isOpen, questions, onComplete }) => {
-  const [step, setStep] = useState(0);
+const QuizModal = ({ isOpen, questions, onComplete, onRetake, initialStep = 0 }) => {
+  const [step, setStep] = useState(initialStep);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(null);
 
@@ -53,15 +53,16 @@ const QuizModal = ({ isOpen, questions, onComplete }) => {
     if (answered !== null) return;
     setAnswered(idx);
     if (idx === current.correct) setScore(s => s + 1);
+    const isLast = step + 1 >= questions.length;
     setTimeout(() => {
-      if (step + 1 >= questions.length) {
-        setStep(0); setScore(0); setAnswered(null);
-        onComplete && onComplete(score + (idx === current.correct ? 1 : 0));
+      if (isLast) {
+        const finalScore = score + (idx === current.correct ? 1 : 0);
+        onComplete && onComplete(finalScore);
       } else {
         setStep(s => s + 1);
         setAnswered(null);
       }
-    }, 1600);
+    }, 2400); // longer delay to read the explanation
   };
 
   const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
@@ -69,6 +70,9 @@ const QuizModal = ({ isOpen, questions, onComplete }) => {
     : pct >= 80 ? "Not bad. Almost competent."
     : pct >= 60 ? "You skimmed it. We can tell."
     : "Maybe read Section 4 again.";
+
+  const isCorrect = answered === current.correct;
+  const showResult = answered !== null;
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
@@ -82,11 +86,13 @@ const QuizModal = ({ isOpen, questions, onComplete }) => {
         </div>
         <div className="space-y-3">
           {current.options.map((opt, i) => {
-            let cls = "border-[3px] border-[#111] p-4 font-serif text-lg cursor-pointer transition-all hover:bg-[#111] hover:text-[#eae7de]";
-            if (answered !== null) {
+            let cls = "border-[3px] border-[#111] p-4 font-serif text-lg cursor-pointer transition-all";
+            if (showResult) {
               if (i === current.correct) cls += " bg-[#22c55e] border-[#22c55e] text-[#111]";
               else if (i === answered) cls += " bg-red-500 border-red-500 text-white";
-              else cls += " opacity-50";
+              else cls += " opacity-40";
+            } else {
+              cls += " hover:bg-[#111] hover:text-[#eae7de] cursor-pointer";
             }
             return (
               <div key={i} onClick={() => handleAnswer(i)} className={cls}>
@@ -95,7 +101,24 @@ const QuizModal = ({ isOpen, questions, onComplete }) => {
             );
           })}
         </div>
-        <p className="mt-6 font-mono text-xs text-[#555] uppercase tracking-widest">Pick one. No Googling.</p>
+
+        {/* Explanation — shown after answering */}
+        {showResult && (
+          <div className={`mt-4 border-[3px] p-4 ${isCorrect ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-red-400 bg-red-50'}`}>
+            <p className="font-sans font-black uppercase text-sm mb-1">
+              {isCorrect ? '✓ Correct' : '✗ Wrong'}
+            </p>
+            <p className="font-serif text-[#333] text-base leading-relaxed">
+              {current.explanation || (isCorrect
+                ? "You got it. Moving on."
+                : `The correct answer is ${String.fromCharCode(64 + current.correct + 1)}. ${current.options[current.correct]}`)}
+            </p>
+          </div>
+        )}
+
+        {!showResult && (
+          <p className="mt-6 font-mono text-xs text-[#555] uppercase tracking-widest">Pick one. No Googling.</p>
+        )}
       </div>
     </div>
   );
@@ -1264,65 +1287,65 @@ const quizData = [
   {
     section: 1,
     questions: [
-      { q: "What does DNS stand for?", options: ["Digital Network System", "Domain Name System", "Data Node Service", "Direct Name Server"], correct: 1 },
-      { q: "If your AI is at '192.168.1.1:8080', what's the problem?", options: ["It's offline", "It's too fast", "It's impossible to share or remember", "It's been hacked"], correct: 2 },
-      { q: "A CNAME record points your domain where?", options: ["To an IP address", "To another domain name", "To an email server", "To a file"], correct: 1 },
+      { q: "What does DNS stand for?", options: ["Digital Network System", "Domain Name System", "Data Node Service", "Direct Name Server"], correct: 1, explanation: "DNS (Domain Name System) is the phone book of the internet — it maps human-readable names like 'ai.80m.ai' to IP addresses like '35.186.240.50' that computers actually use." },
+      { q: "If your AI is at '192.168.1.1:8080', what's the problem?", options: ["It's offline", "It's too fast", "It's impossible to share or remember", "It's been hacked"], correct: 2, explanation: "192.168.x.x addresses are private — they only work inside your home or office network. You can't share them with anyone outside, and nobody can reach your AI from the internet." },
+      { q: "A CNAME record points your domain where?", options: ["To an IP address", "To another domain name", "To an email server", "To a file"], correct: 1, explanation: "A CNAME (Canonical Name) record points one domain to another domain, not an IP. This is how 'www' and 'api' subdomains point to your main server without hardcoding IP addresses." },
     ]
   },
   {
     section: 2,
     questions: [
-      { q: "What does Nginx do at your server's front door?", options: ["Sends emails", "Checks credentials before letting users through", "Stores files", "Runs Python scripts"], correct: 1 },
-      { q: "What port does HTTP traffic typically use?", options: ["22", "443", "80", "3000"], correct: 2 },
-      { q: "What does 'proxy_pass' do in an Nginx config?", options: ["Sends email", "Forwards requests to your AI backend", "Blocks all traffic", "Restarts the server"], correct: 1 },
+      { q: "What does Nginx do at your server's front door?", options: ["Sends emails", "Checks credentials before letting users through", "Stores files", "Runs Python scripts"], correct: 1, explanation: "Nginx is the bouncer — it sits in front of your server and checks every incoming request. 'Who are you? Are you allowed to be here?' It stops hackers and routes legitimate users to your AI." },
+      { q: "What port does HTTP traffic typically use?", options: ["22", "443", "80", "3000"], correct: 2, explanation: "Port 80 is the default for unencrypted HTTP traffic. Port 443 is for encrypted HTTPS. Port 22 is for SSH. Port 3000 is a common dev server port — not for production." },
+      { q: "What does 'proxy_pass' do in an Nginx config?", options: ["Sends email", "Forwards requests to your AI backend", "Blocks all traffic", "Restarts the server"], correct: 1, explanation: "proxy_pass tells Nginx to forward requests that it receives to another server — your AI backend running on localhost:8080, for example. This is how the bouncer hands off to the actual service." },
     ]
   },
   {
     section: 3,
     questions: [
-      { q: "In the simulator, what happens when you click 'Block All'?", options: ["Everything is allowed", "All traffic is blocked, including legitimate users", "Server speeds up", "Nothing"], correct: 1 },
-      { q: "What is the 'Green Traffic' in the simulator?", options: ["Hacker traffic", "Legitimate user requests", "Spam", "System errors"], correct: 1 },
-      { q: "What does 'Allow Known Good' do?", options: ["Blocks everything", "Only lets through verified safe traffic", "Deletes logs", "Sends alerts"], correct: 1 },
+      { q: "In the simulator, what happens when you click 'Block All'?", options: ["Everything is allowed", "All traffic is blocked, including legitimate users", "Server speeds up", "Nothing"], correct: 1, explanation: "Blocking all traffic sounds safe but your real users get blocked too. The correct setting is 'Allow Known Good' — it only lets through verified legitimate traffic while silently dropping hackers." },
+      { q: "What is the 'Green Traffic' in the simulator?", options: ["Hacker traffic", "Legitimate user requests", "Spam", "System errors"], correct: 1, explanation: "Green traffic = legitimate users who passed the bouncer check. Red = blocked attacks. In real server logs, you'll see these as HTTP status codes — 200 for success, 403 for blocked." },
+      { q: "What does 'Allow Known Good' do?", options: ["Blocks everything", "Only lets through verified safe traffic", "Deletes logs", "Sends alerts"], correct: 1, explanation: "Allow Known Good is the paranoia setting. It maintains a list of known-safe patterns (your app, your IP, your users) and blocks everything else — hackers, scrapers, and random bots trying your server." },
     ]
   },
   {
     section: 4,
     questions: [
-      { q: "What does the green padlock in a browser URL bar mean?", options: ["The website is fast", "Traffic between you and the site is encrypted", "The website is government approved", "The website has no ads"], correct: 1 },
-      { q: "Who provides the free SSL certificates that Certbot uses?", options: ["Google", "Amazon", "Let's Encrypt", "Microsoft"], correct: 2 },
-      { q: "What's the correct Certbot command for Nginx?", options: ["certbot install", "certbot run", "certbot nginx", "certbot start"], correct: 2 },
+      { q: "What does the green padlock in a browser URL bar mean?", options: ["The website is fast", "Traffic between you and the site is encrypted", "The website is government approved", "The website has no ads"], correct: 1, explanation: "The padlock means SSL/TLS encryption is active — all data between your browser and the website is scrambled and can't be read by hackers on the same WiFi, your ISP, or anyone in between." },
+      { q: "Who provides the free SSL certificates that Certbot uses?", options: ["Google", "Amazon", "Let's Encrypt", "Microsoft"], correct: 2, explanation: "Let's Encrypt is a non-profit certificate authority that issues free SSL certificates. Certbot is the tool that obtains and installs these certificates on your Nginx server automatically." },
+      { q: "What's the correct Certbot command for Nginx?", options: ["certbot install", "certbot run", "certbot nginx", "certbot start"], correct: 2, explanation: "certbot nginx — the 'nginx' subcommand tells Certbot to use the Nginx plugin, which automatically configures your Nginx site configuration. That's the whole point: you don't edit files manually." },
     ]
   },
   {
     section: 5,
     questions: [
-      { q: "What's the main advantage of a Cloudflare Tunnel?", options: ["Makes server faster", "No router port forwarding needed", "Replaces Nginx", "Free hosting"], correct: 1 },
-      { q: "What does 'cloudflared' do?", options: ["Hosts a website", "Creates an encrypted tunnel from your server to Cloudflare", "Manages DNS only", "Blocks DDoS attacks"], correct: 1 },
-      { q: "What is your server's public IP?", options: ["192.168.x.x addresses", "10.x.x.x addresses", "The IP your ISP gives you that the world sees", "Always 1.1.1.1"], correct: 2 },
+      { q: "What's the main advantage of a Cloudflare Tunnel?", options: ["Makes server faster", "No router port forwarding needed", "Replaces Nginx", "Free hosting"], correct: 1, explanation: "Cloudflare Tunnel (formerly Argo Tunnel) creates an outbound connection from your server to Cloudflare — no incoming ports need to be opened on your router. The world reaches your server through Cloudflare instead of directly." },
+      { q: "What does 'cloudflared' do?", options: ["Hosts a website", "Creates an encrypted tunnel from your server to Cloudflare", "Manages DNS only", "Blocks DDoS attacks"], correct: 1, explanation: "cloudflared is the daemon that runs on your server and maintains the persistent tunnel connection to Cloudflare. It 'phones home' and keeps the tunnel open so Cloudflare can route traffic to you." },
+      { q: "What is your server's public IP?", options: ["192.168.x.x addresses", "10.x.x.x addresses", "The IP your ISP gives you that the world sees", "Always 1.1.1.1"], correct: 2, explanation: "192.168.x.x and 10.x.x.x are private IP ranges — used inside your network. Your public IP is what the internet sees. It's assigned by your ISP and changes (unless you pay for a static one). Check it at whatismyip.com." },
     ]
   },
   {
     section: 6,
     questions: [
-      { q: "Where do you find Nginx access logs?", options: ["/var/log/nginx/access.log", "/etc/nginx/logs", "/root/logs", "/var/www/logs"], correct: 0 },
-      { q: "What does a 404 status code mean?", options: ["Server error", "Page not found", "Access denied", "Success"], correct: 1 },
-      { q: "Why should you check your server logs regularly?", options: ["To slow down your server", "To spot hacker attempts early", "To increase traffic", "Logs aren't important"], correct: 1 },
+      { q: "Where do you find Nginx access logs?", options: ["/var/log/nginx/access.log", "/etc/nginx/logs", "/root/logs", "/var/www/logs"], correct: 0, explanation: "Ubuntu/Debian puts Nginx logs in /var/log/nginx/ by default — access.log for every request, error.log for crashes and misconfigurations. This is the first place to look when debugging." },
+      { q: "What does a 404 status code mean?", options: ["Server error", "Page not found", "Access denied", "Success"], correct: 1, explanation: "404 = Not Found. The URL doesn't exist on your server. 200 = success, 403 = forbidden (blocked), 500 = server error. Check your Nginx logs to see which URLs are returning 404s — it might mean a misconfigured proxy rule." },
+      { q: "Why should you check your server logs regularly?", options: ["To slow down your server", "To spot hacker attempts early", "To increase traffic", "Logs aren't important"], correct: 1, explanation: "Every hack attempt leaves a log entry. If you see thousands of requests for /wp-admin or /phpmyadmin from random IPs — those are bots scanning your server. Regular log checks catch intrusions before they succeed." },
     ]
   },
   {
     section: 7,
     questions: [
-      { q: "What does Docker Compose let you do?", options: ["Send emails", "Run multiple containers as a single application", "Browse the web", "Edit photos"], correct: 1 },
-      { q: "What is a Dockerfile?", options: ["A text message", "Instructions for building a Docker image", "A server config file", "A database"], correct: 1 },
-      { q: "When should you scale horizontally?", options: ["Never", "When one bot cannot keep up with the workload", "Only on Fridays", "When the server is slow"], correct: 1 },
+      { q: "What does Docker Compose let you do?", options: ["Send emails", "Run multiple containers as a single application", "Browse the web", "Edit photos"], correct: 1, explanation: "Docker Compose runs multiple Docker containers together as one application. Your AI stack might need: the AI model container, a database container, a web server container — Compose starts them all with one command." },
+      { q: "What is a Dockerfile?", options: ["A text message", "Instructions for building a Docker image", "A server config file", "A database"], correct: 1, explanation: "A Dockerfile is a recipe — it tells Docker exactly how to build your container image: which base OS, which dependencies to install, which files to copy in, which port to expose. Without it, Docker doesn't know what to run." },
+      { q: "When should you scale horizontally?", options: ["Never", "When one bot cannot keep up with the workload", "Only on Fridays", "When the server is slow"], correct: 1, explanation: "Horizontal scaling = adding more copies of your bot to handle more work. Scale when one instance is maxed out (CPU at 100%, requests queuing up). Vertical scaling = bigger machine. Horizontal = more machines." },
     ]
   },
   {
     section: 8,
     questions: [
-      { q: "What does UFW stand for?", options: ["Universal File Upload", "Uncomplicated Firewall", "Ultra Fast Network", "User Folder Access"], correct: 1 },
-      { q: "What does 'ufw default deny' do?", options: ["Opens all ports", "Blocks all incoming traffic by default", "Disables the firewall", "Restarts the server"], correct: 1 },
-      { q: "What port does SSH typically use?", options: ["80", "443", "22", "8080"], correct: 2 },
+      { q: "What does UFW stand for?", options: ["Universal File Upload", "Uncomplicated Firewall", "Ultra Fast Network", "User Folder Access"], correct: 1, explanation: "UFW (Uncomplicated Firewall) is Ubuntu's default firewall. It's just iptables made simple — 'ufw allow 22', 'ufw deny 80' — without having to write complex iptables rules by hand." },
+      { q: "What does 'ufw default deny' do?", options: ["Opens all ports", "Blocks all incoming traffic by default", "Disables the firewall", "Restarts the server"], correct: 1, explanation: "ufw default deny incoming means your server starts with all doors locked. You then explicitly open only the ports you need (22 for SSH, 443 for HTTPS). Default-deny is the security paranoid approach — nothing意外 gets in." },
+      { q: "What port does SSH typically use?", options: ["80", "443", "22", "8080"], correct: 2, explanation: "SSH uses port 22 by default — this is how you connect to your server's terminal remotely. If you change this to a non-standard port (like 2222), it's harder for bots to find — though not a real security fix on its own." },
     ]
   },
 ];
@@ -1340,6 +1363,12 @@ const CourseThreeContent = ({ onClose }) => {
   const [trafficState, setTrafficState] = useState(0);
   const [logView, setLogView] = useState(false);
   const [completedSections, setCompletedSections] = useState([]);
+  // Track passed quizzes (persisted to localStorage)
+  const [passedQuizzes, setPassedQuizzes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('80m-c3-quizzes') || '[]');
+    } catch { return []; }
+  });
 
   const sections = [
     { id: 's0', label: 'Intro: Total Ownership' },
@@ -1384,21 +1413,31 @@ const CourseThreeContent = ({ onClose }) => {
         <div className="mb-8 border-[3px] border-[#111] bg-white shadow-[6px_6px_0_0_#111]">
           <div className="bg-[#111] px-5 py-3 flex items-center justify-between">
             <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 03 Progress</span>
-            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete</span>
+            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete · {passedQuizzes.length}/8 quizzes passed</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => toggleSection(s.id)}
-                className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${completedSections.includes(s.id) ? 'text-[#22c55e]' : 'text-[#555]'}`}
-              >
-                <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
-                  {completedSections.includes(s.id) && <span className="block w-2 h-2 bg-current"></span>}
-                </span>
-                <span className="text-left leading-tight">{s.label}</span>
-              </button>
-            ))}
+            {sections.map((s) => {
+              const sectionNum = parseInt(s.id.replace('s', ''));
+              const hasQuiz = sectionNum >= 1 && sectionNum <= 8;
+              const isPassed = passedQuizzes.includes(sectionNum);
+              const isDone = completedSections.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSection(s.id)}
+                  className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${isDone ? 'text-[#22c55e]' : 'text-[#555]'}`}
+                >
+                  <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
+                    {isDone ? (
+                      <span className="block w-2 h-2 bg-current"></span>
+                    ) : hasQuiz && !isPassed ? (
+                      <span className="text-[8px]">🔒</span>
+                    ) : null}
+                  </span>
+                  <span className="text-left leading-tight">{s.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -1999,7 +2038,18 @@ const CourseThreeContent = ({ onClose }) => {
               questions={qData.questions}
               onComplete={(s) => {
                 setQuizScore(s);
-                setQuizDone({ section: quizSection, score: s, total: qData.questions.length });
+                const passed = s >= 2;
+                if (passed) {
+                  const updated = [...new Set([...passedQuizzes, quizSection])];
+                  setPassedQuizzes(updated);
+                  localStorage.setItem('80m-c3-quizzes', JSON.stringify(updated));
+                  // Auto-mark section complete on quiz pass
+                  const secId = `s${quizSection}`;
+                  if (!completedSections.includes(secId)) {
+                    setCompletedSections(prev => [...prev, secId]);
+                  }
+                }
+                setQuizDone({ section: quizSection, score: s, total: qData.questions.length, passed });
                 setQuizActive(false);
                 setQuizSection(null);
               }}
@@ -2010,7 +2060,18 @@ const CourseThreeContent = ({ onClose }) => {
         {/* Quiz Score Toast */}
         {quizDone && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-[#111] text-[#eae7de] border-[3px] border-[#22c55e] px-8 py-4 font-sans font-black text-lg shadow-[6px_6px_0_0_#22c55e]">
-            Section {quizDone.section} Quiz: {quizDone.score}/{quizDone.total} — {quizDone.score >= 2 ? 'Passed.' : 'Read it again.'}
+            {quizDone.passed
+              ? `✓ Section ${quizDone.section} Passed (${quizDone.score}/${quizDone.total}) — section unlocked.`
+              : `✗ Section ${quizDone.section}: ${quizDone.score}/${quizDone.total}. Read it again, then retake.`
+            }
+            {!quizDone.passed && (
+              <button
+                onClick={() => { setQuizDone(null); setQuizActive(true); setQuizSection(quizDone.section); }}
+                className="ml-4 font-sans font-black text-sm uppercase px-4 py-2 bg-[#22c55e] text-[#111] border-[2px] border-[#111] hover:bg-[#4ade80] transition-colors"
+              >
+                Retake Quiz
+              </button>
+            )}
           </div>
         )}
 
