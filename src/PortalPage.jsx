@@ -41,8 +41,11 @@ const PaperBackground = () => (
 );
 
 
-const QuizModal = ({ isOpen, questions, onComplete, onRetake, initialStep = 0 }) => {
-  const [step, setStep] = useState(initialStep);
+// Unified QuizModal — used by all 3 courses
+// onComplete: (score, passed) — passed = score >= 2
+// courseLabel: 'C01' | 'C02' | 'C03' for localStorage keys
+const QuizModal = ({ isOpen, questions, onComplete, courseLabel = 'C03', section }) => {
+  const [step, setStep] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(null);
 
@@ -57,19 +60,13 @@ const QuizModal = ({ isOpen, questions, onComplete, onRetake, initialStep = 0 })
     setTimeout(() => {
       if (isLast) {
         const finalScore = score + (idx === current.correct ? 1 : 0);
-        onComplete && onComplete(finalScore);
+        onComplete && onComplete(finalScore, finalScore >= 2);
       } else {
         setStep(s => s + 1);
         setAnswered(null);
       }
-    }, 2400); // longer delay to read the explanation
+    }, 2400);
   };
-
-  const pct = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
-  const snark = pct === 100 ? "Perfect. You actually read this."
-    : pct >= 80 ? "Not bad. Almost competent."
-    : pct >= 60 ? "You skimmed it. We can tell."
-    : "Maybe read Section 4 again.";
 
   const isCorrect = answered === current.correct;
   const showResult = answered !== null;
@@ -78,7 +75,9 @@ const QuizModal = ({ isOpen, questions, onComplete, onRetake, initialStep = 0 })
     <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
       <div className="bg-[#eae7de] border-[4px] border-[#111] shadow-[12px_12px_0_0_#111] w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
         <div className="mb-6">
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#555]">Quiz</span>
+          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#555]">
+            {courseLabel} · Section {section}
+          </span>
           <div className="flex justify-between items-center mt-2">
             <h3 className="font-sans font-black text-2xl uppercase">{current.q}</h3>
             <span className="font-mono text-sm text-[#555]">{step + 1}/{questions.length}</span>
@@ -102,7 +101,6 @@ const QuizModal = ({ isOpen, questions, onComplete, onRetake, initialStep = 0 })
           })}
         </div>
 
-        {/* Explanation — shown after answering */}
         {showResult && (
           <div className={`mt-4 border-[3px] p-4 ${isCorrect ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-red-400 bg-red-50'}`}>
             <p className="font-sans font-black uppercase text-sm mb-1">
@@ -306,6 +304,12 @@ const CourseOneContent = ({ onClose }) => {
   const [subMonths, setSubMonths] = useState(1);
   const [errorVisible, setErrorVisible] = useState(false);
   const [completedSections, setCompletedSections] = useState([]);
+  const [quizActive, setQuizActive] = useState(false);
+  const [quizSection, setQuizSection] = useState(null);
+  const [quizDone, setQuizDone] = useState(null);
+  const [passedQuizzes, setPassedQuizzes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('80m-c1-quizzes') || '[]'); } catch { return []; }
+  });
 
   const sections = [
     { id: 's0', label: 'Intro: Why We\'re Doing This' },
@@ -376,21 +380,31 @@ const CourseOneContent = ({ onClose }) => {
         <div className="mb-8 border-[3px] border-[#111] bg-white shadow-[6px_6px_0_0_#111]">
           <div className="bg-[#111] px-5 py-3 flex items-center justify-between">
             <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 01 Progress</span>
-            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete</span>
+            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete · {passedQuizzes.length}/5 quizzes passed</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => toggleSection(s.id)}
-                className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${completedSections.includes(s.id) ? 'text-[#22c55e]' : 'text-[#555]'}`}
-              >
-                <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
-                  {completedSections.includes(s.id) && <span className="block w-2 h-2 bg-current"></span>}
-                </span>
-                <span className="text-left leading-tight">{s.label}</span>
-              </button>
-            ))}
+            {sections.map((s) => {
+              const sectionNum = parseInt(s.id.replace('s', ''));
+              const hasQuiz = sectionNum >= 1 && sectionNum <= 5;
+              const isPassed = passedQuizzes.includes(sectionNum);
+              const isDone = completedSections.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSection(s.id)}
+                  className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${isDone ? 'text-[#22c55e]' : 'text-[#555]'}`}
+                >
+                  <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
+                    {isDone ? (
+                      <span className="block w-2 h-2 bg-current"></span>
+                    ) : hasQuiz && !isPassed ? (
+                      <span className="text-[8px]">🔒</span>
+                    ) : null}
+                  </span>
+                  <span className="text-left leading-tight">{s.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -828,6 +842,50 @@ const CourseOneContent = ({ onClose }) => {
           </div>
         </div>
 
+        {/* Quiz Modal */}
+        {quizActive && quizSection !== null && (() => {
+          const qData = quizDataC01.find(q => q.section === quizSection);
+          if (!qData) return null;
+          return (
+            <QuizModal
+              isOpen={quizActive}
+              questions={qData.questions}
+              courseLabel="C01"
+              section={quizSection}
+              onComplete={(s, passed) => {
+                if (passed) {
+                  const updated = [...new Set([...passedQuizzes, quizSection])];
+                  setPassedQuizzes(updated);
+                  localStorage.setItem('80m-c1-quizzes', JSON.stringify(updated));
+                  const secId = `s${quizSection}`;
+                  if (!completedSections.includes(secId)) setCompletedSections(prev => [...prev, secId]);
+                }
+                setQuizDone({ section: quizSection, score: s, total: qData.questions.length, passed });
+                setQuizActive(false);
+                setQuizSection(null);
+              }}
+            />
+          );
+        })()}
+
+        {/* Quiz Score Toast */}
+        {quizDone && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-[#111] text-[#eae7de] border-[3px] border-[#22c55e] px-8 py-4 font-sans font-black text-lg shadow-[6px_6px_0_0_#22c55e]">
+            {quizDone.passed
+              ? `✓ Section ${quizDone.section} Passed (${quizDone.score}/${quizDone.total}) — section unlocked.`
+              : `✗ Section ${quizDone.section}: ${quizDone.score}/${quizDone.total}. Read it again, then retake.`
+            }
+            {!quizDone.passed && (
+              <button
+                onClick={() => { setQuizDone(null); setQuizActive(true); setQuizSection(quizDone.section); }}
+                className="ml-4 font-sans font-black text-sm uppercase px-4 py-2 bg-[#22c55e] text-[#111] border-[2px] border-[#111] hover:bg-[#4ade80] transition-colors"
+              >
+                Retake Quiz
+              </button>
+            )}
+          </div>
+        )}
+
         {/* End of Class 1 */}
         <div className="border-t-[4px] border-[#111] pt-12 text-center">
           <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 01 Complete.</h2>
@@ -847,6 +905,12 @@ const CourseTwoContent = ({ onClose }) => {
   const [promptState, setPromptState] = useState(0);
   const [thoughtChain, setThoughtChain] = useState(false);
   const [completedSections, setCompletedSections] = useState([]);
+  const [quizActive, setQuizActive] = useState(false);
+  const [quizSection, setQuizSection] = useState(null);
+  const [quizDone, setQuizDone] = useState(null);
+  const [passedQuizzes, setPassedQuizzes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('80m-c2-quizzes') || '[]'); } catch { return []; }
+  });
 
   const sections = [
     { id: 's0', label: 'Intro: Stop Asking, Command' },
@@ -893,21 +957,31 @@ const CourseTwoContent = ({ onClose }) => {
         <div className="mb-8 border-[3px] border-[#111] bg-white shadow-[6px_6px_0_0_#111]">
           <div className="bg-[#111] px-5 py-3 flex items-center justify-between">
             <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 02 Progress</span>
-            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete</span>
+            <span className="font-mono text-[#aaa] text-xs">{completedSections.length}/{sections.length} complete · {passedQuizzes.length}/5 quizzes passed</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => toggleSection(s.id)}
-                className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${completedSections.includes(s.id) ? 'text-[#22c55e]' : 'text-[#555]'}`}
-              >
-                <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
-                  {completedSections.includes(s.id) && <span className="block w-2 h-2 bg-current"></span>}
-                </span>
-                <span className="text-left leading-tight">{s.label}</span>
-              </button>
-            ))}
+            {sections.map((s) => {
+              const sectionNum = parseInt(s.id.replace('s', ''));
+              const hasQuiz = sectionNum >= 1 && sectionNum <= 5;
+              const isPassed = passedQuizzes.includes(sectionNum);
+              const isDone = completedSections.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSection(s.id)}
+                  className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${isDone ? 'text-[#22c55e]' : 'text-[#555]'}`}
+                >
+                  <span className="w-4 h-4 border-[2px] border-current flex items-center justify-center shrink-0">
+                    {isDone ? (
+                      <span className="block w-2 h-2 bg-current"></span>
+                    ) : hasQuiz && !isPassed ? (
+                      <span className="text-[8px]">🔒</span>
+                    ) : null}
+                  </span>
+                  <span className="text-left leading-tight">{s.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -1269,8 +1343,52 @@ const CourseTwoContent = ({ onClose }) => {
           </div>
         </div>
 
+        {/* Quiz Modal */}
+        {quizActive && quizSection !== null && (() => {
+          const qData = quizDataC01.find(q => q.section === quizSection);
+          if (!qData) return null;
+          return (
+            <QuizModal
+              isOpen={quizActive}
+              questions={qData.questions}
+              courseLabel="C01"
+              section={quizSection}
+              onComplete={(s, passed) => {
+                if (passed) {
+                  const updated = [...new Set([...passedQuizzes, quizSection])];
+                  setPassedQuizzes(updated);
+                  localStorage.setItem('80m-c1-quizzes', JSON.stringify(updated));
+                  const secId = `s${quizSection}`;
+                  if (!completedSections.includes(secId)) setCompletedSections(prev => [...prev, secId]);
+                }
+                setQuizDone({ section: quizSection, score: s, total: qData.questions.length, passed });
+                setQuizActive(false);
+                setQuizSection(null);
+              }}
+            />
+          );
+        })()}
+
+        {/* Quiz Score Toast */}
+        {quizDone && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-[#111] text-[#eae7de] border-[3px] border-[#22c55e] px-8 py-4 font-sans font-black text-lg shadow-[6px_6px_0_0_#22c55e]">
+            {quizDone.passed
+              ? `✓ Section ${quizDone.section} Passed (${quizDone.score}/${quizDone.total}) — section unlocked.`
+              : `✗ Section ${quizDone.section}: ${quizDone.score}/${quizDone.total}. Read it again, then retake.`
+            }
+            {!quizDone.passed && (
+              <button
+                onClick={() => { setQuizDone(null); setQuizActive(true); setQuizSection(quizDone.section); }}
+                className="ml-4 font-sans font-black text-sm uppercase px-4 py-2 bg-[#22c55e] text-[#111] border-[2px] border-[#111] hover:bg-[#4ade80] transition-colors"
+              >
+                Retake Quiz
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="border-t-[4px] border-[#111] pt-12 text-center">
-          <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 02 Complete.</h2>
+          <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 01 Complete.</h2>
           <button onClick={onClose} className="font-sans font-black text-xl px-12 py-6 bg-[#111] text-[#eae7de] border-[3px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] shadow-[8px_8px_0_0_#111] transition-colors">
             Exit to Curriculum →
           </button>
@@ -1282,6 +1400,137 @@ const CourseTwoContent = ({ onClose }) => {
   );
 };
 
+
+// ===== Quiz Data for all 3 courses =====
+const quizDataC01 = [
+  {
+    section: 1,
+    questions: [
+      { q: "What does the terminal command 'curl -sL url | bash' do?", options: ["Downloads a file to your desktop", "Fetches and runs a script directly from the internet without saving it", "Installs a package manager", "Creates a new Docker container"], correct: 1, explanation: "curl fetches data from a URL, the -s flag suppresses progress, -L follows redirects, and | bash pipes the output directly to the shell — so the script runs without ever touching your disk." },
+      { q: "What is Docker Desktop's main purpose in the 80m stack?", options: ["Runs your web browser", "Provides the container runtime that houses your AI agents", "Manages your files", "Compiles code faster"], correct: 1, explanation: "Docker Desktop is the container runtime — it lets Docker run the 80m stack as isolated containers on your local machine. Without it, Docker can't run anything." },
+      { q: "Why does 80m use Docker instead of installing dependencies directly?", options: ["Docker is faster", "Docker makes everything run in an isolated 'box' so it works the same on your laptop and on a server", "Docker is required by law", "Docker hosts the files"], correct: 1, explanation: "Docker containers include everything needed — brain, memory, tools — and run identically everywhere. No 'works on my machine' problems. One command sets up the whole stack." },
+    ]
+  },
+  {
+    section: 2,
+    questions: [
+      { q: "What is the Agent Council in the 80m stack?", options: ["A physical meeting room", "A team of AI agents where each specializes in one task and they check each other's work before anything reaches you", "A programming framework", "A file storage system"], correct: 1, explanation: "The Agent Council is how 80m handles complex tasks — Claudnelius writes code, Sir Clawthchilds handles budgets, Clawdette executes operations. They delegate, check, and hand off rather than doing everything at once." },
+      { q: "Which agent is responsible for technical architecture and UI?", options: ["Prawnius", "Sir Clawthchilds", "Claudnelius", "Knaight"], correct: 2, explanation: "Claudnelius is the Code & Design agent — technical architecture, debugging, UI work. Prawnius handles quick tasks, Sir Clawthchilds handles finances." },
+      { q: "What does Hermes do in the agent council?", options: ["Writes code", "Manages finances", "Coordinates the council — takes your input and distributes work to the right agent", "Manages files"], correct: 2, explanation: "Hermes is Chief of Staff — the coordinator. You talk to Hermes, Hermes delegates to the right specialist agent. Think of it as the difference between one intern doing everything badly vs. a team with a project manager." },
+    ]
+  },
+  {
+    section: 3,
+    questions: [
+      { q: "What is the minimum RAM required for the 80m stack?", options: ["4GB", "8GB", "16GB", "64GB"], correct: 2, explanation: "16GB is the floor for running the 80m stack comfortably. 8GB will run slow and frustrated. More RAM = more agents you can run simultaneously without things freezing." },
+      { q: "What happens if you try to run the 80m stack on a machine with only 4GB RAM?", options: ["It runs faster", "It installs but crashes constantly", "Nothing special", "You need more hard drive space"], correct: 1, explanation: "4GB RAM is not enough — the AI models are heavy. You'll see constant crashes, frozen terminals, and a very frustrating experience. 16GB+ (ideally 32GB for M-series Mac) is the actual minimum." },
+      { q: "What does Docker Compose do when you run 'docker-compose up'?", options: ["Opens a web browser", "Starts all containers defined in docker-compose.yml as a single application", "Downloads files", "Creates a backup"], correct: 1, explanation: "docker-compose.yml defines your entire stack — brain, memory, tools. docker-compose up reads that file and starts all the containers together, linked and configured properly." },
+    ]
+  },
+  {
+    section: 4,
+    questions: [
+      { q: "What is the difference between localhost and a public IP?", options: ["There is no difference", "localhost (127.0.0.1) is your computer talking to itself — nobody else can access it. A public IP is how the internet reaches you.", "localhost is faster", "Public IPs are only for websites"], correct: 1, explanation: "localhost/127.0.0.1 is a private loopback address — it's like talking to yourself in a room. Nobody external can access it. A public IP is your 'street address' that the whole internet can reach." },
+      { q: "What is the secret tunnel mentioned in Class 03 for?", options: ["It makes downloads faster", "It lets you access your localhost AI from outside your network (e.g. from your phone)", "It encrypts your files", "It backs up your data"], correct: 1, explanation: "The Cloudflare Tunnel (Class 03) creates a secure connection from your server to Cloudflare — then you access your AI through Cloudflare instead of directly. Your phone can reach your AI even though it's behind your home router." },
+      { q: "What is a Dockerfile?", options: ["A text file with instructions Docker uses to build a container image", "A database backup", "A web page template", "An email template"], correct: 0, explanation: "A Dockerfile is a recipe card — it tells Docker which base OS to start from, which dependencies to install, which files to copy in, and which port to expose. Without it, Docker doesn't know what to build or run." },
+    ]
+  },
+  {
+    section: 5,
+    questions: [
+      { q: "If Docker shows a container as 'Exited', what does that mean?", options: ["The container is running perfectly", "The container started but then stopped due to an error", "The container is paused", "The container needs more RAM"], correct: 1, explanation: "Exited means Docker tried to start the container but it crashed or the process finished. Check the logs with docker-compose logs [service-name] to see what went wrong." },
+      { q: "What command shows you running Docker containers?", options: ["docker ps", "docker-compose ps", "docker ps | grep", "docker ps ls"], correct: 1, explanation: "docker-compose ps shows all containers defined in your docker-compose.yml and their current status. docker ps alone only shows containers started with plain docker run, not docker-compose." },
+      { q: "What does 'docker-compose pull' do?", options: ["Deletes all containers", "Fetches the latest versions of your container images from the internet", "Starts all containers", "Creates a backup"], correct: 1, explanation: "docker-compose pull downloads fresh images for each service defined in docker-compose.yml. Run this once a week to keep your stack updated with the latest improvements." },
+    ]
+  },
+];
+
+        {/* Quiz Modal */}
+        {quizActive && quizSection !== null && (() => {
+          const qData = quizDataC02.find(q => q.section === quizSection);
+          if (!qData) return null;
+          return (
+            <QuizModal
+              isOpen={quizActive}
+              questions={qData.questions}
+              courseLabel="C02"
+              section={quizSection}
+              onComplete={(s, passed) => {
+                if (passed) {
+                  const updated = [...new Set([...passedQuizzes, quizSection])];
+                  setPassedQuizzes(updated);
+                  localStorage.setItem('80m-c2-quizzes', JSON.stringify(updated));
+                  const secId = `s${quizSection}`;
+                  if (!completedSections.includes(secId)) setCompletedSections(prev => [...prev, secId]);
+                }
+                setQuizDone({ section: quizSection, score: s, total: qData.questions.length, passed });
+                setQuizActive(false);
+                setQuizSection(null);
+              }}
+            />
+          );
+        })()}
+
+        {/* Quiz Score Toast */}
+        {quizDone && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] bg-[#111] text-[#eae7de] border-[3px] border-[#22c55e] px-8 py-4 font-sans font-black text-lg shadow-[6px_6px_0_0_#22c55e]">
+            {quizDone.passed
+              ? `\u2713 Section ${quizDone.section} Passed (${quizDone.score}/${quizDone.total}) — section unlocked.`
+              : `\u2717 Section ${quizDone.section}: ${quizDone.score}/${quizDone.total}. Read it again, then retake.`
+            }
+            {!quizDone.passed && (
+              <button
+                onClick={() => { setQuizDone(null); setQuizActive(true); setQuizSection(quizDone.section); }}
+                className="ml-4 font-sans font-black text-sm uppercase px-4 py-2 bg-[#22c55e] text-[#111] border-[2px] border-[#111] hover:bg-[#4ade80] transition-colors"
+              >
+                Retake Quiz
+              </button>
+            )}
+          </div>
+        )}
+
+const quizDataC02 = [
+  {
+    section: 1,
+    questions: [
+      { q: "What is a context window?", options: ["The visible part of a web page", "The amount of text an AI can 'see' and work with in a single prompt — like its working memory", "A security feature", "A type of image format"], correct: 1, explanation: "The context window is the AI's working memory per conversation. If it's 128K tokens, you can paste in an entire book. Fill it with garbage and there's no room for actual work." },
+      { q: "What happens when you overload the context window with irrelevant info?", options: ["The AI gets smarter", "The AI may miss the actual task because there's too much noise in the context", "Nothing happens", "The AI ignores all previous messages"], correct: 1, explanation: "A stuffed context window dilutes what matters. The AI processes everything equally — so important instructions compete with filler. Be surgical: only include what's directly relevant to the task." },
+      { q: "What is a system prompt?", options: ["Your email subject line", "The foundational instructions that tell the AI who it is, how to behave, and what rules to follow — loaded before any user message", "A password", "A file name"], correct: 1, explanation: "The system prompt is the AI's constitution — who it is, how it thinks, what it never does. This is where you define the agent's identity, tone, and constraints. It's loaded once at the start of the session." },
+    ]
+  },
+  {
+    section: 2,
+    questions: [
+      { q: "What does 'Chain of Thought' prompting mean?", options: ["Writing long paragraphs", "Asking the AI to think step-by-step before giving you the final answer", "Using bullet points", "Sending multiple messages"], correct: 1, explanation: "Chain of Thought = 'think out loud before you answer.' Adding 'think step by step' or 'before you answer, walk through the logic' forces the AI to show its reasoning, which dramatically improves accuracy on complex tasks." },
+      { q: "Why does Chain of Thought improve AI outputs?", options: ["It doesn't improve outputs", "It forces the AI to work through the problem visibly, catching mistakes before it gives you a wrong answer", "It makes responses faster", "It reduces token usage"], correct: 1, explanation: "The AI can't just 'hallucinate' an answer when it's showing its work. Chain of Thought catches logical errors in real-time — the AI sees its own mistake in the chain and self-corrects before output." },
+      { q: "What is 'fabric' in the 80m context?", options: ["A type of clothing", "The 80m memory layer — a persistent, searchable knowledge system that lets your AI remember your brand, rules, and context across sessions", "A code library", "A type of database"], correct: 1, explanation: "Fabric is 80m's memory layer — it stores your agent's knowledge, your brand rules, past decisions, and context. Without it, every session starts from scratch. With it, your AI knows who you are and what you care about." },
+    ]
+  },
+  {
+    section: 3,
+    questions: [
+      { q: "What does the 'laundry list method' of prompting produce?", options: ["Short creative outputs", "More structured, thorough outputs with named categories and explicit lists — because the AI has clear places to put information", "Faster responses", "Fewer tokens used"], correct: 1, explanation: "Instead of dumping everything into one paragraph, the laundry list method gives the AI named buckets: Background, Task, Constraints, Output Format. Each bucket gets filled deliberately — and the AI fills all of them before stopping." },
+      { q: "What is the correct order for a laundry list prompt?", options: ["Task → Background → Format → Constraints", "Background → Task → Constraints → Output Format", "Constraints → Task → Background → Format", "Format → Constraints → Task → Background"], correct: 1, explanation: "The order is: 1) Background (what they need to know), 2) Task (what to do), 3) Constraints (rules and guardrails), 4) Output Format (how to structure the answer). Background first so the AI has context before receiving the task." },
+      { q: "What is 'delegation' in the agent context?", options: ["Copying text", "Handing a task off to a specialized sub-agent that has the right tools and context to execute it independently", "Writing an email", "Creating a file"], correct: 1, explanation: "Delegation is how the Agent Council works — Hermes takes your input, identifies which sub-agent is right for the task, hands off with the right context, and collects the result. Done right, you get a finished product, not a suggestion." },
+    ]
+  },
+  {
+    section: 4,
+    questions: [
+      { q: "What does Cron do in the 80m stack?", options: ["Sends emails", "Runs scheduled commands automatically — like a task scheduler for your server", "Manages Docker containers", "Compiles code"], correct: 1, explanation: "Cron is a Linux/macOS built-in scheduler. It runs commands at defined times — 7am brief, 4:30pm follow-up digest, weekly docker-compose pull. The 80m stack uses cron to move your business forward 24/7 without you being there." },
+      { q: "What is a cron expression and what does '0 7 * * 1-5' mean?", options: ["It means 'run every minute'", "It means 'at 7:00am, Monday through Friday' — the 5 fields are: minute hour day month weekday", "It means 'run once a year'", "It means 'never run'"], correct: 1, explanation: "Cron uses 5 fields: minute(0-59) hour(0-23) day(1-31) month(1-12) weekday(0-6, 0=Sun). '0 7 * * 1-5' = at 7:00am every weekday. '0,30 9 * * *' = at 9:00 and 9:30 every day." },
+      { q: "What does 'HEARTBEAT' do in the 80m context?", options: ["Plays music", "A scheduled daily check-in where your AI reviews tasks, flags blockers, and primes itself for the day ahead", "Sends emails", "Manages your calendar"], correct: 1, explanation: "The HEARTBEAT is your AI's daily morning ritual — at 7am it wakes up, reviews your task list, checks your calendar, and gives you a prioritized briefing: what to do today, what's blocked, what's waiting on others." },
+    ]
+  },
+  {
+    section: 5,
+    questions: [
+      { q: "What does voice hacking mean in the 80m curriculum?", options: ["Breaking into voice servers", "Using voice-to-text so you can dictate commands to your AI instead of typing", "Recording audio", "Transcribing meetings"], correct: 1, explanation: "Voice hacking is using tools like Wispr Flow to dictate prompts instead of typing. You speak naturally, it converts to text and copies to clipboard, and your AI agent executes. 'Run a full audit of my inbox and flag anything urgent.' Done." },
+      { q: "What does AGENTS.md do?", options: ["It's a to-do list", "It's a configuration file that defines your agent's mission, output format, tools, and 'never do' rules — the AI reads this before every task", "It's an email template", "It's a backup file"], correct: 1, explanation: "AGENTS.md is the agent's constitution — it tells the AI: who it is, how to behave, what tools it has access to, output format rules, and explicit 'never do' restrictions. Without it, every task gets the generic AI treatment." },
+      { q: "What is the 'Bossy Prompt Formula'?", options: ["Being rude to the AI", "Background + Task + Constraints + Output Format — gives the AI no room to improvise, only to execute", "Using all caps", "Writing one-word prompts"], correct: 1, explanation: "The Bossy Prompt Formula is: 'Here's the context, here's exactly what to do, here are the rules, here's how to format the output.' You command, it executes. No wiggle room, no suggestions — just the product." },
+    ]
+  },
+];
 
 const quizData = [
   {
