@@ -1605,19 +1605,17 @@ const CourseThreeContent = ({ onClose }) => {
   const [tunnelOn, setTunnelOn] = useState(false);
   const [quizActive, setQuizActive] = useState(false);
   const [quizSection, setQuizSection] = useState(null);
-  const [quizStep, setQuizStep] = useState(0);
-  const [quizScore, setQuizScore] = useState(0);
-  const [quizAnswered, setQuizAnswered] = useState(null);
   const [quizDone, setQuizDone] = useState(null);
-  const [trafficState, setTrafficState] = useState(0);
-  const [logView, setLogView] = useState(false);
-  const [completedSections, setCompletedSections] = useState([]);
-  // Track passed quizzes (persisted to localStorage)
   const [passedQuizzes, setPassedQuizzes] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('80m-c3-quizzes') || '[]');
     } catch { return []; }
   });
+
+  // Simulator state (Section 3)
+  const [trafficState, setTrafficState] = useState(0);
+  const [logView, setLogView] = useState(false);
+  const [completedSections, setCompletedSections] = useState([]);
 
   const sections = [
     { id: 's0', label: 'Intro: Total Ownership' },
