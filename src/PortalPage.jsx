@@ -844,13 +844,13 @@ const CourseOneContent = ({ onClose }) => {
 
         {/* Quiz Modal */}
         {quizActive && quizSection !== null && (() => {
-          const qData = quizDataC01.find(q => q.section === quizSection);
+          const qData = quizDataC02.find(q => q.section === quizSection);
           if (!qData) return null;
           return (
             <QuizModal
               isOpen={quizActive}
               questions={qData.questions}
-              courseLabel="C01"
+              courseLabel="C02"
               section={quizSection}
               onComplete={(s, passed) => {
                 if (passed) {
@@ -1345,13 +1345,13 @@ const CourseTwoContent = ({ onClose }) => {
 
         {/* Quiz Modal */}
         {quizActive && quizSection !== null && (() => {
-          const qData = quizDataC01.find(q => q.section === quizSection);
+          const qData = quizDataC02.find(q => q.section === quizSection);
           if (!qData) return null;
           return (
             <QuizModal
               isOpen={quizActive}
               questions={qData.questions}
-              courseLabel="C01"
+              courseLabel="C02"
               section={quizSection}
               onComplete={(s, passed) => {
                 if (passed) {
