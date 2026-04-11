@@ -169,7 +169,7 @@ const staggerContainer = {
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
             The Ghost in the <br/><span className="italic text-[#22c55e]">TikTok Machine.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
             Your AI posts for you. While you sleep. Your phone thinks a human is doing it. TikTok never knows the difference. This is not a growth hack. This is the actual system.
           </p>
 
@@ -368,7 +368,7 @@ const staggerContainer = {
                 <div className="text-3xl mb-2">{tool.icon}</div>
                 <span className="font-mono text-[#22c55e] text-xs font-bold uppercase">{tool.role}</span>
                 <h4 className="font-sans font-black text-xl mt-1 mb-3">{tool.name}</h4>
-                <p className="font-serif text-[#444] text-sm leading-relaxed">{tool.desc}</p>
+                <p className="font-serif text-[#aaa] text-sm leading-relaxed">{tool.desc}</p>
               </div>
             ))}
           </div>
@@ -857,7 +857,7 @@ Reply with the crontab entries when done.`}>
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-5 shadow-[4px_4px_0_0_#111]">
                 <h4 className="font-sans font-black text-lg uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#444] text-sm leading-relaxed">{item.def}</p>
+                <p className="font-serif text-[#aaa] text-sm leading-relaxed">{item.def}</p>
               </div>
             ))}
           </div>
@@ -904,7 +904,7 @@ Reply with the crontab entries when done.`}>
 
             <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
               <p className="font-sans font-black text-sm uppercase mb-2">Skill File Template</p>
-              <p className="font-serif text-xs text-[#333] mb-2">Save this as <code className="bg-white px-1 font-mono">/skills/tiktok-slideshow.SKILL.md</code> in your OpenClaw workspace:</p>
+              <p className="font-serif text-xs text-[#aaa] mb-2">Save this as <code className="bg-white px-1 font-mono">/skills/tiktok-slideshow.SKILL.md</code> in your OpenClaw workspace:</p>
               <pre className="bg-[#111] text-[#22c55e] p-3 font-mono text-xs overflow-x-auto">{`# TikTok Slideshow Automation Skill
 
 ## Purpose
@@ -931,7 +931,7 @@ Slide 3 (CTA): [emotional pull + clear action]
 
             <div className="mt-6 p-4 bg-[#fffbeb] border-[2px] border-[#f59e0b]">
               <p className="font-sans font-black text-sm uppercase mb-2">Rescue Prompts</p>
-              <ul className="font-mono text-xs text-[#333] space-y-2">
+              <ul className="font-mono text-xs text-[#aaa] space-y-2">
                 <li>"Hermes, audit our TikTok pipeline. What's connected, what's stocked, what's due for refresh?"</li>
                 <li>"Postiz gave me a 500 error. Walk through the 7 rules and tell me which one we broke."</li>
                 <li>"Android isn't responding to ADB. Walk me through the troubleshooting checklist."</li>
@@ -983,7 +983,7 @@ Slide 3 (CTA): [emotional pull + clear action]
           <div className="text-center">
             <div className="font-mono text-6xl mb-4">👻</div>
             <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 04 Complete.</h2>
-            <p className="font-serif text-xl text-[#333] mb-8 leading-relaxed">
+            <p className="font-serif text-xl text-[#aaa] mb-8 leading-relaxed">
               You just built a fully autonomous TikTok content machine. Your agent generates the images. Postiz schedules the drafts. Your Android posts natively. And you — you sleep while TikTok works for you.
             </p>
             <div className="inline-grid grid-cols-2 gap-4 text-left mb-8">
@@ -1235,7 +1235,7 @@ const CourseOneContent = ({ onClose }) => {
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
             From Zero to <br/><span className="italic text-[#22c55e]">Alive.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
             Welcome to Class 01. The biggest barrier to AI is "Installation Hell." Most people download a file, get a red error message they don't understand, and go back to watching Netflix. We are skipping the hell.
           </p>
           <p className="font-serif text-sm text-[#555] mt-3">
@@ -1244,7 +1244,7 @@ const CourseOneContent = ({ onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
               <h3 className="font-sans font-black uppercase text-sm mb-3">OpenClaw Install Path (Copy/Paste)</h3>
-              <ol className="list-decimal list-inside font-serif text-[#444] space-y-2 text-sm">
+              <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-2 text-sm">
                 <li>Install Docker Desktop and make sure it is running.</li>
                 <li>Open terminal and paste the setup script in Section 1.</li>
                 <li>Confirm services are healthy with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>.</li>
@@ -1465,7 +1465,7 @@ const CourseOneContent = ({ onClose }) => {
                   </div>
                   <div className="bg-[#f0fdf4] p-6 border-2 border-[#22c55e]">
                     <h4 className="font-sans font-black uppercase text-sm mb-2 text-[#111]">80m Translation:</h4>
-                    <p className="font-serif text-lg text-[#333]">"I'm trying to talk to the Brain, but the Brain isn't awake yet. Open the Ollama app and try again."</p>
+                    <p className="font-serif text-lg text-[#aaa]">"I'm trying to talk to the Brain, but the Brain isn't awake yet. Open the Ollama app and try again."</p>
                   </div>
                 </motion.div>
               )}
@@ -1540,7 +1540,7 @@ const CourseOneContent = ({ onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
               <h4 className="font-sans font-black uppercase mb-3">The 7‑Step Adulting Protocol</h4>
-              <ol className="list-decimal list-inside font-serif text-[#444] space-y-3">
+              <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-3">
                 <li><strong>Install OpenClaw clean:</strong> Run default install, then confirm with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>. Example: if a container is "Exited", restart before moving on.</li>
                 <li><strong>Locate your workspace:</strong> Open the root folder and bookmark it. Example: keep it in Finder/Explorer favorites so edits take seconds.</li>
                 <li><strong>Write AGENTS.md rules:</strong> Define mission, output format, and "never do" list. Example: "Never send an email without approval."</li>
@@ -1603,13 +1603,13 @@ const CourseOneContent = ({ onClose }) => {
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#444]">{item.def}</p>
+                <p className="font-serif text-[#aaa]">{item.def}</p>
               </div>
             ))}
           </div>
           <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
             <h4 className="font-sans font-black uppercase mb-3">Cron in OpenClaw (Detailed)</h4>
-            <p className="font-serif text-[#444] mb-4">
+            <p className="font-serif text-[#aaa] mb-4">
               Cron lets OpenClaw run jobs while you are offline. Format: <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">minute hour day month weekday command</code>.
             </p>
             <ul className="font-mono text-xs space-y-2 text-[#222]">
@@ -1688,7 +1688,7 @@ const CourseOneContent = ({ onClose }) => {
             </div>
             <div className="mt-6 border-[2px] border-[#111] p-4 bg-[#fdfaf6]">
               <p className="font-sans font-black text-sm uppercase mb-3">Tools & Technologies (for course builders)</p>
-              <ul className="font-serif text-sm text-[#333] space-y-1">
+              <ul className="font-serif text-sm text-[#aaa] space-y-1">
                 <li><a className="underline font-black" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noreferrer">HTML/CSS/JavaScript</a> — Front-end foundations.</li>
                 <li><a className="underline font-black" href="https://react.dev/" target="_blank" rel="noreferrer">React</a> / <a className="underline font-black" href="https://vuejs.org/" target="_blank" rel="noreferrer">Vue</a> / <a className="underline font-black" href="https://angular.dev/" target="_blank" rel="noreferrer">Angular</a> — Interactive UI frameworks.</li>
                 <li><a className="underline font-black" href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noreferrer">Markdown Editor Guide</a> — Write and maintain curriculum text.</li>
@@ -1862,7 +1862,7 @@ const CourseTwoContent = ({ onClose }) => {
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
             Stop Asking. <br/><span className="italic text-[#22c55e]">Command.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6">
             If your AI is giving you generic garbage, it's because you're treating it like a magic 8-ball. It's a high-performance intern. Be specific.
           </p>
           <p className="font-serif text-sm text-[#555] mt-3">
@@ -2052,7 +2052,7 @@ const CourseTwoContent = ({ onClose }) => {
             </div>
             <div className="border-[3px] border-[#111] p-6 bg-[#f0fdf4]">
               <h4 className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">Result</h4>
-              <p className="font-serif text-[#333]">"Here's what you're missing: your current email sequence is losing you $40K/yr. Here's the fix."</p>
+              <p className="font-serif text-[#aaa]">"Here's what you're missing: your current email sequence is losing you $40K/yr. Here's the fix."</p>
             </div>
           </div>
         </div>
@@ -2161,7 +2161,7 @@ const CourseTwoContent = ({ onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] p-6 bg-white shadow-[6px_6px_0_0_#111]">
               <h4 className="font-sans font-black uppercase mb-3">The Formula</h4>
-              <ul className="font-serif text-[#444] space-y-3">
+              <ul className="font-serif text-[#aaa] space-y-3">
                 <li><strong>ROLE:</strong> Who it is right now. (Executive assistant)</li>
                 <li><strong>TASK:</strong> The exact job. (Draft 3 replies)</li>
                 <li><strong>RULES:</strong> Constraints. (50 words, no emojis)</li>
@@ -2224,11 +2224,11 @@ const CourseTwoContent = ({ onClose }) => {
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#444]">{item.def}</p>
+                <p className="font-serif text-[#aaa]">{item.def}</p>
               </div>
             ))}
           </div>
-          <p className="font-serif text-[#444] mt-6">
+          <p className="font-serif text-[#aaa] mt-6">
             Pro move: when a term confuses you in class notes, jump to this dictionary first instead of guessing. It saves hours of bad prompts.
           </p>
         </div>
@@ -2659,7 +2659,7 @@ const CourseThreeContent = ({ onClose }) => {
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
             Total <br/><span className="italic text-[#22c55e]">Ownership.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
             No rent. No locks. Just a fortress you built.
           </p>
           <div className="text-center">
@@ -2669,7 +2669,7 @@ const CourseThreeContent = ({ onClose }) => {
           </div>
           <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
             <h3 className="font-sans font-black uppercase text-sm mb-3">Infrastructure Quick Checklist</h3>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 font-serif text-[#444] text-sm">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 font-serif text-[#aaa] text-sm">
               <li>✅ Domain points to your server IP.</li>
               <li>✅ Nginx reverse proxy responds locally.</li>
               <li>✅ SSL cert issues cleanly with Certbot.</li>
@@ -2951,7 +2951,7 @@ const CourseThreeContent = ({ onClose }) => {
           </p>
           <div className="bg-white border-[3px] border-[#111] p-8">
             <h4 className="font-sans font-black uppercase text-sm mb-4">The HTTPS Handshake:</h4>
-            <p className="font-serif text-lg leading-relaxed text-[#333]">
+            <p className="font-serif text-lg leading-relaxed text-[#aaa]">
               Normally, your password travels over the internet in plain text. Anyone at the Starbucks Wi-Fi can see it. SSL encrypts it into a mess of random gibberish that only your server can unlock. We automate this renewal so it never expires.
             </p>
           </div>
@@ -3169,7 +3169,7 @@ const CourseThreeContent = ({ onClose }) => {
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#444]">{item.def}</p>
+                <p className="font-serif text-[#aaa]">{item.def}</p>
               </div>
             ))}
           </div>
@@ -3839,7 +3839,7 @@ to outputs/ → next question builds on previous answers.
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
             Intelligence Pipeline <br/><span className="italic text-[#22c55e]">+ Agent Products.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
             Turn your AI skills into income machines. Web crawlers, micro-SaaS, automations, and agents that replace high-value employees.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -4463,7 +4463,7 @@ to outputs/ → next question builds on previous answers.
             ].map((outcome, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-5 shadow-[4px_4px_0_0_#111]">
                 <span className="font-mono text-[#22c55e] font-black text-lg">✓</span>
-                <p className="font-serif text-[#333] text-sm mt-2 leading-snug">{outcome}</p>
+                <p className="font-serif text-[#aaa] text-sm mt-2 leading-snug">{outcome}</p>
               </div>
             ))}
           </div>
@@ -4969,7 +4969,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
             The Full System <br/><span className="italic text-[#22c55e]">+ AI Business Playbook.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
             The capstone. You built the stack. Now make it print. Eight proven revenue models for vibe coders, from small business websites to micro-SaaS to productized consulting.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -5706,7 +5706,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
             ].map((outcome, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-5 shadow-[4px_4px_0_0_#111]">
                 <span className="font-mono text-[#22c55e] font-black text-lg">✓</span>
-                <p className="font-serif text-[#333] text-sm mt-2 leading-snug">{outcome}</p>
+                <p className="font-serif text-[#aaa] text-sm mt-2 leading-snug">{outcome}</p>
               </div>
             ))}
           </div>
@@ -5724,7 +5724,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 py-2 border-b border-[#ddd] last:border-0">
                   <span className={`font-mono text-xs font-bold px-2 py-1 shrink-0 ${item.day === 'TODAY' ? 'bg-[#ef4444] text-white' : item.day === 'TOMORROW' ? 'bg-[#f59e0b] text-[#111]' : 'bg-[#22c55e] text-[#111]'}`}>{item.day}</span>
-                  <span className="font-serif text-[#333] text-sm">{item.task}</span>
+                  <span className="font-serif text-[#aaa] text-sm">{item.task}</span>
                 </div>
               ))}
             </div>
@@ -6097,13 +6097,13 @@ Give me the exact prompts I should use to set this up with you.`;
             <MacWindow title="Welcome to Class 07" className="mb-8">
               <div className="space-y-6">
                 <h3 className="font-serif text-4xl font-black text-[#111] leading-tight">You downloaded the app. Now let's make it yours.</h3>
-                <p className="font-sans text-lg text-[#333] leading-relaxed">
+                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
                   This course is different. You didn't pay extra for it. You didn't upgrade to Pro. You already have the tool — the 80m Chat App — sitting on your phone right now.
                 </p>
-                <p className="font-sans text-lg text-[#333] leading-relaxed">
+                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
                   Most people use it like a fancy Siri. You ask a question, you get an answer. Cool. But that's like buying a supercar and only driving it to the grocery store.
                 </p>
-                <p className="font-sans text-lg text-[#333] leading-relaxed">
+                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
                   This course shows you what the app actually is: <strong>a personal command center</strong>. An agent that remembers everything. Ghost workers that run while you sleep. A system you can build around your exact life.
                 </p>
               </div>
@@ -6150,7 +6150,7 @@ Give me the exact prompts I should use to set this up with you.`;
             {/* Warmup */}
             <div className="bg-[#fffbeb] border-[3px] border-[#f59e0b] p-6 mb-6">
               <p className="font-sans font-black text-sm uppercase mb-3 text-[#92400e]">Warmup: Your First Message</p>
-              <p className="font-serif text-lg text-[#333] italic mb-4">Before we dig in — open the 80m app right now and send Hermes this:</p>
+              <p className="font-serif text-lg text-[#aaa] italic mb-4">Before we dig in — open the 80m app right now and send Hermes this:</p>
               <div className="bg-[#111] p-4 font-mono text-sm text-[#22c55e] mb-4">
                 hey hermes, my name is [your name]. I'm taking a course on how to use you properly. Here's one thing I want to keep track of: [one thing you're always forgetting]. Save this to memory.
               </div>
@@ -6172,7 +6172,7 @@ Give me the exact prompts I should use to set this up with you.`;
             <SectionMeta title="S3: What 80m Actually Is" sectionNum="03" />
 
             <MacWindow title="The Architecture" className="mb-8">
-              <div className="font-mono text-sm leading-relaxed text-[#333] bg-[#1a1a1a] p-6 overflow-x-auto">
+              <div className="font-mono text-sm leading-relaxed text-[#aaa] bg-[#1a1a1a] p-6 overflow-x-auto">
                 <pre className="text-[#22c55e]">{`
   YOU
    ↕ talk
@@ -6231,11 +6231,11 @@ Give me the exact prompts I should use to set this up with you.`;
                     </div>
                     <div>
                       <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-1">What it does</p>
-                      <p className="font-sans text-[#333]">{orb.desc}</p>
+                      <p className="font-sans text-[#aaa]">{orb.desc}</p>
                     </div>
                     <div>
                       <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-1">Best for</p>
-                      <p className="font-sans text-[#333]">{orb.best}</p>
+                      <p className="font-sans text-[#aaa]">{orb.best}</p>
                     </div>
                     <div className="bg-[#111] p-3 font-mono text-xs text-[#22c55e]">
                       Prompt: "Use {orb.name} to handle: [your task]"
@@ -6261,10 +6261,10 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <MacWindow title="Talk to Hermes like you're texting a smart friend who never forgets." className="mb-8">
               <div className="space-y-4">
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   Most people talk to AI like it's a search engine. "What's the weather?" "Define photosynthesis." Cool, but you're wasting it.
                 </p>
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   Hermes is a <strong>memory-powered agent</strong>. The more context you give it, the more useful it becomes. Think of it less like Google and more like hiring an executive assistant — you brief them once, they handle the rest.
                 </p>
               </div>
@@ -6312,12 +6312,12 @@ Give me the exact prompts I should use to set this up with you.`;
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-red-50 border-[2px] border-red-300 p-4">
                   <p className="font-mono text-xs font-black uppercase text-red-600 mb-2">❌ Vague</p>
-                  <p className="font-mono text-sm text-[#333] italic">"can you maybe help me with my budget?"</p>
+                  <p className="font-mono text-sm text-[#aaa] italic">"can you maybe help me with my budget?"</p>
                   <p className="font-sans text-xs text-[#555] mt-2">Result: generic advice, no action taken</p>
                 </div>
                 <div className="bg-green-50 border-[2px] border-green-400 p-4">
                   <p className="font-mono text-xs font-black uppercase text-green-700 mb-2">✓ Boss Mode</p>
-                  <p className="font-mono text-sm text-[#333]">"I earn $4,200/mo. My fixed expenses are $2,800. Give me a budget breakdown with categories, tell me what to cut, and save this to memory."</p>
+                  <p className="font-mono text-sm text-[#aaa]">"I earn $4,200/mo. My fixed expenses are $2,800. Give me a budget breakdown with categories, tell me what to cut, and save this to memory."</p>
                   <p className="font-sans text-xs text-[#555] mt-2">Result: specific plan, saved to Fabric, actionable</p>
                 </div>
               </div>
@@ -6325,7 +6325,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <div className="bg-[#fffbeb] border-[3px] border-[#f59e0b] p-6 mb-6">
               <p className="font-sans font-black text-sm uppercase mb-2 text-[#92400e]">Pro tip: Chain-of-Thought</p>
-              <p className="font-sans text-[#333]">Add "think step by step before answering" to any complex question. It forces Hermes to show its reasoning, catches errors, and produces better results. Example: "Think step by step: should I hire a VA or do this myself? Consider: my hourly rate, the task complexity, and my time constraints."</p>
+              <p className="font-sans text-[#aaa]">Add "think step by step before answering" to any complex question. It forces Hermes to show its reasoning, catches errors, and produces better results. Example: "Think step by step: should I hire a VA or do this myself? Consider: my hourly rate, the task complexity, and my time constraints."</p>
             </div>
 
             <div className="flex justify-end mb-8">
@@ -6344,7 +6344,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <MacWindow title="Hermes doesn't forget. Ever. That's the whole point." className="mb-8">
               <div className="space-y-4">
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   Every conversation with Hermes feeds into <strong>Fabric</strong> — the long-term memory layer. This isn't session context that disappears. This is your life, stored in SQLite, recalled on demand.
                 </p>
                 <div className="bg-[#111] p-4">
@@ -6361,7 +6361,7 @@ Give me the exact prompts I should use to set this up with you.`;
                     <span className="bg-[#22c55e] text-[#111] px-2 py-0.5 rounded">Long-term recall</span>
                   </div>
                 </div>
-                <p className="font-sans text-[#333]">
+                <p className="font-sans text-[#aaa]">
                   The <code className="bg-[#f0f0f0] px-1 font-mono text-sm">mcp_memory</code> tool is what makes this work. When you say "save this to memory," it goes through Fabric into SQLite. Next session, Hermes already knows you.
                 </p>
               </div>
@@ -6376,7 +6376,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 value={memoryInput}
                 onChange={e => setMemoryInput(e.target.value)}
                 placeholder="I'm a [what you do]. My main goals right now are [3 things]. I struggle with [pet peeves]. I want you to handle [things you hate doing]. I'm working on [current projects]..."
-                className="w-full h-32 p-3 border-[2px] border-[#111] bg-white font-mono text-sm text-[#333] resize-none focus:outline-none focus:border-[#22c55e]"
+                className="w-full h-32 p-3 border-[2px] border-[#111] bg-white font-mono text-sm text-[#aaa] resize-none focus:outline-none focus:border-[#22c55e]"
               />
               <button onClick={handleMemoryAudit}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all mt-4">
@@ -6394,7 +6394,7 @@ Give me the exact prompts I should use to set this up with you.`;
             </div>
 
             <MacWindow title="Session Search" className="mb-8">
-              <p className="font-sans text-[#333] mb-3">Every conversation with Hermes is searchable. Did you talk about something weeks ago? Just ask:</p>
+              <p className="font-sans text-[#aaa] mb-3">Every conversation with Hermes is searchable. Did you talk about something weeks ago? Just ask:</p>
               <div className="bg-[#111] p-4 font-mono text-sm text-[#22c55e] mb-3">
                 hermes: did we talk about [topic]? what did I say?
               </div>
@@ -6417,10 +6417,10 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <MacWindow title="Skills are like browser extensions for your brain." className="mb-8">
               <div className="space-y-4">
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   Skills extend what Hermes can do. Think of them as downloadable ability packs. Install one, and Hermes gains a new tool.
                 </p>
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   Most skills just need an API key and a brief. No coding. No configuration files. You tell Hermes what you want, it sets it up.
                 </p>
               </div>
@@ -6471,7 +6471,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <MacWindow title="Set it once. Let it run. Forget about it. Get results." className="mb-8">
               <div className="space-y-4">
-                <p className="font-sans text-[#333] leading-relaxed">
+                <p className="font-sans text-[#aaa] leading-relaxed">
                   A cron job is a thing that runs on a schedule, automatically, without you doing anything. Think of them as ghost workers — you hire them once, they work forever.
                 </p>
                 <div className="bg-[#111] p-4 font-mono text-sm overflow-x-auto">
@@ -6572,11 +6572,11 @@ Give me the exact prompts I should use to set this up with you.`;
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-2">Sessions</p>
-                  <p className="font-sans text-[#333]">Every conversation with Hermes = a session. Searchable, reviewable, resumable. "What were we talking about last week?" Ask Hermes, it pulls the session.</p>
+                  <p className="font-sans text-[#aaa]">Every conversation with Hermes = a session. Searchable, reviewable, resumable. "What were we talking about last week?" Ask Hermes, it pulls the session.</p>
                 </div>
                 <div>
                   <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-2">Tasks</p>
-                  <p className="font-sans text-[#333]">Structured todos that Hermes tracks. The <code className="bg-[#f0f0f0] px-1 font-mono text-xs">mcp_todo</code> tool. You create them, Hermes nags you about them. Overdue items get flagged automatically.</p>
+                  <p className="font-sans text-[#aaa]">Structured todos that Hermes tracks. The <code className="bg-[#f0f0f0] px-1 font-mono text-xs">mcp_todo</code> tool. You create them, Hermes nags you about them. Overdue items get flagged automatically.</p>
                 </div>
               </div>
             </MacWindow>
@@ -6589,7 +6589,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 {[task1, task2, task3].map((val, i) => (
                   <input key={i} type="text" value={val} onChange={e => [setTask1, setTask2, setTask3][i](e.target.value)}
                     placeholder={`Task ${i + 1}: Something I keep forgetting...`}
-                    className="w-full p-3 border-[2px] border-[#111] bg-white font-mono text-sm text-[#333] focus:outline-none focus:border-[#22c55e]" />
+                    className="w-full p-3 border-[2px] border-[#111] bg-white font-mono text-sm text-[#aaa] focus:outline-none focus:border-[#22c55e]" />
                 ))}
               </div>
               <button onClick={handleTaskSetup}
@@ -6667,7 +6667,7 @@ Give me the exact prompts I should use to set this up with you.`;
               return (
                 <MacWindow title={`${int.name} Integration`} className="border-[#22c55e]">
                   <div className="space-y-4">
-                    <p className="font-sans text-[#333]">{int.desc}</p>
+                    <p className="font-sans text-[#aaa]">{int.desc}</p>
                     <div>
                       <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-2">Setup</p>
                       <p className="font-sans text-sm text-[#555]">{int.setup}</p>
@@ -6686,7 +6686,7 @@ Give me the exact prompts I should use to set this up with you.`;
             <SectionMeta title="S10: Building Your Workspace — The Templates Section" sectionNum="10" />
 
             <MacWindow title="This is the good stuff. Here's exactly what to paste to Hermes." className="mb-8">
-              <p className="font-sans text-[#333] leading-relaxed">
+              <p className="font-sans text-[#aaa] leading-relaxed">
                 Below are 7 copy-and-paste workspace templates. Each one is a complete setup for a specific aspect of your 80m system. Click any template to expand it, copy it, and paste it directly to Hermes.
               </p>
             </MacWindow>
@@ -6715,7 +6715,7 @@ Give me the exact prompts I should use to set this up with you.`;
               {templates.map(t => (
                 <MacWindow key={t.id} title={t.title}>
                   <div className="space-y-3">
-                    <p className="font-sans text-[#333]">{t.desc}</p>
+                    <p className="font-sans text-[#aaa]">{t.desc}</p>
                     <div className="bg-[#111] p-4 font-mono text-xs text-[#22c55e] whitespace-pre-wrap">{t.prompt}</div>
                     <button onClick={() => handleCopy(t.prompt)}
                       className="font-mono text-xs font-bold uppercase px-4 py-2 bg-[#22c55e] text-[#111] hover:bg-[#111] hover:text-[#22c55e] transition-all">
@@ -6947,7 +6947,7 @@ Give me the exact prompts I should use to set this up with you.`;
             <SectionMeta title="S11: Troubleshooting (For Dummies)" sectionNum="11" />
 
             <MacWindow title="The screen is red. The agent isn't responding. Here's what to do." className="mb-8">
-              <p className="font-sans text-[#333] mb-4">
+              <p className="font-sans text-[#aaa] mb-4">
                 The 80m system is solid, but things go wrong. Most issues have simple fixes. Here's your troubleshooting cheat sheet.
               </p>
             </MacWindow>
@@ -6971,7 +6971,7 @@ Give me the exact prompts I should use to set this up with you.`;
                     </div>
                     <div>
                       <p className="font-mono text-xs font-black uppercase text-green-700 mb-1">The Fix</p>
-                      <p className="font-sans text-sm text-[#333]">{item.fix}</p>
+                      <p className="font-sans text-sm text-[#aaa]">{item.fix}</p>
                     </div>
                   </div>
                 </MacWindow>
@@ -7011,7 +7011,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <div className="mt-8 p-6 bg-[#fffbeb] border-[3px] border-[#f59e0b]">
               <p className="font-mono text-xs font-black uppercase text-[#92400e] mb-2">Your Assignment</p>
-              <p className="font-sans text-lg text-[#333]">
+              <p className="font-sans text-lg text-[#aaa]">
                 Open the 80m app. Find the example that closest matches your life. Copy the prompt. Paste it to Hermes. Watch it set itself up in real time. That's homework. That's it.
               </p>
             </div>
@@ -7207,7 +7207,7 @@ export default function PortalPage() {
             <motion.h1 variants={fadeUp} className="font-serif text-6xl md:text-[8rem] lg:text-[10rem] leading-[0.85] tracking-tighter mix-blend-multiply text-[#111] mb-8 uppercase">
               Own Your <br/> <span className="italic">AI Stack.</span>
             </motion.h1>
-            <motion.p variants={fadeUp} className="font-sans text-xl md:text-3xl font-bold mix-blend-multiply text-[#333] max-w-3xl mx-auto">
+            <motion.p variants={fadeUp} className="font-sans text-xl md:text-3xl font-bold mix-blend-multiply text-[#aaa] max-w-3xl mx-auto">
               No Theory. No Fluff. Just Output.
             </motion.p>
           </motion.div>
@@ -7220,7 +7220,7 @@ export default function PortalPage() {
               <MacWindow title="manifesto.txt" className="-rotate-1">
                 <div className="p-8 md:p-12">
                   <h2 className="font-serif text-4xl font-black mb-6 leading-tight uppercase">Welcome to the Machine.</h2>
-                  <div className="font-serif text-lg md:text-xl text-[#333] space-y-6 leading-relaxed">
+                  <div className="font-serif text-lg md:text-xl text-[#aaa] space-y-6 leading-relaxed">
                     <p>80m was started to catch you up. We find people who are "efficiently lazy"—people who don't want to learn the history of neural networks, they just want an agent that handles their email.</p>
                     <p className="font-sans font-black text-[#111] text-2xl uppercase tracking-tight mt-8 italic underline decoration-[#22c55e]">This isn't a coding bootcamp.</p>
                   </div>
@@ -7236,7 +7236,7 @@ export default function PortalPage() {
                 {walkAwayData.map((item, idx) => (
                   <div key={idx} className="bg-[#eae7de] border-[3px] border-[#111] p-6 shadow-[6px_6px_0_0_#111] hover:-translate-y-1 transition-transform">
                     <h4 className="font-sans font-black text-xl mb-2 uppercase tracking-tight">{item.title}</h4>
-                    <p className="font-serif text-[#444] leading-snug">{item.desc}</p>
+                    <p className="font-serif text-[#aaa] leading-snug">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -7265,7 +7265,7 @@ export default function PortalPage() {
                     </div>
                   </div>
                   <div className="lg:w-2/3 p-8 md:p-12">
-                    <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed mb-10 pb-10 border-b-[3px] border-[#111]/10">{cls.description}</p>
+                    <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed mb-10 pb-10 border-b-[3px] border-[#111]/10">{cls.description}</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       {cls.topics.map((topic, i) => (
                         <div key={i} className="flex gap-4">
