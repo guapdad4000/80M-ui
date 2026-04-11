@@ -214,22 +214,22 @@ export const MacWindow = ({ children, title = "terminal", className = "", conten
       <div className="pointer-events-none absolute inset-0 z-10 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(34,197,94,0.5) 2px, rgba(34,197,94,0.5) 4px)' }} />
 
       {/* Title bar */}
-      <div className="relative bg-[#0a1a0a] px-3 py-2 flex items-center border-b border-[#1a3a1a] shrink-0">
+      <div className="relative bg-[#0a1a0a] px-3 py-2.5 flex items-center border-b border-[#1a3a1a] shrink-0">
         <div className="flex gap-2">
           <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#cc3333] shadow-[0_0_4px_rgba(255,95,86,0.5)]"></div>
           <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#cc8800] shadow-[0_0_4px_rgba(255,189,46,0.5)]"></div>
           <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1a8a1a] shadow-[0_0_6px_rgba(39,201,63,0.7)]"></div>
         </div>
-        <div className="flex-1 text-center text-[10px] font-mono font-bold text-[#2a7a2a] tracking-widest select-none uppercase">
+        <div className="flex-1 text-center text-[10px] font-mono font-bold text-[#eae7de] tracking-widest select-none uppercase">
           {title}
         </div>
-        <button onClick={handleCopy} className="text-[10px] font-mono font-bold text-[#2a7a2a] hover:text-[#22c55e] transition-colors mr-2 uppercase tracking-widest">
+        <button onClick={handleCopy} className="text-[10px] font-mono font-bold text-[#eae7de] hover:text-[#22c55e] transition-colors mr-2 uppercase tracking-widest">
           {copied ? '✓ Copied' : 'Copy'}
         </button>
       </div>
 
-      {/* Content area */}
-      <div ref={contentRef} className={`relative flex-1 overflow-hidden ${contentClass}`}>
+      {/* Content area — default to white text on black so nothing is ever invisible */}
+      <div ref={contentRef} className={`relative flex-1 overflow-auto bg-[#000000] p-5 text-[#eae7de] font-mono text-sm ${contentClass}`}>
         {children}
       </div>
     </div>
