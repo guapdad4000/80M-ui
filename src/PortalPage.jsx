@@ -2345,6 +2345,138 @@ const CourseThreeContent = ({ onClose }) => {
   );
 };
 
+const CourseFourContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 04</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Workflows That Actually Ship</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["One active client or internal project.", "A place to store approved prompt templates.", "A task list with at least 5 real tasks."]} />
+      <SectionMeta minutes="75 min" focus="From request to shipped output" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Build Repeatable Workflows.</h1>
+      <p className="font-serif text-lg text-[#444]">This class turns random prompting into reliable delivery pipelines: intake → generate → QA → ship.</p>
+      <CourseBoostPanel title="Workflow Starter Stack" checklist={["Use one intake template for every task.", "Force explicit output format for every request.", "Run QA checklist before sending.", "Log what worked into your prompt library."]} prompts={["\"Turn this request into a 4-step execution workflow with deliverables and QA checks.\"", "\"Create a reusable SOP from this successful output so I can run it weekly.\""]} />
+      <CheckpointCard title="Workflow Checkpoint" pass={["At least one workflow completed end-to-end.", "Template + QA checklist both saved.", "Output sent without manual rewrite."]} fail={["Prompt quality changes every run.", "No review checklist before shipping.", "Output depends on memory not process."]} />
+    </div></div>
+  </motion.div>
+);
+
+const CourseFiveContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 05</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Client Ops + Delivery</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["Client communication channel (email/slack).", "Meeting notes from a recent project.", "One KPI you care about (speed, quality, conversion)."]} />
+      <SectionMeta minutes="80 min" focus="Client-ready execution and handoff" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Deliver Fast, Look Professional.</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CopyBlock text="TASK: Summarize this client thread. OUTPUT: Decisions, blockers, next steps, owner, due date." />
+        <CopyBlock text="TASK: Draft client update email. RULES: concise, confident, no jargon. OUTPUT: subject + body." />
+      </div>
+      <div className="mt-6 border-[3px] border-[#111] bg-white p-6">
+        <h3 className="font-sans font-black uppercase mb-3">Functional Upgrade: Handoff Bundle</h3>
+        <ul className="font-serif text-[#444] space-y-2">
+          <li>• Auto-generate client update drafts after every major milestone.</li>
+          <li>• Attach a “what changed / why it matters / next action” summary.</li>
+          <li>• Store finalized outputs in a versioned delivery folder.</li>
+        </ul>
+      </div>
+      <CheckpointCard title="Client Ops Checkpoint" pass={["Client update generated in under 10 minutes.", "Every update has owner + due date.", "No ambiguous next steps remain."]} fail={["Long status emails with no action items.", "No standardized handoff structure.", "Deadlines not mapped to owners."]} />
+    </div></div>
+  </motion.div>
+);
+
+const CourseSixContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 06</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Automation Flywheel</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["At least one working cron job from prior classes.", "A weekly recurring task you hate doing.", "A clear definition of 'done' for that task."]} />
+      <SectionMeta minutes="85 min" focus="Turn one-off wins into recurring automation" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Build the Flywheel.</h1>
+      <MacWindow title="automation_flywheel.sh" contentClass="bg-[#111] p-6 text-[#eae7de] font-mono text-sm">
+        <p className="text-[#22c55e]">0 8 * * 1-5 /root/80m/scripts/pipeline-runner.sh</p>
+        <p className="text-[#aaa] mt-3"># Pull tasks → execute templates → generate QA report → deliver summary</p>
+      </MacWindow>
+      <div className="mt-4"><CopyBlock text="Create a weekly automation map: trigger, input source, transformation steps, QA check, and final destination." /></div>
+      <CheckpointCard title="Automation Checkpoint" pass={["One recurring task fully automated.", "Failure alerts configured.", "Weekly review report generated automatically."]} fail={["Automation runs silently with no reporting.", "No rollback path when output quality drops.", "Manual fixes required every run."]} />
+    </div></div>
+  </motion.div>
+);
+
+const courseSevenUseCases = [
+  "Daily executive brief with priorities and blockers",
+  "Inbox triage with response-draft suggestions",
+  "Calendar conflict detection and auto-reschedule proposals",
+  "Client status update generation from raw notes",
+  "Sales follow-up sequence drafting and scheduling",
+  "Social content repurposing from long-form source",
+  "Meeting transcript summaries with assigned action items",
+  "Lead research dossiers with qualification score",
+  "Proposal skeleton generation from intake form",
+  "Support ticket categorization and response starter",
+  "Weekly KPI snapshot with trend commentary",
+  "Contract redline summary in plain English",
+  "Recruiting candidate summary + interview plan",
+  "Project risk register update from active tasks",
+  "End-of-day wrap-up with tomorrow kickoff plan"
+];
+
+const CourseSevenContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 07</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">15 Use Cases — Copy, Run, Win</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-5xl mx-auto">
+      <NeedBox items={["Your real business context (docs, notes, calendar).", "A destination for outputs (email, doc, PM tool).", "10 minutes to test each use case with your own data."]} />
+      <SectionMeta minutes="120 min" focus="Production-ready use cases" />
+      <h1 className="font-serif text-5xl md:text-6xl font-black uppercase mb-6">Use Cases, Fully Explained.</h1>
+      <p className="font-serif text-lg text-[#444] mb-8">Each card gives you what it does, when to use it, and what “good output” looks like. Use the copy blocks to run immediately.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {courseSevenUseCases.map((useCase, i) => (
+          <div key={useCase} className="border-[3px] border-[#111] bg-white p-5 shadow-[6px_6px_0_0_#111]">
+            <p className="font-mono text-xs uppercase text-[#22c55e] mb-2">Use Case {i + 1}</p>
+            <h3 className="font-sans font-black text-lg uppercase leading-tight mb-2">{useCase}</h3>
+            <p className="font-serif text-sm text-[#555] mb-3">Best for: teams that want predictable output quality with minimal back-and-forth.</p>
+            <CopyBlock text={`TASK: ${useCase}. RULES: concise, business-ready, no fluff. OUTPUT: bullet list + next action + owner + due date.`} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MacWindow title="high_visibility_terminal.log" contentClass="bg-black p-6 text-[#d1fae5] font-mono text-sm">
+          <p className="text-[#22c55e] font-bold">[READY] Paste any use case prompt.</p>
+          <p className="mt-2 text-[#93c5fd]">[RUNNING] validating context, constraints, output schema...</p>
+          <p className="mt-2 text-[#fcd34d]">[OUTPUT] Generated with owner + deadline + QA checks.</p>
+          <p className="mt-2 text-[#fca5a5]">[WARN] Missing context? Add source notes and rerun.</p>
+        </MacWindow>
+        <div className="border-[3px] border-[#111] bg-[#f0fdf4] p-6">
+          <h3 className="font-sans font-black uppercase mb-3">How to Read Terminal Output (Simple)</h3>
+          <ul className="font-serif text-[#14532d] text-sm space-y-2">
+            <li>• <strong>READY</strong> = prompt accepted.</li>
+            <li>• <strong>RUNNING</strong> = it is working through steps.</li>
+            <li>• <strong>OUTPUT</strong> = result is complete and usable.</li>
+            <li>• <strong>WARN</strong> = add context and rerun for better quality.</li>
+          </ul>
+          <div className="mt-4">
+            <CopyBlock text="Audit this output for missing owners, dates, and unclear action items. Return corrected version." />
+          </div>
+        </div>
+      </div>
+      <CheckpointCard title="Course 07 Completion Checkpoint" pass={["You tested at least 5 use cases with real data.", "Each output includes owner + due date + next step.", "You saved top 3 prompts as reusable templates."]} fail={["Outputs are generic because context was missing.", "No QA pass before sending externally.", "Prompts were not saved for repeat use."]} />
+    </div></div>
+  </motion.div>
+);
+
 // --- Main Portal Page ---
 
 const classesData = [
@@ -2388,6 +2520,62 @@ const classesData = [
       { name: "Nginx & Tunnels", detail: "The bouncer at the door." },
       { name: "SSL & Security", detail: "The green lock of trust." },
       { name: "Scaling", detail: "Turning one bot into an army." }
+    ]
+  },
+  {
+    id: "04",
+    title: "Workflows That Actually Ship",
+    subtitle: "From Request to Done",
+    time: "75 Minutes",
+    description: "Operational workflow design so outputs are consistent, reviewable, and ready to deliver.",
+    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    topics: [
+      { name: "Intake Templates", detail: "Capture requirements once, correctly." },
+      { name: "QA Gates", detail: "Stop low-quality output before delivery." },
+      { name: "SOP Extraction", detail: "Turn wins into reusable systems." },
+      { name: "Delivery Loop", detail: "Generate → review → ship." }
+    ]
+  },
+  {
+    id: "05",
+    title: "Client Ops + Delivery",
+    subtitle: "Professional Execution Layer",
+    time: "80 Minutes",
+    description: "Client-safe handoffs, status updates, and clear ownership so nothing falls through the cracks.",
+    image: "https://i.postimg.cc/zv5nx1F1/80mascot-claw.png",
+    topics: [
+      { name: "Status Automation", detail: "Generate updates in minutes." },
+      { name: "Handoff Bundles", detail: "Decisions, owners, due dates." },
+      { name: "Comms Templates", detail: "Consistent professional tone." },
+      { name: "KPI Summaries", detail: "What changed and what to do next." }
+    ]
+  },
+  {
+    id: "06",
+    title: "Automation Flywheel",
+    subtitle: "Recurring Execution Engine",
+    time: "85 Minutes",
+    description: "Design recurring automations that are measurable, monitored, and easy to improve weekly.",
+    image: "https://i.postimg.cc/x8YK6S32/80mascot-rich.png",
+    topics: [
+      { name: "Trigger Design", detail: "When and why jobs should run." },
+      { name: "Output Routing", detail: "Deliver to the right destination." },
+      { name: "Failure Alerts", detail: "Catch bad runs early." },
+      { name: "Weekly Review", detail: "Tune quality with feedback loops." }
+    ]
+  },
+  {
+    id: "07",
+    title: "15 Use Cases — Copy, Run, Win",
+    subtitle: "Production Use-Case Library",
+    time: "120 Minutes",
+    description: "A practical, visually structured use-case vault with copy-ready prompts and clearer terminal guidance.",
+    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    topics: [
+      { name: "15 Real Use Cases", detail: "Expanded scenarios you can run now." },
+      { name: "Readable Terminal", detail: "High-contrast output + what each state means." },
+      { name: "Copy Blocks", detail: "One-click prompt execution flow." },
+      { name: "Completion QA", detail: "Pass/fail criteria for production quality." }
     ]
   }
 ];
@@ -2567,6 +2755,10 @@ export default function PortalPage() {
         {activeCourseId === "01" && <CourseOneContent key="course-01" onClose={() => setActiveCourseId(null)} />}
         {activeCourseId === "02" && <CourseTwoContent key="course-02" onClose={() => setActiveCourseId(null)} />}
         {activeCourseId === "03" && <CourseThreeContent key="course-03" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "04" && <CourseFourContent key="course-04" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "05" && <CourseFiveContent key="course-05" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "06" && <CourseSixContent key="course-06" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "07" && <CourseSevenContent key="course-07" onClose={() => setActiveCourseId(null)} />}
       </AnimatePresence>
     </div>
   );
