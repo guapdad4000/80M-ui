@@ -161,6 +161,84 @@ const ResourceList = ({ title = "Resources", items = [] }) => (
   </div>
 );
 
+const GlossaryTooltip = ({ term, definition, href }) => (
+  <a
+    href={href}
+    className="inline-flex items-center gap-1 underline decoration-dotted underline-offset-4 font-semibold hover:text-[#22c55e] transition-colors"
+    title={`${term}: ${definition} — Jump to dictionary`}
+  >
+    {term}
+    <span className="text-[10px] font-mono border border-current px-1 leading-none">?</span>
+  </a>
+);
+
+const CourseBoostPanel = ({ title = "Quick Win Stack", checklist = [], prompts = [] }) => (
+  <div className="mt-8 border-[3px] border-[#111] bg-[#fdfaf6] p-6 shadow-[6px_6px_0_0_#111]">
+    <h3 className="font-sans font-black uppercase text-sm mb-3">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <ul className="font-serif text-sm text-[#333] space-y-2">
+        {checklist.map((item, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="text-[#22c55e] font-black">✓</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="space-y-2">
+        {prompts.map((prompt, i) => (
+          <p key={i} className="font-mono text-[11px] bg-white border-[2px] border-[#111] p-3">{prompt}</p>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const SectionMeta = ({ minutes = "10 min", focus = "Execution" }) => (
+  <div className="mb-4 inline-flex items-center gap-2 border-[2px] border-[#111] bg-white px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-[#444]">
+    <span>⏱ {minutes}</span>
+    <span className="text-[#aaa]">•</span>
+    <span>{focus}</span>
+  </div>
+);
+
+const CopyBlock = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (e) {
+      setCopied(false);
+    }
+  };
+  return (
+    <div className="bg-[#fdfaf6] border-[2px] border-[#111] p-3">
+      <button onClick={copy} className="mb-2 font-mono text-[10px] uppercase tracking-widest border border-[#111] px-2 py-1 bg-white">
+        {copied ? "Copied" : "Copy"}
+      </button>
+      <p className="font-mono text-xs text-[#222]">{text}</p>
+    </div>
+  );
+};
+
+const CheckpointCard = ({ title = "Section Checkpoint", pass = [], fail = [] }) => (
+  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="border-[3px] border-[#22c55e] bg-[#f0fdf4] p-5">
+      <h4 className="font-sans font-black uppercase text-sm mb-2">{title} — Pass</h4>
+      <ul className="font-serif text-sm text-[#14532d] space-y-1">
+        {pass.map((item, i) => <li key={i}>✓ {item}</li>)}
+      </ul>
+    </div>
+    <div className="border-[3px] border-red-500 bg-red-50 p-5">
+      <h4 className="font-sans font-black uppercase text-sm mb-2">Fail Signals</h4>
+      <ul className="font-serif text-sm text-red-700 space-y-1">
+        {fail.map((item, i) => <li key={i}>✗ {item}</li>)}
+      </ul>
+    </div>
+  </div>
+);
+
 const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -306,6 +384,51 @@ const CourseOneContent = ({ onClose }) => {
           <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
             Welcome to Class 01. The biggest barrier to AI is "Installation Hell." Most people download a file, get a red error message they don't understand, and go back to watching Netflix. We are skipping the hell.
           </p>
+          <p className="font-serif text-sm text-[#555] mt-3">
+            Keep it simple: copy/paste the defaults first, verify green checks, then customize one thing at a time.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+              <h3 className="font-sans font-black uppercase text-sm mb-3">OpenClaw Install Path (Copy/Paste)</h3>
+              <ol className="list-decimal list-inside font-serif text-[#444] space-y-2 text-sm">
+                <li>Install Docker Desktop and make sure it is running.</li>
+                <li>Open terminal and paste the setup script in Section 1.</li>
+                <li>Confirm services are healthy with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>.</li>
+                <li>Open the local dashboard and verify commands run end-to-end.</li>
+              </ol>
+              <p className="font-mono text-xs text-[#555] mt-3">Prompt: "Check OpenClaw health, list failing services, and give me exact fix commands."</p>
+            </div>
+            <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 shadow-[6px_6px_0_0_#22c55e]">
+              <h3 className="font-sans font-black uppercase text-sm mb-3 text-[#22c55e]">Hermes Install + First Voice Test</h3>
+              <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-2 text-sm">
+                <li>Confirm Hermes service is linked during install output.</li>
+                <li>Load your mic permissions and test wake phrase.</li>
+                <li>Run one voice command that writes a file or task output.</li>
+                <li>Verify logs show request → delegation → response cycle.</li>
+              </ol>
+              <p className="font-mono text-xs text-[#777] mt-3">Prompt: "Hermes, run a mic check and return latency + failure reasons if any."</p>
+            </div>
+          </div>
+          <CourseBoostPanel
+            title="Class 01 Success Criteria + Rescue Prompts"
+            checklist={[
+              "OpenClaw containers show healthy in docker compose.",
+              "Hermes receives one voice command and returns structured output.",
+              "AGENTS.md and identity files are filled before automations.",
+              "One morning brief cron job runs without manual intervention."
+            ]}
+            prompts={[
+              "\"Run a full install audit and report failures by service with exact fix commands.\"",
+              "\"Validate Hermes voice pipeline: mic input, model response, and output latency.\""
+            ]}
+          />
+          <ResourceList
+            title="Jump Links"
+            items={[
+              { label: "Go to The 7-Step Adulting Protocol", href: "#c1-playbook", note: "Detailed, executable step-by-step flow." },
+              { label: "Go to Class 01 Resource Locker", href: "#c1-resources", note: "All install and tooling links in one place." }
+            ]}
+          />
         </div>
 
         {/* Section 1: Money */}
@@ -507,22 +630,25 @@ const CourseOneContent = ({ onClose }) => {
         </div>
 
         {/* Section 9: The Zero‑Code Playbook */}
-        <div className="mb-24">
+        <div className="mb-24" id="c1-playbook">
+          <SectionMeta minutes="14 min" focus="Install discipline + automation" />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Zero‑Code Playbook (For People With Better Things to Do)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            You’re not here to learn computer science. You’re here to stop drowning in busywork. This is the exact path to get OpenClaw behaving like a real assistant — without coding, without nerd rituals, and without pretending you care about “frameworks.”
+            You’re not here to learn computer science. You’re here to stop drowning in busywork. This is the exact path to get{" "}
+            <GlossaryTooltip term="OpenClaw" definition="Your local assistant runtime and workspace engine" href="#c1-dictionary" />{" "}
+            behaving like a real assistant — without coding, without nerd rituals, and without pretending you care about “frameworks.”
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
               <h4 className="font-sans font-black uppercase mb-3">The 7‑Step Adulting Protocol</h4>
               <ol className="list-decimal list-inside font-serif text-[#444] space-y-3">
-                <li>Install OpenClaw. Don’t customize anything yet.</li>
-                <li>Open your workspace folder. Yes, it exists. No, it’s not scary.</li>
-                <li>Fill out AGENTS.md like a boss: what to do, what not to do.</li>
-                <li>Fill out USER.md + IDENTITY.md so it knows who you are.</li>
-                <li>Connect Gmail + Calendar. If it can’t read your day, it can’t help your day.</li>
-                <li>Create ONE canonical tasks file. Stop the chaos.</li>
-                <li>Add a daily heartbeat so it checks in without you babysitting it.</li>
+                <li><strong>Install OpenClaw clean:</strong> Run default install, then confirm with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>. Example: if a container is "Exited", restart before moving on.</li>
+                <li><strong>Locate your workspace:</strong> Open the root folder and bookmark it. Example: keep it in Finder/Explorer favorites so edits take seconds.</li>
+                <li><strong>Write AGENTS.md rules:</strong> Define mission, output format, and "never do" list. Example: "Never send an email without approval."</li>
+                <li><strong>Define identity files:</strong> Fill USER.md + IDENTITY.md with your tone, role, and boundaries. Example: "Concise, no fluff, business-first."</li>
+                <li><strong>Connect real tools:</strong> Add Gmail + Calendar with least-privilege permissions. Example: read calendar + draft emails only.</li>
+                <li><strong>Create one source of truth:</strong> Single tasks file (no duplicate lists). Example: <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">tasks.md</code> with Inbox / Today / Waiting.</li>
+                <li><strong>Schedule heartbeat automation:</strong> Use <GlossaryTooltip term="Cron" definition="A scheduler that runs commands at defined times" href="#c1-dictionary" /> to run daily review + check-ins. Example: 7:00am brief and 4:30pm follow-up digest.</li>
               </ol>
             </div>
             <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e]">
@@ -536,10 +662,23 @@ const CourseOneContent = ({ onClose }) => {
               </ul>
             </div>
           </div>
+          <CheckpointCard
+            title="Playbook Checkpoint"
+            pass={[
+              "You have exactly one tasks file and one heartbeat schedule.",
+              "AGENTS.md + identity files are filled with explicit rules.",
+              "At least one tool integration (email/calendar) is verified."
+            ]}
+            fail={[
+              "Multiple conflicting task lists still exist.",
+              "No cron/heartbeat means the assistant is still reactive.",
+              "You cannot explain your assistant rules in 60 seconds."
+            ]}
+          />
         </div>
 
         {/* Section 9: The Dumb‑Proof Dictionary */}
-        <div className="mb-24">
+        <div className="mb-24" id="c1-dictionary">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -561,7 +700,7 @@ const CourseOneContent = ({ onClose }) => {
               { term: "Skills", def: "Reusable workflows. Teach it one good process and it runs it forever." },
               { term: "Memory", def: "Durable context files. It remembers your world across sessions." },
               { term: "Tools", def: "External services it can use (email, calendar, docs)." },
-              { term: "Cron", def: "Timers. This is how the agent wakes itself up." }
+              { term: "Cron", def: "A Linux/macOS scheduler that runs commands at specific times using a 5-part pattern (minute hour day month weekday)." }
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
@@ -569,17 +708,29 @@ const CourseOneContent = ({ onClose }) => {
               </div>
             ))}
           </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+            <h4 className="font-sans font-black uppercase mb-3">Cron in OpenClaw (Detailed)</h4>
+            <p className="font-serif text-[#444] mb-4">
+              Cron lets OpenClaw run jobs while you are offline. Format: <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">minute hour day month weekday command</code>.
+            </p>
+            <ul className="font-mono text-xs space-y-2 text-[#222]">
+              <li><code className="bg-[#fdfaf6] border px-1">0 7 * * * /root/80m/scripts/morning-brief.sh</code> → Sends your 7:00 AM daily brief.</li>
+              <li><code className="bg-[#fdfaf6] border px-1">*/30 * * * * /root/80m/scripts/inbox-triage.sh</code> → Checks inbox every 30 minutes.</li>
+              <li><code className="bg-[#fdfaf6] border px-1">30 16 * * 1-5 /root/80m/scripts/eod-wrap.sh</code> → Weekday end-of-day summary at 4:30 PM.</li>
+            </ul>
+          </div>
           <ResourceList
             title="Dictionary Resources"
             items={[
-              { label: "OpenClaw Course Anatomy (local) ", href: "#", note: "File: /home/falcon/Documents/openclaw course Anatomy.txt" },
-              { label: "ClawChief Repo", href: "https://github.com/snarktank/clawchief", note: "See a real workspace structure." }
+              { label: "OpenClaw Course Anatomy (local) ", href: "#", note: "Walkthrough of folder structure + role of each core file." },
+              { label: "ClawChief Repo", href: "https://github.com/snarktank/clawchief", note: "Reference workspace layout, prompts, and automations." },
+              { label: "crontab.guru", href: "https://crontab.guru", note: "Translate cron patterns into plain English fast." }
             ]}
           />
         </div>
 
         {/* Section 11: Resource Locker */}
-        <div className="mb-24">
+        <div className="mb-24" id="c1-resources">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -598,15 +749,23 @@ const CourseOneContent = ({ onClose }) => {
             <ul className="space-y-4 font-serif text-lg">
               <li>
                 <a className="underline underline-offset-4 font-black" href="https://platform.openai.com" target="_blank" rel="noreferrer">OpenAI Dev Console</a>
-                <span className="text-[#555]"> — Create API keys here. Keep them secret.</span>
+                <span className="text-[#555]"> — Create API keys for OpenClaw/Hermes model calls. Keep them secret.</span>
               </li>
               <li>
                 <a className="underline underline-offset-4 font-black" href="https://console.anthropic.com" target="_blank" rel="noreferrer">Anthropic Console</a>
-                <span className="text-[#555]"> — Alternative provider. Same secret‑key rule.</span>
+                <span className="text-[#555]"> — Alternative provider with Claude models. Same secret‑key rule.</span>
               </li>
               <li>
                 <a className="underline underline-offset-4 font-black" href="https://discord.com/app" target="_blank" rel="noreferrer">Discord App</a>
                 <span className="text-[#555]"> — Support + announcements.</span>
+              </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://docs.docker.com/desktop/" target="_blank" rel="noreferrer">Docker Desktop Docs</a>
+                <span className="text-[#555]"> — Official install + troubleshooting for Mac/Windows.</span>
+              </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://docs.github.com/en/get-started/start-your-journey/hello-world" target="_blank" rel="noreferrer">GitHub Hello World</a>
+                <span className="text-[#555]"> — If Git feels scary, this is the 10-minute primer.</span>
               </li>
               <li>
                 <a className="underline underline-offset-4 font-black" href="https://github.com/snarktank/clawchief" target="_blank" rel="noreferrer">ClawChief Repo</a>
@@ -617,8 +776,26 @@ const CourseOneContent = ({ onClose }) => {
                 <span className="text-[#555]"> — The origin story behind priority maps.</span>
               </li>
             </ul>
+            <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
+              <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Rescue Prompts</p>
+              <ul className="font-mono text-xs text-[#1f2937] space-y-2">
+                <li>"Audit my OpenClaw install. Return PASS/FAIL for Docker, containers, API keys, and memory files."</li>
+                <li>"Hermes, generate a morning brief template with sections for Calendar, Inbox, Priorities, and Follow-Ups."</li>
+                <li>"Create a safe first-week cron schedule with one morning brief and one end-of-day recap."</li>
+              </ul>
+            </div>
             <div className="mt-8 border-t-2 border-[#111] pt-6 text-sm font-mono text-[#555]">
               Local docs: /home/falcon/Documents/How to turn your OpenClaw.txt • /home/falcon/Documents/openclaw course Anatomy.txt
+            </div>
+            <div className="mt-6 border-[2px] border-[#111] p-4 bg-[#fdfaf6]">
+              <p className="font-sans font-black text-sm uppercase mb-3">Tools & Technologies (for course builders)</p>
+              <ul className="font-serif text-sm text-[#333] space-y-1">
+                <li><a className="underline font-black" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noreferrer">HTML/CSS/JavaScript</a> — Front-end foundations.</li>
+                <li><a className="underline font-black" href="https://react.dev/" target="_blank" rel="noreferrer">React</a> / <a className="underline font-black" href="https://vuejs.org/" target="_blank" rel="noreferrer">Vue</a> / <a className="underline font-black" href="https://angular.dev/" target="_blank" rel="noreferrer">Angular</a> — Interactive UI frameworks.</li>
+                <li><a className="underline font-black" href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noreferrer">Markdown Editor Guide</a> — Write and maintain curriculum text.</li>
+                <li><a className="underline font-black" href="https://git-scm.com/doc" target="_blank" rel="noreferrer">Git Docs</a> — Version control and collaboration.</li>
+                <li><a className="underline font-black" href="https://docs.netlify.com/" target="_blank" rel="noreferrer">Netlify</a> / <a className="underline font-black" href="https://vercel.com/docs" target="_blank" rel="noreferrer">Vercel</a> / <a className="underline font-black" href="https://pages.github.com/" target="_blank" rel="noreferrer">GitHub Pages</a> — Hosting and deployment options.</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -722,10 +899,42 @@ const CourseTwoContent = ({ onClose }) => {
           <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6">
             If your AI is giving you generic garbage, it's because you're treating it like a magic 8-ball. It's a high-performance intern. Be specific.
           </p>
+          <p className="font-serif text-sm text-[#555] mt-3">
+            Keep it simple: use the templates exactly as written, then tweak one rule at a time.
+          </p>
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+            <h3 className="font-sans font-black uppercase text-sm mb-3">Fast Start: Copy/Paste Prompt Stack</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CopyBlock text="ROLE: Hermes Chief of Staff. TASK: Build my top 3 priorities for today from calendar + inbox. RULES: concise, no fluff. OUTPUT: numbered list." />
+              <CopyBlock text="TASK: Rewrite this message for a client. RULES: 70 words max, confident tone, one CTA. OUTPUT: 3 options." />
+            </div>
+          </div>
+          <CourseBoostPanel
+            title="Class 02 Prompt Quality Checklist"
+            checklist={[
+              "Every prompt includes ROLE, TASK, RULES, OUTPUT, and CONTEXT.",
+              "Output format is explicit (table, bullets, JSON, etc.).",
+              "Prompts are reusable templates saved to your workspace.",
+              "At least one prompt is automated into a scheduled brief."
+            ]}
+            prompts={[
+              "\"Convert this vague ask into a strict ROLE/TASK/RULES/OUTPUT/CONTEXT prompt.\"",
+              "\"Score this prompt from 1-10 for clarity and rewrite it to a 10.\""
+            ]}
+          />
+          <ResourceList
+            title="Jump Links"
+            items={[
+              { label: "Go to Prompt Translator", href: "#c2-prompting", note: "Fastest way to improve output quality." },
+              { label: "Go to Class 02 Dictionary", href: "#c2-dictionary", note: "Glossary for terms used throughout class." },
+              { label: "Go to Class 02 Resource Locker", href: "#c2-resources", note: "Official prompting docs + templates." }
+            ]}
+          />
         </div>
 
         {/* Section 1: Prompting */}
         <div id="c2-prompting" className="mb-24">
+          <SectionMeta minutes="8 min" focus="Prompt upgrades" />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. The Prompt Translator</h2>
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-10 shadow-[8px_8px_0_0_#111]">
             <div className="flex flex-col md:flex-row gap-8 items-stretch">
@@ -755,7 +964,7 @@ const CourseTwoContent = ({ onClose }) => {
         <div className="mb-24">
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Context Window</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Think of the context window as AI short-term memory. You can hand it a massive document, a long conversation, a full brief — but it all has to fit in that window at once. Class 02 teaches you to manage it.
+            Think of the <GlossaryTooltip term="Context Window" definition="How much information the model can hold at once" href="#c2-dictionary" /> as AI short-term memory. You can hand it a massive document, a long conversation, a full brief — but it all has to fit in that window at once. Class 02 teaches you to manage it.
           </p>
           <div className="bg-[#111] p-8 text-[#eae7de] border-[3px] border-[#333]">
             <p className="font-mono text-xs text-[#aaa] mb-4 uppercase tracking-widest">// Context Window Visualizer</p>
@@ -888,6 +1097,7 @@ const CourseTwoContent = ({ onClose }) => {
 
         {/* Section 8: The Bossy Prompt Formula */}
         <div className="mb-24">
+          <SectionMeta minutes="11 min" focus="Prompt reliability system" />
           <NeedBox
             title="What you need before you start"
             items={[
@@ -908,7 +1118,7 @@ const CourseTwoContent = ({ onClose }) => {
                 <li><strong>ROLE:</strong> Who it is right now. (Executive assistant)</li>
                 <li><strong>TASK:</strong> The exact job. (Draft 3 replies)</li>
                 <li><strong>RULES:</strong> Constraints. (50 words, no emojis)</li>
-                <li><strong>OUTPUT:</strong> The format. (Bulleted list)</li>
+                <li><strong>OUTPUT:</strong> The <GlossaryTooltip term="Output Format" definition="Required structure like bullets/table/JSON" href="#c2-dictionary" />. (Bulleted list)</li>
                 <li><strong>CONTEXT:</strong> The facts it needs. (Client details)</li>
               </ul>
             </div>
@@ -925,10 +1135,23 @@ const CourseTwoContent = ({ onClose }) => {
               { label: "ClawChief Repo", href: "https://github.com/snarktank/clawchief", note: "Real-world assistant prompts + workflows." }
             ]}
           />
+          <CheckpointCard
+            title="Prompt Formula Checkpoint"
+            pass={[
+              "Prompt includes ROLE/TASK/RULES/OUTPUT/CONTEXT in order.",
+              "Output format is machine-checkable (table, list, JSON).",
+              "Prompt is saved for reuse and adjusted after one test run."
+            ]}
+            fail={[
+              "Vague asks like 'make it better' without constraints.",
+              "No explicit output format causes inconsistent responses.",
+              "One-off prompts are lost and rewritten every day."
+            ]}
+          />
         </div>
 
         {/* Section 9: The Dumb‑Proof Dictionary */}
-        <div className="mb-24">
+        <div className="mb-24" id="c2-dictionary">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -949,7 +1172,7 @@ const CourseTwoContent = ({ onClose }) => {
               { term: "Fabric", def: "Your brand memory. It makes the AI sound like you." },
               { term: "Chain of Thought", def: "Telling it to think before it answers." },
               { term: "Tool", def: "A connected service like Gmail or Calendar." },
-              { term: "Cron", def: "A timer that runs tasks for you." },
+              { term: "Cron", def: "A scheduler that runs prompts/scripts automatically at set times." },
               { term: "Output Format", def: "The shape you want: bullets, table, JSON, etc." }
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
@@ -958,10 +1181,13 @@ const CourseTwoContent = ({ onClose }) => {
               </div>
             ))}
           </div>
+          <p className="font-serif text-[#444] mt-6">
+            Pro move: when a term confuses you in class notes, jump to this dictionary first instead of guessing. It saves hours of bad prompts.
+          </p>
         </div>
 
         {/* Section 10: Resource Locker */}
-        <div className="mb-24">
+        <div className="mb-24" id="c2-resources">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -993,7 +1219,23 @@ const CourseTwoContent = ({ onClose }) => {
                 <a className="underline underline-offset-4 font-black" href="https://github.com/snarktank/clawchief" target="_blank" rel="noreferrer">ClawChief Repo</a>
                 <span className="text-[#555]"> — Real workflows you can steal.</span>
               </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank" rel="noreferrer">OpenAI Prompting Guide</a>
+                <span className="text-[#555]"> — Official prompt patterns for structure and reliability.</span>
+              </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noreferrer">Anthropic Prompting Guide</a>
+                <span className="text-[#555]"> — Clear examples for instruction quality and guardrails.</span>
+              </li>
             </ul>
+            <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
+              <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Prompt Templates</p>
+              <ul className="font-mono text-xs text-[#1f2937] space-y-2">
+                <li>"Summarize this thread into: Decisions, Risks, Next Actions. Max 8 bullets."</li>
+                <li>"Turn this brain dump into a clean task list with owner, due date, and dependencies."</li>
+                <li>"Generate a daily brief from my schedule. Flag conflicts and propose fixes."</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -1167,10 +1409,48 @@ const CourseThreeContent = ({ onClose }) => {
           <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
             No rent. No locks. Just a fortress you built.
           </p>
+          <div className="text-center">
+            <p className="font-serif text-sm text-[#555] mt-3">
+              Keep it simple: lock in DNS, SSL, and firewall first. Scale only after the basics are stable.
+            </p>
+          </div>
+          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+            <h3 className="font-sans font-black uppercase text-sm mb-3">Infrastructure Quick Checklist</h3>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 font-serif text-[#444] text-sm">
+              <li>✅ Domain points to your server IP.</li>
+              <li>✅ Nginx reverse proxy responds locally.</li>
+              <li>✅ SSL cert issues cleanly with Certbot.</li>
+              <li>✅ Cloudflare Tunnel routes to app.</li>
+              <li>✅ Firewall only exposes 22 + 443.</li>
+              <li>✅ Logs show legit traffic and blocked attacks.</li>
+            </ul>
+          </div>
+          <CourseBoostPanel
+            title="Class 03 Hardening Checklist + Ops Prompts"
+            checklist={[
+              "DNS points correctly and resolves globally.",
+              "Nginx + SSL pass basic security checks.",
+              "Firewall allows only required inbound ports.",
+              "Logs and alerts are reviewed daily for anomalies."
+            ]}
+            prompts={[
+              "\"Review my Nginx and firewall setup and list top 5 security risks in priority order.\"",
+              "\"Generate a weekly infrastructure maintenance checklist with exact shell commands.\""
+            ]}
+          />
+          <ResourceList
+            title="Jump Links"
+            items={[
+              { label: "Go to DNS Section", href: "#sec-1", note: "Start here if domain routing is broken." },
+              { label: "Go to Class 03 Dictionary", href: "#c3-dictionary", note: "Infrastructure term cheat sheet." },
+              { label: "Go to Class 03 Resource Locker", href: "#c3-resources", note: "Security + deployment references." }
+            ]}
+          />
         </div>
 
         {/* Section 1: DNS & Domains */}
         <div className="mb-24" id="sec-1">
+          <SectionMeta minutes="12 min" focus="DNS routing" />
           <NeedBox
             title="What you need before you start"
             items={[
@@ -1189,6 +1469,14 @@ const CourseThreeContent = ({ onClose }) => {
               <p className="text-[#38bdf8]">ai.80m.ai → 35.186.240.50 (server IP)</p>
               <p className="text-[#aaa]">When you type ai.80m.ai, DNS says: "Go to 35.186.240.50."</p>
               <p className="text-[#555]">This takes ~20ms. You never think about it.</p>
+            </div>
+            <div className="mt-6 border-t border-[#333] pt-4">
+              <p className="font-mono text-xs text-[#aaa] mb-2">// If DNS fails</p>
+              <ul className="font-serif text-sm text-[#bbb] space-y-1">
+                <li>1) Confirm A record points to public IP (not 192.168.x.x).</li>
+                <li>2) Lower TTL to 120 during setup.</li>
+                <li>3) Test with `dig yourdomain.com` before blaming Nginx.</li>
+              </ul>
             </div>
           
           <div className="mt-8 mb-4 text-center">
@@ -1240,6 +1528,7 @@ const CourseThreeContent = ({ onClose }) => {
 
         {/* Section 2: Nginx */}
         <div className="mb-24">
+          <SectionMeta minutes="15 min" focus="Proxy + TLS front door" />
           <NeedBox
             title="What you need before you start"
             items={[
@@ -1250,7 +1539,7 @@ const CourseThreeContent = ({ onClose }) => {
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Nginx: The Bouncer</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Nginx sits at the front door of your server. It checks every request before it reaches your AI. "Who are you? Are you allowed to be here?" It's what stops hackers and lets legitimate users through.
+            <GlossaryTooltip term="Nginx" definition="Reverse proxy handling and routing incoming web requests" href="#c3-dictionary" /> sits at the front door of your server. It checks every request before it reaches your AI. "Who are you? Are you allowed to be here?" It's what stops hackers and lets legitimate users through.
           </p>
           <div className="bg-[#111] p-8 text-[#eae7de] border-[3px] border-[#333] font-mono text-sm space-y-2">
             <p className="text-[#aaa]"># nginx.conf (simplified)</p>
@@ -1262,6 +1551,19 @@ const CourseThreeContent = ({ onClose }) => {
             <p className="pl-4 text-[#eae7de]">&#125;</p>
             <p className="text-[#38bdf8]">&#125;</p>
           </div>
+          <CheckpointCard
+            title="Nginx Checkpoint"
+            pass={[
+              "Nginx config validates with no syntax errors.",
+              "Proxy routes to app and returns expected response.",
+              "HTTPS endpoint is reachable with valid certificate."
+            ]}
+            fail={[
+              "502/504 errors from wrong upstream or stopped app container.",
+              "Mixed-content or cert warnings in browser.",
+              "Config edits made without backup/version control."
+            ]}
+          />
 
           {/* Nginx Config Builder */}
           <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
@@ -1575,7 +1877,7 @@ const CourseThreeContent = ({ onClose }) => {
 
 
         {/* Section 9: The Dumb‑Proof Dictionary */}
-        <div className="mb-24">
+        <div className="mb-24" id="c3-dictionary">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -1617,7 +1919,7 @@ const CourseThreeContent = ({ onClose }) => {
 
 
         {/* Section 10: Resource Locker */}
-        <div className="mb-24">
+        <div className="mb-24" id="c3-resources">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -1657,7 +1959,23 @@ const CourseThreeContent = ({ onClose }) => {
                 <a className="underline underline-offset-4 font-black" href="https://www.namecheap.com" target="_blank" rel="noreferrer">Namecheap</a>
                 <span className="text-[#555]"> — Where to buy a domain for $10/yr.</span>
               </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://developers.cloudflare.com/dns/" target="_blank" rel="noreferrer">Cloudflare DNS Docs</a>
+                <span className="text-[#555]"> — Official DNS record reference + troubleshooting.</span>
+              </li>
+              <li>
+                <a className="underline underline-offset-4 font-black" href="https://docs.github.com/en/get-started/git-basics" target="_blank" rel="noreferrer">Git Basics</a>
+                <span className="text-[#555]"> — Version control fundamentals before server config edits.</span>
+              </li>
             </ul>
+            <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
+              <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Infra Prompts</p>
+              <ul className="font-mono text-xs text-[#1f2937] space-y-2">
+                <li>"Audit my Nginx config for security issues and return a corrected version."</li>
+                <li>"Generate Cloudflare DNS records for app, API, and www with recommended TTL."</li>
+                <li>"Review my UFW rules and tell me what is unnecessarily exposed."</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -1708,6 +2026,138 @@ const CourseThreeContent = ({ onClose }) => {
   );
 };
 
+const CourseFourContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 04</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Workflows That Actually Ship</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["One active client or internal project.", "A place to store approved prompt templates.", "A task list with at least 5 real tasks."]} />
+      <SectionMeta minutes="75 min" focus="From request to shipped output" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Build Repeatable Workflows.</h1>
+      <p className="font-serif text-lg text-[#444]">This class turns random prompting into reliable delivery pipelines: intake → generate → QA → ship.</p>
+      <CourseBoostPanel title="Workflow Starter Stack" checklist={["Use one intake template for every task.", "Force explicit output format for every request.", "Run QA checklist before sending.", "Log what worked into your prompt library."]} prompts={["\"Turn this request into a 4-step execution workflow with deliverables and QA checks.\"", "\"Create a reusable SOP from this successful output so I can run it weekly.\""]} />
+      <CheckpointCard title="Workflow Checkpoint" pass={["At least one workflow completed end-to-end.", "Template + QA checklist both saved.", "Output sent without manual rewrite."]} fail={["Prompt quality changes every run.", "No review checklist before shipping.", "Output depends on memory not process."]} />
+    </div></div>
+  </motion.div>
+);
+
+const CourseFiveContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 05</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Client Ops + Delivery</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["Client communication channel (email/slack).", "Meeting notes from a recent project.", "One KPI you care about (speed, quality, conversion)."]} />
+      <SectionMeta minutes="80 min" focus="Client-ready execution and handoff" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Deliver Fast, Look Professional.</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CopyBlock text="TASK: Summarize this client thread. OUTPUT: Decisions, blockers, next steps, owner, due date." />
+        <CopyBlock text="TASK: Draft client update email. RULES: concise, confident, no jargon. OUTPUT: subject + body." />
+      </div>
+      <div className="mt-6 border-[3px] border-[#111] bg-white p-6">
+        <h3 className="font-sans font-black uppercase mb-3">Functional Upgrade: Handoff Bundle</h3>
+        <ul className="font-serif text-[#444] space-y-2">
+          <li>• Auto-generate client update drafts after every major milestone.</li>
+          <li>• Attach a “what changed / why it matters / next action” summary.</li>
+          <li>• Store finalized outputs in a versioned delivery folder.</li>
+        </ul>
+      </div>
+      <CheckpointCard title="Client Ops Checkpoint" pass={["Client update generated in under 10 minutes.", "Every update has owner + due date.", "No ambiguous next steps remain."]} fail={["Long status emails with no action items.", "No standardized handoff structure.", "Deadlines not mapped to owners."]} />
+    </div></div>
+  </motion.div>
+);
+
+const CourseSixContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 06</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">Automation Flywheel</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-4xl mx-auto">
+      <NeedBox items={["At least one working cron job from prior classes.", "A weekly recurring task you hate doing.", "A clear definition of 'done' for that task."]} />
+      <SectionMeta minutes="85 min" focus="Turn one-off wins into recurring automation" />
+      <h1 className="font-serif text-5xl font-black uppercase mb-6">Build the Flywheel.</h1>
+      <MacWindow title="automation_flywheel.sh" contentClass="bg-[#111] p-6 text-[#eae7de] font-mono text-sm">
+        <p className="text-[#22c55e]">0 8 * * 1-5 /root/80m/scripts/pipeline-runner.sh</p>
+        <p className="text-[#aaa] mt-3"># Pull tasks → execute templates → generate QA report → deliver summary</p>
+      </MacWindow>
+      <div className="mt-4"><CopyBlock text="Create a weekly automation map: trigger, input source, transformation steps, QA check, and final destination." /></div>
+      <CheckpointCard title="Automation Checkpoint" pass={["One recurring task fully automated.", "Failure alerts configured.", "Weekly review report generated automatically."]} fail={["Automation runs silently with no reporting.", "No rollback path when output quality drops.", "Manual fixes required every run."]} />
+    </div></div>
+  </motion.div>
+);
+
+const courseSevenUseCases = [
+  "Daily executive brief with priorities and blockers",
+  "Inbox triage with response-draft suggestions",
+  "Calendar conflict detection and auto-reschedule proposals",
+  "Client status update generation from raw notes",
+  "Sales follow-up sequence drafting and scheduling",
+  "Social content repurposing from long-form source",
+  "Meeting transcript summaries with assigned action items",
+  "Lead research dossiers with qualification score",
+  "Proposal skeleton generation from intake form",
+  "Support ticket categorization and response starter",
+  "Weekly KPI snapshot with trend commentary",
+  "Contract redline summary in plain English",
+  "Recruiting candidate summary + interview plan",
+  "Project risk register update from active tasks",
+  "End-of-day wrap-up with tomorrow kickoff plan"
+];
+
+const CourseSevenContent = ({ onClose }) => (
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <NoiseOverlay />
+    <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
+      <div><span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 07</span><h2 className="font-serif text-[#eae7de] text-2xl font-black">15 Use Cases — Copy, Run, Win</h2></div>
+      <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111]">Exit Class ✕</button>
+    </div>
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-10"><div className="max-w-5xl mx-auto">
+      <NeedBox items={["Your real business context (docs, notes, calendar).", "A destination for outputs (email, doc, PM tool).", "10 minutes to test each use case with your own data."]} />
+      <SectionMeta minutes="120 min" focus="Production-ready use cases" />
+      <h1 className="font-serif text-5xl md:text-6xl font-black uppercase mb-6">Use Cases, Fully Explained.</h1>
+      <p className="font-serif text-lg text-[#444] mb-8">Each card gives you what it does, when to use it, and what “good output” looks like. Use the copy blocks to run immediately.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {courseSevenUseCases.map((useCase, i) => (
+          <div key={useCase} className="border-[3px] border-[#111] bg-white p-5 shadow-[6px_6px_0_0_#111]">
+            <p className="font-mono text-xs uppercase text-[#22c55e] mb-2">Use Case {i + 1}</p>
+            <h3 className="font-sans font-black text-lg uppercase leading-tight mb-2">{useCase}</h3>
+            <p className="font-serif text-sm text-[#555] mb-3">Best for: teams that want predictable output quality with minimal back-and-forth.</p>
+            <CopyBlock text={`TASK: ${useCase}. RULES: concise, business-ready, no fluff. OUTPUT: bullet list + next action + owner + due date.`} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MacWindow title="high_visibility_terminal.log" contentClass="bg-black p-6 text-[#d1fae5] font-mono text-sm">
+          <p className="text-[#22c55e] font-bold">[READY] Paste any use case prompt.</p>
+          <p className="mt-2 text-[#93c5fd]">[RUNNING] validating context, constraints, output schema...</p>
+          <p className="mt-2 text-[#fcd34d]">[OUTPUT] Generated with owner + deadline + QA checks.</p>
+          <p className="mt-2 text-[#fca5a5]">[WARN] Missing context? Add source notes and rerun.</p>
+        </MacWindow>
+        <div className="border-[3px] border-[#111] bg-[#f0fdf4] p-6">
+          <h3 className="font-sans font-black uppercase mb-3">How to Read Terminal Output (Simple)</h3>
+          <ul className="font-serif text-[#14532d] text-sm space-y-2">
+            <li>• <strong>READY</strong> = prompt accepted.</li>
+            <li>• <strong>RUNNING</strong> = it is working through steps.</li>
+            <li>• <strong>OUTPUT</strong> = result is complete and usable.</li>
+            <li>• <strong>WARN</strong> = add context and rerun for better quality.</li>
+          </ul>
+          <div className="mt-4">
+            <CopyBlock text="Audit this output for missing owners, dates, and unclear action items. Return corrected version." />
+          </div>
+        </div>
+      </div>
+      <CheckpointCard title="Course 07 Completion Checkpoint" pass={["You tested at least 5 use cases with real data.", "Each output includes owner + due date + next step.", "You saved top 3 prompts as reusable templates."]} fail={["Outputs are generic because context was missing.", "No QA pass before sending externally.", "Prompts were not saved for repeat use."]} />
+    </div></div>
+  </motion.div>
+);
+
 // --- Main Portal Page ---
 
 const classesData = [
@@ -1751,6 +2201,62 @@ const classesData = [
       { name: "Nginx & Tunnels", detail: "The bouncer at the door." },
       { name: "SSL & Security", detail: "The green lock of trust." },
       { name: "Scaling", detail: "Turning one bot into an army." }
+    ]
+  },
+  {
+    id: "04",
+    title: "Workflows That Actually Ship",
+    subtitle: "From Request to Done",
+    time: "75 Minutes",
+    description: "Operational workflow design so outputs are consistent, reviewable, and ready to deliver.",
+    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    topics: [
+      { name: "Intake Templates", detail: "Capture requirements once, correctly." },
+      { name: "QA Gates", detail: "Stop low-quality output before delivery." },
+      { name: "SOP Extraction", detail: "Turn wins into reusable systems." },
+      { name: "Delivery Loop", detail: "Generate → review → ship." }
+    ]
+  },
+  {
+    id: "05",
+    title: "Client Ops + Delivery",
+    subtitle: "Professional Execution Layer",
+    time: "80 Minutes",
+    description: "Client-safe handoffs, status updates, and clear ownership so nothing falls through the cracks.",
+    image: "https://i.postimg.cc/zv5nx1F1/80mascot-claw.png",
+    topics: [
+      { name: "Status Automation", detail: "Generate updates in minutes." },
+      { name: "Handoff Bundles", detail: "Decisions, owners, due dates." },
+      { name: "Comms Templates", detail: "Consistent professional tone." },
+      { name: "KPI Summaries", detail: "What changed and what to do next." }
+    ]
+  },
+  {
+    id: "06",
+    title: "Automation Flywheel",
+    subtitle: "Recurring Execution Engine",
+    time: "85 Minutes",
+    description: "Design recurring automations that are measurable, monitored, and easy to improve weekly.",
+    image: "https://i.postimg.cc/x8YK6S32/80mascot-rich.png",
+    topics: [
+      { name: "Trigger Design", detail: "When and why jobs should run." },
+      { name: "Output Routing", detail: "Deliver to the right destination." },
+      { name: "Failure Alerts", detail: "Catch bad runs early." },
+      { name: "Weekly Review", detail: "Tune quality with feedback loops." }
+    ]
+  },
+  {
+    id: "07",
+    title: "15 Use Cases — Copy, Run, Win",
+    subtitle: "Production Use-Case Library",
+    time: "120 Minutes",
+    description: "A practical, visually structured use-case vault with copy-ready prompts and clearer terminal guidance.",
+    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    topics: [
+      { name: "15 Real Use Cases", detail: "Expanded scenarios you can run now." },
+      { name: "Readable Terminal", detail: "High-contrast output + what each state means." },
+      { name: "Copy Blocks", detail: "One-click prompt execution flow." },
+      { name: "Completion QA", detail: "Pass/fail criteria for production quality." }
     ]
   }
 ];
@@ -1921,6 +2427,10 @@ export default function PortalPage() {
         {activeCourseId === "01" && <CourseOneContent key="course-01" onClose={() => setActiveCourseId(null)} />}
         {activeCourseId === "02" && <CourseTwoContent key="course-02" onClose={() => setActiveCourseId(null)} />}
         {activeCourseId === "03" && <CourseThreeContent key="course-03" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "04" && <CourseFourContent key="course-04" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "05" && <CourseFiveContent key="course-05" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "06" && <CourseSixContent key="course-06" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "07" && <CourseSevenContent key="course-07" onClose={() => setActiveCourseId(null)} />}
       </AnimatePresence>
     </div>
   );
