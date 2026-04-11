@@ -1,16 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export { motion, AnimatePresence };
 
-export const NoiseOverlay = () => (
-  <svg className="pointer-events-none fixed inset-0 z-50 h-full w-full opacity-[0.4] mix-blend-overlay" aria-hidden="true">
-    <filter id="noise">
-      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
-    </filter>
-    <rect width="100%" height="100%" filter="url(#noise)" />
-  </svg>
-);
+// =====================================================================
+// FILM GRAIN CANVAS — canvas-based animated film grain overlay
+// Fills ImageData pixels with random grayscale, regenerates every 3
+// frames for analog-style flickering. 4% opacity, requestAnimationFrame.
+// =====================================================================
+export const NoiseOverlay = () => {
+  const canvasRef = useRef(null);
+  const frameRef = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let rafId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const draw = () => {
+      frameRef.current++;
+      if (frameRef.current % 3 === 0) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const imageData = ctx.createImageData(w, h);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          const v = Math.random() * 255;
+          data[i] = v;
+          data[i + 1] = v;
+          data[i + 2] = v;
+          data[i + 3] = Math.floor(0.04 * 255);
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+      rafId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-[150] pointer-events-none opacity-[0.4] mix-blend-overlay"
+      aria-hidden="true"
+    />
+  );
+};
+
+// =====================================================================
+// FLOATING PARTICLES — CSS-animated ambient particle layer
+// Inline @keyframes per-particle with random trajectory, size, timing.
+// =====================================================================
+export const FloatingParticles = ({ count = 18 }) => {
+  const particles = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: Math.random() * 12 + 14,
+      size: Math.random() * 3 + 1.5,
+      color: i % 3 === 0 ? '#22c55e' : i % 3 === 1 ? '#38bdf8' : '#bae6fd',
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-30 pointer-events-none overflow-hidden" aria-hidden="true">
+      {particles.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            borderRadius: '50%',
+            left: `${p.left}%`,
+            opacity: Math.random() * 0.4 + 0.2,
+            animation: `floatParticle${i} ${p.duration}s ease-in-out infinite`,
+            animationDelay: `${p.delay}s`,
+            boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+          }}
+        />
+      ))}
+      <style>{particles.map((p, i) => `
+        @keyframes floatParticle${i} {
+          0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+          8%   { opacity: 1; }
+          92%  { opacity: 0.6; }
+          100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+      `).join('\n')}</style>
+    </div>
+  );
+};
 
 export const PaperBackground = () => (
   <div aria-hidden="true">
