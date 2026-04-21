@@ -1739,9 +1739,9 @@ export default function App() {
             animate="visible"
           >
             <motion.h1 variants={fadeUp} className="font-serif text-xl md:text-3xl leading-snug tracking-tight text-white mb-5 drop-shadow-[2px_2px_0_rgba(17,17,17,1)]">
-              80m was started by<br/>
-              <span className="italic">tech-advanced people</span><br/>
-              to catch you up.
+              We install your AI.<br/>
+              <span className="italic">We run your social.</span><br/>
+              $200/mo. That's it.
             </motion.h1>
 
             <motion.a
@@ -1750,9 +1750,9 @@ export default function App() {
               whileTap={{ scale: 0.95 }}
               onClick={(e) => { e.preventDefault(); setShowOnboarding(true); }}
               href="#"
-              className="font-sans font-black text-sm md:text-base px-6 py-3 bg-[#111] text-[#eae7de] rounded-full inline-block text-center tracking-wider uppercase"
+              className="font-sans font-black text-sm md:text-base px-6 py-3 bg-[#22c55e] text-[#111] rounded-full inline-block text-center tracking-wider uppercase border-[3px] border-[#111] shadow-[4px_4px_0_0_#111]"
             >
-              Apply for Access
+              Book Your Install
             </motion.a>
             <div className="block w-full text-center">
               <motion.button
@@ -1762,7 +1762,7 @@ export default function App() {
                 onClick={(e) => { e.preventDefault(); document.getElementById('course')?.scrollIntoView({ behavior: 'smooth' }); }}
                 className="mt-3 font-sans font-bold text-sm md:text-base px-6 py-3 text-white rounded-full border-2 border-white/40 hover:border-white hover:-translate-y-0.5 transition-all tracking-wider uppercase"
               >
-                Learn the Sauce →
+                See the Courses →
               </motion.button>
             </div>
           </motion.div>
@@ -2045,62 +2045,23 @@ export default function App() {
   <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
     <motion.p variants={fadeUp} className="font-mono uppercase tracking-[0.25em] mb-4 text-xs font-bold text-center mix-blend-multiply text-[#555]">// investment</motion.p>
     <motion.h2 id="pricing-heading" variants={fadeUp} className="font-serif text-5xl md:text-7xl leading-[0.9] tracking-tight mb-4 mix-blend-multiply text-center">
-      Pick what you need.
+      We come to you.
     </motion.h2>
-    <motion.p variants={fadeUp} className="font-sans text-lg md:text-xl text-[#555] text-center mb-16 mix-blend-multiply font-medium">No packages. No upsells. Just the thing.</motion.p>
+    <motion.p variants={fadeUp} className="font-sans text-lg md:text-xl text-[#555] text-center mb-16 mix-blend-multiply font-medium">In-person install. Monthly maintenance. Courses to learn on your own.</motion.p>
 
     {/* 3 Cards */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
 
-      {/* Card 1 — OpenClaw Setup */}
-      <motion.div variants={fadeUp} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative">
-        <AsciiShadow size="md" rotate="0.5deg">
-          <MacWindow title="01_OpenClaw_Setup.exe" contentClass="bg-[#eae7de] p-8 text-[#111]">
-            <div className="border-b-2 border-[#111] pb-6 mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#555] mb-3">// option A</p>
-              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">OpenClaw Setup</h3>
-              <p className="font-sans text-sm text-[#555] italic">Just the agent. Running for you.</p>
-            </div>
-            <div className="mb-8">
-              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$247</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">one-time setup</p>
-            </div>
-            <ul className="space-y-3 font-sans text-sm mb-8">
-              {[
-                "OpenClaw + Hermes installed",
-                "Voice interface configured",
-                "Connected to your tools",
-                "Basic skills wired up",
-                "Runs on your own server",
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <span className="font-black text-[#22c55e] leading-none mt-0.5">+</span>
-                  <span>{item}</span>
-                </div>
-              ))}
-            </ul>
-            <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={(e) => { e.preventDefault(); setShowOnboarding(true); }}
-              className="w-full font-sans font-black text-base py-4 bg-[#111] text-[#eae7de] rounded-full shadow-[0_6px_0_0_rgba(0,0,0,0.5)] hover:shadow-[0_10px_0_0_rgba(0,0,0,0.4)] hover:-translate-y-0.5 transition-all border-2 border-[#111]"
-            >
-              Get Started →
-            </motion.button>
-          </MacWindow>
-        </AsciiShadow>
-      </motion.div>
-
-      {/* Card 2 — Launch Special */}
+      {/* Card 1 — In-Person Install */}
       <motion.div variants={fadeUp} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative">
         {/* Badge */}
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 font-mono text-[9px] uppercase tracking-[0.25em] bg-[#22c55e] text-[#111] px-4 py-1.5 rounded-full font-black">First 5 Customers Only</div>
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 font-mono text-[9px] uppercase tracking-[0.25em] bg-[#22c55e] text-[#111] px-4 py-1.5 rounded-full font-black">First 5 Get $1K Off</div>
         <AsciiShadow size="lg" rotate="-0.5deg">
-          <MacWindow title="02_Launch_Special.exe" contentClass="bg-[#111] p-8 text-[#eae7de]">
+          <MacWindow title="01_In_Person_Install.exe" contentClass="bg-[#111] p-8 text-[#eae7de]">
             <div className="border-b-2 border-[#333] pb-6 mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#22c55e] mb-3">// option B</p>
-              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">Full System</h3>
-              <p className="font-sans text-sm text-[#888] italic">Design + host + setup. Done for you.</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#22c55e] mb-3">// the main offer</p>
+              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">In-Person Install</h3>
+              <p className="font-sans text-sm text-[#888] italic">We show up. Set it up. Leave when it's running.</p>
             </div>
 
             {/* Pricing block */}
@@ -2109,7 +2070,7 @@ export default function App() {
                 <p className="font-serif text-5xl font-black tracking-tighter leading-none text-[#eae7de]">$1,000</p>
                 <p className="font-serif text-2xl font-black tracking-tighter leading-none text-[#555] line-through mb-1">$2,000</p>
               </div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">one-time install</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">founding member price</p>
             </div>
 
             {/* Spots remaining */}
@@ -2124,12 +2085,12 @@ export default function App() {
 
             <ul className="space-y-3 font-sans text-sm mb-8">
               {[
-                "OpenClaw + Hermes installed",
-                "Full brand & system design",
-                "All projects hosted for you",
-                "30 days hands-on support",
-                "Custom skills built for you",
-                "Discord channel access",
+                "Full AI system installed on-site",
+                "80m Agent Chat UI included free",
+                "Social posts created & delivered monthly",
+                "Brand assets designed for you",
+                "System maintained — we handle updates",
+                "You own everything. We just keep it running.",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span className="text-[#22c55e] leading-none mt-0.5 font-black">+</span>
@@ -2150,27 +2111,67 @@ export default function App() {
         </AsciiShadow>
       </motion.div>
 
-      {/* Card 3 — Course */}
+      {/* Card 2 — Monthly Maintenance */}
       <motion.div variants={fadeUp} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative">
         <AsciiShadow size="md" rotate="0.5deg">
-          <MacWindow title="03_The_Course.exe" contentClass="bg-[#eae7de] p-8 text-[#111]">
+          <MacWindow title="02_Monthly_Maintenance.exe" contentClass="bg-[#eae7de] p-8 text-[#111]">
             <div className="border-b-2 border-[#111] pb-6 mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#555] mb-3">// option C</p>
-              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">The Course</h3>
-              <p className="font-sans text-sm text-[#555] italic">Build it yourself. Keep it forever.</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#555] mb-3">// ongoing</p>
+              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">Monthly Maintenance</h3>
+              <p className="font-sans text-sm text-[#555] italic">We do the work. You run the business.</p>
             </div>
             <div className="mb-8">
-              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$2,000</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">For the exact sauce we use for clients.</p>
+              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$200</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">per month — cancel anytime</p>
             </div>
             <ul className="space-y-3 font-sans text-sm mb-8">
               {[
-                "3 video classes (3–4 hrs total)",
-                "OpenClaw + Hermes installed",
-                "Prompting & delegation mastery",
-                "Self-hosting & DNS",
+                "Social posts designed + written + delivered",
+                "Brand assets refreshed monthly",
+                "System updates & maintenance handled",
+                "80m Agent Chat UI running 24/7",
+                "Support when you need it",
+                "No meetings. Just delivery.",
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="font-black text-[#22c55e] leading-none mt-0.5">+</span>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </ul>
+            <motion.button
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={(e) => { e.preventDefault(); setShowOnboarding(true); }}
+              className="w-full font-sans font-black text-base py-4 bg-[#111] text-[#eae7de] rounded-full shadow-[0_6px_0_0_rgba(0,0,0,0.5)] hover:shadow-[0_10px_0_0_rgba(0,0,0,0.4)] hover:-translate-y-0.5 transition-all border-2 border-[#111]"
+            >
+              Get Started →
+            </motion.button>
+          </MacWindow>
+        </AsciiShadow>
+      </motion.div>
+
+      {/* Card 3 — Courses */}
+      <motion.div variants={fadeUp} whileHover={{ y: -8, transition: { duration: 0.3 } }} className="relative">
+        <AsciiShadow size="md" rotate="0.5deg">
+          <MacWindow title="03_The_Courses.exe" contentClass="bg-[#eae7de] p-8 text-[#111]">
+            <div className="border-b-2 border-[#111] pb-6 mb-6">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#555] mb-3">// learn it yourself</p>
+              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">The Courses</h3>
+              <p className="font-sans text-sm text-[#555] italic">Free with any install. Or buy standalone.</p>
+            </div>
+            <div className="mb-8">
+              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$247</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">one-time — yours forever</p>
+            </div>
+            <ul className="space-y-3 font-sans text-sm mb-8">
+              {[
+                "7 video classes covering the full system",
+                "Install, prompting, hosting, content, intel",
                 "Downloadable config templates",
-                "Private Discord access",
+                "Lifetime access + future updates",
+                "Included free with any install purchase",
+                "Private community access",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span className="text-[#22c55e] leading-none mt-0.5 font-black">+</span>
