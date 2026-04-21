@@ -32,6 +32,16 @@ const staggerContainer = {
 
   export const CourseFourContent = ({ onClose }) => {
   const lessonScrollRef = useRef(null);
+  const postizTerminalRef = useRef(null);
+  const androidTerminalRef = useRef(null);
+  const shadowbanResultRef = useRef(null);
+  const promptOutputRef = useRef(null);
+  const cronOutputRef = useRef(null);
+
+  const scrollToRef = (ref) => {
+    if (!ref?.current) return;
+    ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
   const [warmupDay, setWarmupDay] = useState(0);
   const [shadowbanScore, setShadowbanScore] = useState(50);
   const [shadowbanScenario, setShadowbanScenario] = useState(null);
@@ -265,14 +275,14 @@ const staggerContainer = {
             <p className="font-serif text-[#555] text-sm mb-4">Pick the scenario that matches your situation. See your actual risk score.</p>
             <div className="space-y-2 mb-6">
               {scenarios.map((s, i) => (
-                <button key={i} onClick={() => { setShadowbanScore(s.risk); setShadowbanScenario(i); }} className={`w-full text-left p-4 border-[2px] transition-all ${shadowbanScenario === i ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] hover:border-[#111]'}`}>
+                <button key={i} onClick={() => { setShadowbanScore(s.risk); setShadowbanScenario(i); scrollToRef(shadowbanResultRef); }} className={`w-full text-left p-4 border-[2px] transition-all ${shadowbanScenario === i ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] hover:border-[#111]'}`}>
                   <span className="font-mono text-lg mr-3">{s.icon}</span>
                   <span className="font-serif text-sm">{s.label}</span>
                   <span className="float-right font-mono text-xs font-bold ml-2">Risk: {s.risk}%</span>
                 </button>
               ))}
             </div>
-            <div className={`p-4 border-[2px] ${shadowbanScore < 20 ? 'border-[#22c55e] bg-[#f0fdf4]' : shadowbanScore < 60 ? 'border-[#f59e0b] bg-[#fffbeb]' : 'border-red-500 bg-red-50'}`}>
+            <div ref={shadowbanResultRef} className={`p-4 border-[2px] ${shadowbanScore < 20 ? 'border-[#22c55e] bg-[#f0fdf4]' : shadowbanScore < 60 ? 'border-[#f59e0b] bg-[#fffbeb]' : 'border-red-500 bg-red-50'}`}>
               <div className="font-mono text-xs font-bold uppercase mb-1">Your Risk Assessment</div>
               <div className="font-serif text-base font-bold">{shadowbanScore < 20 ? '🟢 LOW RISK — Post away, ghost.' : shadowbanScore < 60 ? '🟡 MEDIUM RISK — Fix the weak points below.' : '🔴 HIGH RISK — You will get shadowbanned. Fix this before posting.'}</div>
               <div className="mt-2 h-2 bg-[#ddd] rounded-full overflow-hidden">
@@ -400,7 +410,7 @@ const staggerContainer = {
                 { step: 3, label: 'Grab your API key', detail: 'Postiz → Settings → API Keys → Create new key. Copy it. You need this next.', done: postizStep > 2 },
                 { step: 4, label: 'Store API key in Hermes', detail: 'Paste the key to your agent with the prompt below. This is the last manual step.', done: postizStep > 3 },
               ].map(({ step, label, detail, done }) => (
-                <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd]'}`}>
+                <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] bg-white'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-sm shrink-0 ${done ? 'bg-[#22c55e] text-white' : 'bg-[#ddd] text-[#555]'}`}>
                     {done ? '✓' : step}
                   </div>
@@ -411,7 +421,10 @@ const staggerContainer = {
                 </div>
               ))}
             </div>
-            <button onClick={() => setPostizStep(s => Math.min(s + 1, 4))} className="mt-4 font-sans font-black text-sm uppercase px-6 py-3 bg-[#111] text-[#eae7de] border-[2px] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
+            <button onClick={() => {
+              setPostizStep(s => Math.min(s + 1, 4));
+              scrollToRef(postizTerminalRef);
+            }} className="mt-4 font-sans font-black text-sm uppercase px-6 py-3 bg-[#111] text-[#eae7de] border-[2px] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
               {postizStep < 4 ? `Complete Step ${postizStep + 1}` : '✓ Setup Complete'}
             </button>
             {postizStep === 4 && (
@@ -422,7 +435,8 @@ const staggerContainer = {
           </div>
 
           {/* Agent prompt MacWindow */}
-          <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Here's your Postiz API key: ${postizApiKey || '[YOUR-KEY-HERE]'}
+          <div ref={postizTerminalRef}>
+            <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Here's your Postiz API key: ${postizApiKey || '[YOUR-KEY-HERE]'}
 Store it in your memory for ${'`'}[Project Name]${'`'}.
 Use this for all future post scheduling.
 Rule: ALL posts go to DRAFTS only. Never direct publish.
@@ -438,7 +452,8 @@ Reply "Stored and ready" when done.`}>
               <p className="text-[#eae7de]">hermes: Store it in memory. All posts → DRAFTS only.</p>
               <p className="text-[#aaa] italic">hermes: Stored and ready. What do you want to post first?</p>
             </div>
-          </MacWindow>
+            </MacWindow>
+          </div>
           <div className="mt-2 p-3 border-[2px] border-[#111] bg-[#fdfaf6]">
             <p className="font-mono text-[10px] text-[#555] uppercase mb-1">Your API Key (paste in the terminal above)</p>
             <input value={postizApiKey} onChange={e => setPostizApiKey(e.target.value)} placeholder="postiz_live_xxxxxxxxxxxxxxx" className="w-full bg-transparent font-mono text-xs text-[#111] outline-none" />
@@ -465,7 +480,7 @@ Reply "Stored and ready" when done.`}>
             <p className="font-serif text-[#555] text-sm mb-4">Pick your niche. Get a ready-to-use 3-slide prompt set. Copy and paste to Hermes.</p>
             <div className="flex flex-wrap gap-2 mb-6">
               {Object.keys(nicheExamples).map(niche => (
-                <button key={niche} onClick={() => setProductNiche(niche)} className={`font-mono text-xs font-bold px-4 py-2 border-[2px] transition-all ${productNiche === niche ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'border-[#ddd] hover:border-[#111]'}`}>
+                <button key={niche} onClick={() => { setProductNiche(niche); scrollToRef(promptOutputRef); }} className={`font-mono text-xs font-bold px-4 py-2 border-[2px] transition-all ${productNiche === niche ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'border-[#ddd] hover:border-[#111]'}`}>
                   {niche.replace('-', ' ').toUpperCase()}
                 </button>
               ))}
@@ -482,7 +497,7 @@ Reply "Stored and ready" when done.`}>
                 </div>
               ))}
             </div>
-            <div className="mt-4 p-3 bg-[#111] border-[2px] border-[#333]">
+            <div ref={promptOutputRef} className="mt-4 p-3 bg-[#111] border-[2px] border-[#333]">
               <p className="font-mono text-[10px] text-[#aaa] uppercase mb-2">Full prompt for Hermes</p>
               <p className="font-mono text-xs text-[#22c55e] leading-relaxed">
                 "Generate 3 images for a TikTok slideshow for [Product Name]. Slide 1 (Hook): {nicheExamples[productNiche]?.hook} Slide 2 (Info): {nicheExamples[productNiche]?.info} Slide 3 (CTA): {nicheExamples[productNiche]?.cta} Style: clean, high contrast, readable text overlays, vertical format 9:16."
@@ -630,7 +645,7 @@ Reply with a summary of what was generated.`}>
               <p className="text-[#aaa]">→ Vertical 9:16, clean design</p>
               <p className="text-[#aaa] italic">hermes: Started. Generating day 1 of {stockpileDays}...</p>
             </div>
-          </MacWindow>
+            </MacWindow>
         </div>
 
         {/* ===== SECTION 7: POSTIZ 7 RULES ===== */}
@@ -720,7 +735,7 @@ REVISION DATE: [TODAY]`}>
                 { step: 5, label: 'Connect Hermes via ADB over WiFi', detail: 'Run: adb connect [phone-ip]:5555. Verify connection: adb devices', done: androidStep > 4 },
                 { step: 6, label: 'Verify with test command', detail: 'hermes: check if Android is connected and responsive.', done: androidStep > 5 },
               ].map(({ step, label, detail, done }) => (
-                <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd]'}`}>
+                <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] bg-white'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-sm shrink-0 ${done ? 'bg-[#22c55e] text-white' : 'bg-[#ddd] text-[#555]'}`}>
                     {done ? '✓' : step}
                   </div>
@@ -731,12 +746,16 @@ REVISION DATE: [TODAY]`}>
                 </div>
               ))}
             </div>
-            <button onClick={() => setAndroidStep(s => Math.min(s + 1, 6))} className="mt-4 font-sans font-black text-sm uppercase px-6 py-3 bg-[#111] text-[#eae7de] border-[2px] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
+            <button onClick={() => {
+              setAndroidStep(s => Math.min(s + 1, 6));
+              scrollToRef(androidTerminalRef);
+            }} className="mt-4 font-sans font-black text-sm uppercase px-6 py-3 bg-[#111] text-[#eae7de] border-[2px] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
               {androidStep < 6 ? `Complete Step ${androidStep + 1}` : '✓ Android Connected'}
             </button>
           </div>
 
-          <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`# Step 1: Find your Android's IP
+          <div ref={androidTerminalRef}>
+            <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`# Step 1: Find your Android's IP
 hermes: what is the IP address of the Android phone on our network?
 
 # Step 2: Connect via ADB
@@ -781,13 +800,16 @@ hermes: run 'adb devices' and report what phones are connected.`}>
               <label className="font-mono text-[10px] font-bold uppercase text-[#555] block mb-2">Your posting times (EST)</label>
               <div className="flex flex-wrap gap-3">
                 {['08:00','09:00','10:00','12:00','14:00','17:00','18:00','20:00'].map(time => (
-                  <button key={time} onClick={() => setCronTimes(prev => prev.includes(time) ? prev.filter(t => t !== time) : prev.length < 4 ? [...prev, time] : prev)} className={`font-mono text-xs font-bold px-3 py-2 border-[2px] transition-all ${cronTimes.includes(time) ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'border-[#ddd] hover:border-[#111]'}`}>
+                  <button key={time} onClick={() => {
+                    setCronTimes(prev => prev.includes(time) ? prev.filter(t => t !== time) : prev.length < 4 ? [...prev, time] : prev);
+                    scrollToRef(cronOutputRef);
+                  }} className={`font-mono text-xs font-bold px-3 py-2 border-[2px] transition-all ${cronTimes.includes(time) ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'border-[#ddd] hover:border-[#111]'}`}>
                     {time} EST
                   </button>
                 ))}
               </div>
             </div>
-            <div className="bg-[#111] p-4 font-mono text-xs text-[#22c55e] space-y-2">
+            <div ref={cronOutputRef} className="bg-[#111] p-4 font-mono text-xs text-[#22c55e] space-y-2">
               <div>
                 <div className="text-[#aaa] uppercase mb-1">// Draft → Phone Posting Cron</div>
                 <div className="text-[#eae7de]">
@@ -1011,6 +1033,7 @@ Slide 3 (CTA): [emotional pull + clear action]
           </div>
         </div>
 
+      </div>
       </div>
       </div>
       <AtmScrollbar scrollRef={lessonScrollRef} />
