@@ -229,7 +229,7 @@ export const MacWindow = ({ children, title = "terminal", className = "", conten
       </div>
 
       {/* Content area — default to white text on black so nothing is ever invisible */}
-      <div ref={contentRef} className={`relative flex-1 overflow-auto bg-[#000000] p-5 text-[#eae7de] font-mono text-sm ${contentClass}`}>
+      <div ref={contentRef} className={`terminal-safe relative flex-1 overflow-auto bg-[#000000] p-5 text-[#eae7de] font-mono text-sm ${contentClass}`}>
         {children}
       </div>
     </div>
