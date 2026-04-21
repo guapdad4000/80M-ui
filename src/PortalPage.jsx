@@ -7119,7 +7119,7 @@ const classesData = [
     subtitle: "The Ghost in the TikTok Machine",
     time: "90 Minutes",
     description: "Full TikTok slideshow automation — AI image generation, Postiz scheduling, physical Android control, and the anti-shadowban protocol.",
-    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    image: "https://i.postimg.cc/yxg9m51C/80m-chat.png",
     topics: [
       { name: "Postiz API", detail: "Agentic scheduling that actually works." },
       { name: "3-Slide Formula", detail: "Hook, Info, CTA. Every time." },
@@ -7133,7 +7133,7 @@ const classesData = [
     subtitle: "Build Once, Stack Income Forever",
     time: "95 Minutes",
     description: "Turn your AI skills into income machines. Web crawlers, micro-SaaS, workflow automations, and agents that replace labor — the 8-lane highway to compounding revenue.",
-    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    image: "https://i.postimg.cc/PJpZWcXj/business.png",
     topics: [
       { name: "Web Research Pipelines", detail: "Cortex knowledge ingestion + automated enrichment." },
       { name: "Micro-SaaS Products", detail: "One job, one screen, one outcome — vibe coded in days." },
@@ -7147,7 +7147,7 @@ const classesData = [
     subtitle: "Turn the Machine Into Money",
     time: "120 Minutes",
     description: "The capstone. You built the stack. Now make it print. Eight proven revenue models for vibe coders, from small business websites to micro-SaaS to productized consulting. This is where most courses end — and where 80m actually starts.",
-    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    image: "https://i.postimg.cc/4dFVhZgd/research.png",
     topics: [
       { name: "8 Revenue Models", detail: "Pick your lane and run it." },
       { name: "Vibe-to-Money Pipeline", detail: "From skill to sale in 72 hours." },
@@ -7163,7 +7163,7 @@ const classesData = [
     subtitle: "Build Your Personal Command Center",
     time: "90 Minutes",
     description: "The app you got for free is actually a platform. This course teaches you how to use every feature, wire up your own agents, and build niche tools for your exact life situation — with 15 real-world examples for plumbers, artists, weed growers, PS5 flippers, and everyone in between.",
-    image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
+    image: "https://i.postimg.cc/Hnc5wKYC/social.png",
     topics: [
       { name: "Agent Council", detail: "The 7 orbs explained — find your lane." },
       { name: "Memory & Skills", detail: "Your agent that actually remembers you." },
