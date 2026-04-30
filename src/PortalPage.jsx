@@ -502,6 +502,12 @@ Reply "Stored and ready" when done.`}>
               <p className="font-mono text-xs text-[#22c55e] leading-relaxed">
                 "Generate 3 images for a TikTok slideshow for [Product Name]. Slide 1 (Hook): {nicheExamples[productNiche]?.hook} Slide 2 (Info): {nicheExamples[productNiche]?.info} Slide 3 (CTA): {nicheExamples[productNiche]?.cta} Style: clean, high contrast, readable text overlays, vertical format 9:16."
               </p>
+              <div className="mt-3">
+                <CopyBlock
+                  label="Copy Hermes Prompt"
+                  text={`Generate 3 images for a TikTok slideshow for [Product Name]. Slide 1 (Hook): ${nicheExamples[productNiche]?.hook} Slide 2 (Info): ${nicheExamples[productNiche]?.info} Slide 3 (CTA): ${nicheExamples[productNiche]?.cta} Style: clean, high contrast, readable text overlays, vertical format 9:16.`}
+                />
+              </div>
             </div>
           </div>
 
@@ -554,6 +560,12 @@ Reply "Stored and ready" when done.`}>
                 <div className="p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
                   <p className="font-mono text-[10px] font-bold uppercase text-[#14532d] mb-2">Paste this to Hermes:</p>
                   <p className="font-mono text-xs text-[#111]">"Generate 3 TikTok slideshow images for [Product]. Slide 1: {slideHook || '[your hook]'}. Slide 2: {slideInfo || '[your info]'}. Slide 3: {slideCta || '[your CTA]'}. Vertical 9:16, clean design, readable text."</p>
+                  <div className="mt-3">
+                    <CopyBlock
+                      label="Copy Hermes Prompt"
+                      text={`Generate 3 TikTok slideshow images for [Product]. Slide 1: ${slideHook || '[your hook]'}. Slide 2: ${slideInfo || '[your info]'}. Slide 3: ${slideCta || '[your CTA]'}. Vertical 9:16, clean design, readable text.`}
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -982,6 +994,8 @@ Slide 3 (CTA): [emotional pull + clear action]
                     return next;
                   });
                 }
+                setQuizActive(false);
+                setQuizSection(null);
               }}
             />
           );
@@ -3197,14 +3211,6 @@ const CourseThreeContent = ({ onClose }) => {
             ))}
           </div>
         </div>
-          <div className="mt-8 mb-4 text-center">
-            <button
-              onClick={() => { setQuizActive(true); setQuizSection(9); }}
-              className="font-sans font-black text-lg uppercase px-8 py-4 bg-[#111] text-[#eae7de] border-[3px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] shadow-[6px_6px_0_0_#111] transition-colors cursor-pointer"
-            >
-              Take Quiz — Section 9
-            </button>
-          </div>
 
 
         {/* Section 10: Resource Locker */}
@@ -3321,15 +3327,6 @@ const CourseThreeContent = ({ onClose }) => {
         </div>
 
       </div>{/* close max-w-4xl */}
-          <div className="mt-8 mb-4 text-center">
-            <button
-              onClick={() => { setQuizActive(true); setQuizSection(10); }}
-              className="font-sans font-black text-lg uppercase px-8 py-4 bg-[#111] text-[#eae7de] border-[3px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] shadow-[6px_6px_0_0_#111] transition-colors cursor-pointer"
-            >
-              Take Quiz — Section 10
-            </button>
-          </div>
-
       </div>{/* close flex-1 overflow-y-auto */}
       <AtmScrollbar scrollRef={lessonScrollRef} />
     </motion.div>

@@ -120,12 +120,44 @@ export const PaperBackground = () => (
   </div>
 );
 
-export const QuizModal = ({ isOpen, questions, onComplete, courseLabel = 'C03', section }) => {
+export const QuizModal = ({
+  isOpen = true,
+  title,
+  questions = [],
+  onComplete,
+  onPass,
+  onClose,
+  courseLabel = 'C03',
+  section
+}) => {
   const [step, setStep] = useState(0);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(null);
 
-  if (!isOpen || !questions) return null;
+  if (!isOpen) return null;
+  if (!questions.length) {
+    return (
+      <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
+        <div className="bg-[#eae7de] border-[4px] border-[#111] shadow-[12px_12px_0_0_#111] w-full max-w-xl p-8">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-[#555] mb-2">
+            {courseLabel}{section ? ` · Section ${section}` : ''}
+          </p>
+          <h3 className="font-sans font-black text-2xl uppercase mb-4">{title || 'Quiz unavailable'}</h3>
+          <p className="font-serif text-[#333] text-base leading-relaxed mb-6">
+            This quiz does not have questions wired yet.
+          </p>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="font-sans font-black text-sm uppercase px-5 py-3 bg-[#111] text-[#eae7de] border-[3px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] transition-colors"
+            >
+              Close
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const current = questions[step];
   const handleAnswer = (idx) => {
@@ -136,7 +168,10 @@ export const QuizModal = ({ isOpen, questions, onComplete, courseLabel = 'C03', 
     setTimeout(() => {
       if (isLast) {
         const finalScore = score + (idx === current.correct ? 1 : 0);
-        onComplete && onComplete(finalScore, finalScore >= 2);
+        const passed = finalScore >= Math.ceil(questions.length * 0.6);
+        if (onComplete) onComplete(finalScore, passed);
+        if (passed && onPass) onPass(finalScore, questions.length);
+        if (onClose) onClose();
       } else {
         setStep(s => s + 1);
         setAnswered(null);
@@ -155,9 +190,10 @@ export const QuizModal = ({ isOpen, questions, onComplete, courseLabel = 'C03', 
             {courseLabel} · Section {section}
           </span>
           <div className="flex justify-between items-center mt-2">
-            <h3 className="font-sans font-black text-2xl uppercase">{current.q}</h3>
+            <h3 className="font-sans font-black text-2xl uppercase">{title || current.q}</h3>
             <span className="font-mono text-sm text-[#555]">{step + 1}/{questions.length}</span>
           </div>
+          {title && <p className="mt-3 font-sans font-black text-lg text-[#111]">{current.q}</p>}
         </div>
         <div className="space-y-3">
           {current.options.map((opt, i) => {
@@ -250,11 +286,20 @@ export const NeedBox = ({ title = "What you need before you start", items = [] }
   </div>
 );
 
-export const ResourceList = ({ title = "Resources", items = [] }) => (
+export const ResourceList = ({ title = "Resources", items = [], links = [] }) => {
+  const normalizedItems = items.length
+    ? items
+    : links.map((link) => ({
+        label: link.label,
+        href: link.href || link.url,
+        note: link.note,
+      }));
+
+  return (
   <div className="mt-8 border-[2px] border-[#111] bg-white p-5 md:p-6 shadow-[4px_4px_0_0_#111]">
     <div className="font-mono text-xs uppercase tracking-widest font-bold text-[#555] mb-3">// {title}</div>
     <ul className="space-y-3 font-serif text-base">
-      {items.map((item, i) => (
+      {normalizedItems.map((item, i) => (
         <li key={i}>
           <a className="underline underline-offset-4 font-black" href={item.href} target={item.href?.startsWith('#') ? undefined : "_blank"} rel={item.href?.startsWith('#') ? undefined : "noreferrer"}>
             {item.label}
@@ -264,7 +309,8 @@ export const ResourceList = ({ title = "Resources", items = [] }) => (
       ))}
     </ul>
   </div>
-);
+  );
+};
 
 export const GlossaryTooltip = ({ term, definition, href }) => (
   <a
@@ -306,43 +352,54 @@ export const SectionMeta = ({ minutes = "10 min", focus = "Execution" }) => (
   </div>
 );
 
-export const CopyBlock = ({ text }) => {
+export const CopyBlock = ({ text, code, label = "Copy" }) => {
   const [copied, setCopied] = useState(false);
+  const value = text ?? code ?? '';
   const copy = async () => {
+    if (!value) return;
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
-    } catch (e) {
+    } catch {
       setCopied(false);
     }
   };
   return (
     <div className="bg-[#fdfaf6] border-[2px] border-[#111] p-3">
-      <button onClick={copy} className="mb-2 font-mono text-[10px] uppercase tracking-widest border border-[#111] px-2 py-1 bg-white">
-        {copied ? "Copied" : "Copy"}
+      <button
+        onClick={copy}
+        disabled={!value}
+        className="mb-2 font-mono text-[10px] uppercase tracking-widest border border-[#111] px-2 py-1 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {copied ? "Copied" : label}
       </button>
-      <p className="font-mono text-xs text-[#222]">{text}</p>
+      <pre className="font-mono text-xs text-[#222] whitespace-pre-wrap overflow-x-auto">{value || "No copy text available yet."}</pre>
     </div>
   );
 };
 
-export const CheckpointCard = ({ title = "Section Checkpoint", pass = [], fail = [] }) => (
+export const CheckpointCard = ({ title = "Section Checkpoint", pass = [], fail = [], items = [] }) => {
+  const passItems = pass.length ? pass : items.filter((item) => item.type === 'pass').map((item) => item.text);
+  const failItems = fail.length ? fail : items.filter((item) => item.type === 'fail').map((item) => item.text);
+
+  return (
   <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
     <div className="border-[3px] border-[#22c55e] bg-[#f0fdf4] p-5">
       <h4 className="font-sans font-black uppercase text-sm mb-2">{title} — Pass</h4>
       <ul className="font-serif text-sm text-[#14532d] space-y-1">
-        {pass.map((item, i) => <li key={i}>✓ {item}</li>)}
+        {passItems.map((item, i) => <li key={i}>✓ {item}</li>)}
       </ul>
     </div>
     <div className="border-[3px] border-red-500 bg-red-50 p-5">
       <h4 className="font-sans font-black uppercase text-sm mb-2">Fail Signals</h4>
       <ul className="font-serif text-sm text-red-700 space-y-1">
-        {fail.map((item, i) => <li key={i}>✗ {item}</li>)}
+        {failItems.map((item, i) => <li key={i}>✗ {item}</li>)}
       </ul>
     </div>
   </div>
-);
+  );
+};
 
 export const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
