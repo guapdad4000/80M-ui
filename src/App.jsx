@@ -1825,6 +1825,7 @@ const PortfolioAtmScrollRail = () => (
 
 const HeroPortfolioExperience = ({ isOpen, onClose }) => {
   const [phase, setPhase] = useState('intro');
+  const [introReady, setIntroReady] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [selectedProject, setSelectedProject] = useState(portfolioSlides[0]);
   const [selectedShotIndex, setSelectedShotIndex] = useState(0);
@@ -1833,6 +1834,7 @@ const HeroPortfolioExperience = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen) return undefined;
     setPhase('intro');
+    setIntroReady(false);
     setSelectedProject(portfolioSlides[0]);
     setSelectedShotIndex(0);
     setScrollOffset(0);
@@ -1902,11 +1904,23 @@ const HeroPortfolioExperience = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 1 }}
           transition={{ duration: 0 }}
-          className="fixed inset-0 z-[240] overflow-hidden bg-[#020617] text-white"
+          className="fixed inset-0 z-[240] overflow-hidden bg-transparent text-white"
           onWheel={handleWheel}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
         >
+          <video
+            className="absolute inset-0 z-0 h-full w-full object-cover saturate-[1.18] contrast-[1.08]"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          >
+            <source src={PORTFOLIO_IDLE_VIDEO} type="video/mp4" />
+            <source src={PORTFOLIO_IDLE_SOURCE_VIDEO} type="video/mp4" />
+          </video>
+
           <button
             onClick={onClose}
             className="absolute right-4 top-4 z-[80] font-mono text-xs md:text-sm uppercase tracking-widest text-[#d9ff48] hover:text-white transition-colors"
@@ -1917,47 +1931,36 @@ const HeroPortfolioExperience = ({ isOpen, onClose }) => {
           {phase === 'intro' && (
             <motion.div
               key="portfolio-intro"
-              className="absolute inset-0 z-50 bg-black"
+              className="absolute inset-0 z-50 bg-transparent"
               initial={false}
               animate={{ opacity: 1 }}
               exit={{ opacity: 1 }}
               transition={{ duration: 0 }}
             >
               <video
-                className="h-full w-full object-cover"
+                className={`h-full w-full object-cover ${introReady ? 'opacity-100' : 'opacity-0'}`}
                 autoPlay
                 playsInline
                 muted
                 preload="auto"
+                onLoadedData={() => setIntroReady(true)}
+                onCanPlay={() => setIntroReady(true)}
+                onPlaying={() => setIntroReady(true)}
                 onEnded={() => setPhase('gallery')}
                 onError={() => setPhase('gallery')}
               >
                 <source src={PORTFOLIO_INTRO_VIDEO} type="video/mp4" />
                 <source src={PORTFOLIO_INTRO_SOURCE_VIDEO} type="video/mp4" />
               </video>
-              <div className="absolute bottom-6 left-6 font-mono text-[10px] font-black uppercase tracking-[0.25em] text-white/60 md:left-10">
-                Loading portfolio film
-              </div>
             </motion.div>
           )}
 
           <motion.div
-            className="absolute inset-0"
+            className="absolute inset-0 z-10"
             initial={false}
             animate={{ opacity: phase === 'gallery' ? 1 : 0 }}
             transition={{ duration: 0 }}
           >
-            <video
-              className="absolute inset-0 z-0 h-full w-full object-cover saturate-[1.18] contrast-[1.08]"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-            >
-              <source src={PORTFOLIO_IDLE_VIDEO} type="video/mp4" />
-              <source src={PORTFOLIO_IDLE_SOURCE_VIDEO} type="video/mp4" />
-            </video>
             <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_82%_55%,transparent_0,rgba(0,0,0,0.04)_34%,rgba(0,0,0,0.34)_88%),linear-gradient(180deg,transparent_0%,rgba(2,6,23,0.2)_86%)]" />
             <PortfolioThreeRibbon projects={portfolioSlides} scrollOffset={scrollOffset} onSelect={handleSelectProject} />
             <PortfolioAtmScrollRail />
@@ -2292,7 +2295,7 @@ export default function App() {
 
         {/* Editorial Hero Section */}
         <section className="relative min-h-[300vh] md:min-h-[320vh] w-full overflow-visible">
-          <div className="sticky top-0 h-screen w-full pt-24 md:pt-0 overflow-hidden">
+          <div className="sticky top-0 h-screen w-full pt-24 md:pt-0 overflow-visible">
             <motion.div
               className="absolute left-0 top-[21vh] z-30 w-[68vw] max-w-[360px] md:left-[1vw] md:top-[18vh] md:w-[45vw] md:max-w-[540px] lg:max-w-[600px] pointer-events-auto"
               style={{ filter: 'drop-shadow(0 24px 38px rgba(0,0,0,0.44))' }}
