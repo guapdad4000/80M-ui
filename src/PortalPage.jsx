@@ -30,7 +30,7 @@ const staggerContainer = {
 
 // --- Course Content Pages ---
 
-  export const CourseFourContent = ({ onClose }) => {
+  const CourseFourContent = ({ onClose }) => {
   const lessonScrollRef = useRef(null);
   const postizTerminalRef = useRef(null);
   const androidTerminalRef = useRef(null);
@@ -825,7 +825,7 @@ hermes: run 'adb devices' and report what phones are connected.`}>
               <div>
                 <div className="text-[#aaa] uppercase mb-1">// Draft → Phone Posting Cron</div>
                 <div className="text-[#eae7de]">
-                  {cronTimes.map((t, i) => `0 ${parseInt(t)} * * *`).join('\n')}
+                  {cronTimes.map((t) => `0 ${parseInt(t)} * * *`).join('\n')}
                 </div>
                 <div className="text-[#aaa] mt-1">→ Run Android posting check at {cronTimes.join(', ')} EST daily</div>
               </div>
@@ -3483,7 +3483,7 @@ export const CourseFiveContent = ({ onClose }) => {
     });
     let output = '';
     if (leadFormat === 'csv') {
-      output = headers.join(',') + '\n' + lines.map(l => headers.map(h => l).join(',')).join('\n');
+      output = headers.join(',') + '\n' + lines.map(l => headers.map(() => l).join(',')).join('\n');
     } else if (leadFormat === 'json') {
       output = JSON.stringify(lines.map(l => ({ raw: l, name: l, email: l, source: crawlUrl })), null, 2);
     } else {
@@ -3834,7 +3834,6 @@ to outputs/ → next question builds on previous answers.
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
             {sections.map((s) => {
-              const sectionNum = parseInt(s.id.replace('s', ''));
               const isDone = completedSections.includes(s.id);
               return (
                 <button key={s.id} onClick={() => toggleSection(s.id)} className={`flex items-center gap-2 px-4 py-3 font-mono text-xs border-b border-r border-[#ddd] hover:bg-[#f0fdf4] transition-colors ${isDone ? 'text-[#22c55e]' : 'text-[#555]'}`}>
@@ -4520,7 +4519,7 @@ to outputs/ → next question builds on previous answers.
               const passed = score >= Math.ceil(total * 0.6);
               setPassedQuizzes(prev => {
                 const updated = [...new Set([...prev, quizSection])];
-                try { localStorage.setItem('80m-c5-quizzes', JSON.stringify(updated)); } catch {}
+                try { localStorage.setItem('80m-c5-quizzes', JSON.stringify(updated)); } catch (_e) {}
                 return updated;
               });
               setQuizDone({ section: quizSection, score, total, passed });
@@ -5790,7 +5789,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               const passed = score >= Math.ceil(total * 0.6);
               setPassedQuizzes(prev => {
                 const updated = [...new Set([...prev, quizSection])];
-                try { localStorage.setItem('80m-c6-quizzes', JSON.stringify(updated)); } catch {}
+                try { localStorage.setItem('80m-c6-quizzes', JSON.stringify(updated)); } catch (_e) {}
                 return updated;
               });
               setQuizDone({ section: quizSection, score, total, passed });
@@ -7051,7 +7050,7 @@ Give me the exact prompts I should use to set this up with you.`;
             const passed = score >= Math.ceil(total * 0.6);
             setPassedQuizzes(prev => {
               const updated = [...new Set([...prev, quizSection])];
-              try { localStorage.setItem('80m-c7-quizzes', JSON.stringify(updated)); } catch {}
+              try { localStorage.setItem('80m-c7-quizzes', JSON.stringify(updated)); } catch (_e) {}
               return updated;
             });
             setQuizDone({ section: quizSection, score, total, passed });

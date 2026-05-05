@@ -10,12 +10,13 @@
   }
 
   html {
+    position: relative;
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -69,6 +70,36 @@
   background-color: #22c55e;
 }
 
+.mp4-ink {
+  color: #f8fafc !important;
+  mix-blend-mode: normal !important;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.82),
+    0 0 28px rgba(0, 0, 0, 0.48);
+}
+
+.mp4-muted {
+  color: rgba(248, 250, 252, 0.82) !important;
+  mix-blend-mode: normal !important;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.78),
+    0 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.mp4-rule {
+  background-color: rgba(248, 250, 252, 0.78) !important;
+  box-shadow: 0 0 12px rgba(248, 250, 252, 0.28);
+}
+
+.mp4-border {
+  border-color: rgba(248, 250, 252, 0.68) !important;
+}
+
+.mp4-invert-art {
+  mix-blend-mode: normal !important;
+  filter: invert(1) brightness(1.18) drop-shadow(0 4px 18px rgba(0, 0, 0, 0.75));
+}
+
 
 .lesson-scroll-pane {
   scrollbar-width: none;
@@ -84,4 +115,3 @@
 .terminal-safe :is(.text-\[\#555\], .text-\[\#444\], .text-\[\#333\], .text-black, .text-\[\#111\]) {
   color: #d1d5db !important;
 }
-
