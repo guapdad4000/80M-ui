@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AtmScrollbar } from './App';
 import {
@@ -27,6 +27,47 @@ const staggerContainer = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
+
+const StudentCompletionKit = ({ eyebrow = 'Completion kit', title, outcomes = [], drills = [], proof = [] }) => (
+  <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+    <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// {eyebrow}</p>
+    <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-6">{title}</h3>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+      <div className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+        <p className="font-sans font-black uppercase text-sm text-[#111] mb-3">Student can now</p>
+        <ul className="space-y-2 font-serif text-sm text-[#333] leading-relaxed">
+          {outcomes.map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+      </div>
+      <div className="border-[2px] border-[#111] bg-[#f0fdf4] p-4">
+        <p className="font-sans font-black uppercase text-sm text-[#14532d] mb-3">Practice drills</p>
+        <ul className="space-y-2 font-serif text-sm text-[#14532d] leading-relaxed">
+          {drills.map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+      </div>
+      <div className="border-[2px] border-[#111] bg-[#111] text-[#eae7de] p-4">
+        <p className="font-sans font-black uppercase text-sm text-[#22c55e] mb-3">Proof of completion</p>
+        <ul className="space-y-2 font-serif text-sm text-[#ddd] leading-relaxed">
+          {proof.map((item) => <li key={item}>- {item}</li>)}
+        </ul>
+      </div>
+    </div>
+    <CopyBlock
+      label="Copy Completion Audit Prompt"
+      text={`Hermes, audit my progress for this class.
+
+Check whether I can now:
+${outcomes.map((item, idx) => `${idx + 1}. ${item}`).join('\n')}
+
+Ask me for missing proof if needed.
+Return:
+1. PASS/NEEDS WORK for each item
+2. the safest next action
+3. one practice drill for tomorrow
+4. anything I should save to memory`}
+    />
+  </div>
+);
 
 // --- Course Content Pages ---
 
@@ -65,16 +106,16 @@ const staggerContainer = {
   });
 
   const sections = [
-    { id: 's0', label: 'Intro: The Ghost' },
-    { id: 's1', label: '1. Anti-Shadowban' },
+    { id: 's0', label: 'Intro: Content Forge' },
+    { id: 's1', label: '1. Platform Safety' },
     { id: 's2', label: '2. The Stack' },
     { id: 's3', label: '3. Postiz Setup' },
     { id: 's4', label: '4. Image Gen' },
     { id: 's5', label: '5. 3-Slide Formula' },
     { id: 's6', label: '6. Stockpile' },
     { id: 's7', label: '7. Postiz Rules' },
-    { id: 's8', label: '8. Secret Android' },
-    { id: 's9', label: '9. Cron Automation' },
+    { id: 's8', label: '8. Review Layer' },
+    { id: 's9', label: '9. Review Schedule' },
     { id: 's10', label: '10. Dictionary' },
     { id: 's11', label: '11. Resources' },
   ];
@@ -84,11 +125,11 @@ const staggerContainer = {
   };
 
   const scenarios = [
-    { label: 'Brand new account, warmed 3 days, posting from Android phone', risk: 5, icon: '🟢', desc: 'Clean. TikTok sees this as a real human. Reach is maximized.' },
-    { label: '3-month-old account, warmed 3 days, posting from Android', risk: 15, icon: '🟢', desc: 'Low risk. The Android step is doing heavy lifting here.' },
-    { label: 'New account, skipped warmup, posting from Postiz API directly', risk: 95, icon: '🔴', desc: 'Shadowban incoming. TikTok detects the API signature and kills your reach the first time you post.' },
-    { label: '6-month account, some history, posting from Postiz API', risk: 70, icon: '🟡', desc: 'Medium-high risk. Old accounts get grandfathered a bit, but API posting still flags you.' },
-    { label: 'Warmed 1 day only, then Android posting', risk: 40, icon: '🟡', desc: 'Better than nothing, but TikTok may still flag inconsistent behavior. Go full 3 days.' },
+    { label: 'Brand-owned account, warmup complete, posts reviewed before publishing', risk: 5, icon: '🟢', desc: 'Clean operating pattern. The account has real activity, reviewed content, and clear approval gates.' },
+    { label: 'Established account, warmup complete, scheduler used for drafts', risk: 15, icon: '🟢', desc: 'Low risk. The system supports consistency while a human still reviews content quality and policy fit.' },
+    { label: 'New account, skipped warmup, bulk publishing unreviewed posts', risk: 95, icon: '🔴', desc: 'High account risk. Too much volume too quickly, no quality review, and no platform-rule check.' },
+    { label: 'Established account, some history, high-volume direct publishing', risk: 70, icon: '🟡', desc: 'Medium-high risk. Existing history helps, but volume without review can still trigger account or quality problems.' },
+    { label: 'Only 1 warmup day, then scheduled drafts with review', risk: 40, icon: '🟡', desc: 'Better than blind publishing, but still rushed. Finish the warmup and review loop before scaling.' },
   ];
 
   const shadowbanResult = scenarios.find(s => s.risk === shadowbanScore) || scenarios[1];
@@ -116,8 +157,81 @@ const staggerContainer = {
 
   const ruleScore = ruleChecked.filter(Boolean).length;
 
+  const c4SafetyPrinciples = [
+    { label: 'Draft first', detail: 'Hermes can prepare content, but publishing should go through review and approval.' },
+    { label: 'Respect platform rules', detail: 'Use TikTok official rules, community guidelines, and commercial disclosure rules as the source of truth.' },
+    { label: 'Human review', detail: 'Check claims, visuals, captions, and links before anything goes live.' },
+    { label: 'Disclose when needed', detail: 'Branded, sponsored, affiliate, or AI-assisted content may need labels or policy checks.' },
+    { label: 'Measure quality', detail: 'Track saves, comments, shares, watch time, and leads, not just posting volume.' },
+    { label: 'Keep backups', detail: 'Save prompts, captions, source images, and approval decisions so the system can be audited.' }
+  ];
+
+  const c4ReviewDecisionTree = [
+    { question: 'Does the post make a claim?', answer: 'Add the source, simplify the wording, and ask Hermes to separate fact from opinion before review.' },
+    { question: 'Is there money, affiliate, sponsorship, gifted product, or client promotion involved?', answer: 'Add the disclosure before posting. If the student is unsure, pause and check FTC/platform guidance.' },
+    { question: 'Is Hermes about to publish directly?', answer: 'Stop. Send to drafts first, inspect the visual, caption, link, hashtags, disclosure, and timing.' },
+    { question: 'Is the content using trend audio, third-party footage, or someone else\'s screenshot?', answer: 'Check usage rights. Replace anything questionable with original visuals or approved assets.' },
+    { question: 'Is the account new or cold?', answer: 'Warm it up, post slowly, and learn the niche before volume. A system is not an excuse to rush.' },
+    { question: 'Did the rules change recently?', answer: 'Use official platform docs as the current source of truth, then update the Hermes memory note.' }
+  ];
+
+  const c4ResourceLinks = [
+    { label: 'Postiz', href: 'https://postiz.com/', note: 'Social scheduling platform with integrations, previews, draft queues, and analytics.' },
+    { label: 'Postiz Docs', href: 'https://docs.postiz.com/introduction', note: 'Official setup and product documentation.' },
+    { label: 'Postiz Draft Publishing Docs', href: 'https://docs.postiz.com/public-api/posts/create', note: 'Advanced reference for approved draft/review workflows.' },
+    { label: 'Postiz Agent Workflow Docs', href: 'https://docs.postiz.com/mcp/introduction', note: 'Advanced reference for connecting Postiz to agent-friendly clients.' },
+    { label: 'TikTok Community Guidelines', href: 'https://www.tiktok.com/community-guidelines/en/', note: 'Official platform rules students should check before scaling content.' },
+    { label: 'TikTok Direct Posting Rules', href: 'https://developers.tiktok.com/doc/content-posting-api-reference-direct-post', note: 'Official direct-post reference, including consent and metadata requirements.' },
+    { label: 'TikTok Content Sharing Guidelines', href: 'https://developers.tiktok.com/doc/content-sharing-guidelines/', note: 'Official sharing guidelines for compliant experiences.' },
+    { label: 'TikTok Creative Center', href: 'https://ads.tiktok.com/business/creativecenter/', note: 'Trend, ad, song, and creator research for content planning.' },
+    { label: 'FTC Endorsement Guidance', href: 'https://www.ftc.gov/business-guidance/advertising-marketing/endorsements-influencers-reviews', note: 'Disclosure guidance for sponsored posts, affiliates, testimonials, reviews, and endorsements.' },
+    { label: 'Google AI Studio', href: 'https://aistudio.google.com/', note: 'Browser interface for Gemini experiments and image prompts.' },
+    { label: 'Gemini Image Generation Docs', href: 'https://ai.google.dev/gemini-api/docs/image-generation', note: 'Advanced reference for Gemini image generation.' },
+    { label: 'Crontab Guru', href: 'https://crontab.guru/', note: 'Plain-English schedule translator for advanced timing rules.' }
+  ];
+
+  const c4TutorialLinks = [
+    { label: 'Postiz official scheduling overview', href: 'https://www.youtube.com/watch?v=LnNB_vs4HvM', note: 'Short official Postiz product overview.' },
+    { label: 'Postiz self-hosted planner', href: 'https://www.youtube.com/watch?v=s37vcN1-Ebc', note: 'Longer Postiz setup walkthrough for builders.' },
+    { label: 'Postiz + n8n automation', href: 'https://www.youtube.com/watch?v=c50u3K3xsCI', note: 'Official automation reference for scheduler workflows.' },
+    { label: 'TikTok Creative Center tutorial', href: 'https://www.youtube.com/watch?v=Y3GLZGxq0jo', note: 'Beginner walkthrough for finding trends and ads.' },
+    { label: 'TikTok Creative Center 2026', href: 'https://www.youtube.com/watch?v=2LTJ2YA9fsk', note: 'Recent Creative Center workflow reference.' },
+    { label: 'TikTok marketing beginner guide', href: 'https://www.youtube.com/watch?v=lFpqTrnnHI4', note: 'Short business-facing TikTok marketing overview.' },
+    { label: 'Google AI Studio tutorial', href: 'https://www.youtube.com/watch?v=a8NtWQbQI4E', note: 'Beginner AI Studio workflow for prompts and testing.' },
+    { label: 'Gemini image generator tutorial', href: 'https://www.youtube.com/watch?v=nK0MkRfNN_I', note: 'Short step-by-step image generation reference.' }
+  ];
+
+  const c4HermesPrompts = [
+    'Hermes, build a draft-first content workflow for my TikTok account. Include ideation, image prompts, captions, approval, scheduling, analytics, and a weekly review.',
+    'Hermes, audit this planned TikTok post against platform rules, brand safety, claim accuracy, and commercial disclosure. Do not publish anything.',
+    'Hermes, turn this product into a 3-slide TikTok slideshow: hook, useful insight, CTA. Keep text readable on mobile and make one version for beginners.',
+    'Hermes, create a 7-day content stockpile plan. Return topics, slide prompts, captions, review checklist, and suggested posting windows.'
+  ];
+
+  const c4CompletionOutcomes = [
+    'Explain the difference between draft, scheduled, and direct publishing.',
+    'Create a 3-slide slideshow concept with hook, useful insight, and CTA.',
+    'Run a review checklist for claims, captions, links, disclosures, and visuals.',
+    'Use Postiz as a review surface instead of a blind publishing button.',
+    'Ask Hermes for analytics lessons without chasing volume blindly.'
+  ];
+
+  const c4CompletionDrills = [
+    'Create one draft slideshow for a real product and review it before publishing.',
+    'Ask Hermes to rewrite a weak caption into three safer versions.',
+    'Audit one planned post against official platform rules and disclosure guidance.',
+    'Build a 7-day draft queue with one approval window per day.'
+  ];
+
+  const c4CompletionProof = [
+    'One approved draft exists in the scheduler.',
+    'One review decision is saved with what changed and why.',
+    'A weekly analytics review prompt is saved.',
+    'Hermes memory includes the account rules and do-not-publish boundary.'
+  ];
+
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
@@ -170,46 +284,89 @@ const staggerContainer = {
             title="What you need before you start"
             items={[
               "Classes 01 + 02 completed (Hermes running, tools connected).",
-              "A Postiz account (postiz.pro/ashen — use ashen's ref).",
-              "A Gemini API key (or OpenAI if you prefer).",
-              "A warm TikTok account (create new on a cheap Android).",
-              "The $50 Android setup (Section 8 walks through this)."
+              "A Postiz account or another scheduler you are allowed to use.",
+              "Google AI Studio or Gemini image generation access.",
+              "A TikTok account you own and are willing to manage responsibly.",
+              "TikTok Community Guidelines open in another tab.",
+              "A rule: draft and review before publishing."
             ]}
           />
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
-            The Ghost in the <br/><span className="italic text-[#22c55e]">TikTok Machine.</span>
+            Content <br/><span className="italic text-[#22c55e]">Forge.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
-            Your AI posts for you. While you sleep. Your phone thinks a human is doing it. TikTok never knows the difference. This is not a growth hack. This is the actual system.
+          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
+            Hermes helps you build a repeatable content pipeline: research, slideshow concepts, image prompts, captions, draft scheduling, review, approval, and analytics. The goal is not spam. The goal is a content operation that a small business can actually maintain.
           </p>
 
-          {/* Big stats panel */}
-          <div className="bg-[#111] border-[4px] border-[#22c55e] p-8 md:p-12 shadow-[12px_12px_0_0_#22c55e] mb-10">
-            <h3 className="font-mono text-[#22c55e] font-bold uppercase tracking-widest mb-6 text-center">The Numbers Don't Lie</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              {[
-                { num: '5.6M', label: 'Views on best Reel.Farm post' },
-                { num: '90', label: 'Market touches per month (3 posts × 30 days)' },
-                { num: '$0', label: 'Your time investment after setup' },
-              ].map((stat, i) => (
-                <div key={i}>
-                  <div className="font-sans font-black text-5xl md:text-6xl text-[#22c55e] tracking-tighter">{stat.num}</div>
-                  <div className="font-serif text-[#aaa] mt-2">{stat.label}</div>
+          <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Platform-safe operating rules</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Before any automation, protect the account</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c4SafetyPrinciples.map((item) => (
+                <div key={item.label} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.label}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.detail}</p>
                 </div>
               ))}
             </div>
-            <p className="text-center font-serif text-[#aaa] mt-6 italic">The Reel.Farm team gets these numbers with zero manual posting. You can too.</p>
+          </div>
+
+          <div className="border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Review decision tree</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">If this is true, do this before publishing</h3>
+            <div className="space-y-3">
+              {c4ReviewDecisionTree.map((item, idx) => (
+                <div key={item.question} className="grid grid-cols-1 md:grid-cols-[2.5rem_1fr] gap-3 border-[2px] border-[#111] bg-white p-4">
+                  <div className="font-mono font-black text-[#22c55e] text-lg">{idx + 1}</div>
+                  <div>
+                    <p className="font-sans font-black uppercase text-sm text-[#111] mb-1">{item.question}</p>
+                    <p className="font-serif text-sm text-[#333] leading-relaxed">{item.answer}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e] mb-8">
+            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Ask Hermes for the workflow</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Copy a safe content prompt</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c4HermesPrompts.map((prompt, idx) => (
+                <div key={prompt} className="border-[2px] border-[#333] bg-[#171717] p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">Prompt {idx + 1}</p>
+                  <CopyBlock text={prompt} label="Copy Content Prompt" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Big stats panel */}
+          <div className="bg-[#111] border-[4px] border-[#22c55e] p-8 md:p-12 shadow-[12px_12px_0_0_#22c55e] mb-10">
+            <h3 className="font-mono text-[#22c55e] font-bold uppercase tracking-widest mb-6 text-center">What a System Unlocks</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              {[
+                { num: '30', label: 'Days of concepts planned before posting pressure hits' },
+                { num: '90', label: 'Draft touchpoints per month at 3 posts per day' },
+                { num: '1', label: 'Weekly review loop to improve what actually works' },
+              ].map((stat, i) => (
+                <div key={i}>
+                  <div className="font-sans font-black text-5xl md:text-6xl text-[#22c55e] tracking-tighter">{stat.num}</div>
+                  <div className="font-serif text-[#ddd] mt-2">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+            <p className="text-center font-serif text-[#ddd] mt-6 italic">Systems win because they remove blank-page panic and make review consistent.</p>
           </div>
 
           {/* Warmup Tracker */}
           <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
-            <h3 className="font-sans font-black uppercase text-sm mb-4">3-Day Warmup Protocol Tracker</h3>
-            <p className="font-serif text-[#555] text-sm mb-4">Click each day as you complete it. TikTok needs to see human behavior before you go live.</p>
+            <h3 className="font-sans font-black uppercase text-sm mb-4">3-Day Account Learning Tracker</h3>
+            <p className="font-serif text-[#555] text-sm mb-4">Click each day as you complete it. The point is to learn the niche, collect references, and build a review habit before scaling volume.</p>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { day: 1, label: 'Day 1 — Watch & Scroll', tasks: ['Scroll TikTok for 20 min in your niche', 'Like 15-20 posts in your niche', 'Save 3 posts to your favorites', 'Follow 10 accounts in your niche'] },
-                { day: 2, label: 'Day 2 — Engage & Comment', tasks: ['Comment on 5 posts in your niche (real comments!)', 'Share 2 posts to your story', 'Bookmark 5 more posts', 'Post your first raw slideshow (no link, no CTA)'] },
-                { day: 3, label: 'Day 3 — Soft Post', tasks: ['Post 1 slideshow with soft CTA (no link)', 'Engage with every comment you get', 'Share to Instagram if connected', 'You\'re ready. Hit go on the automation.'] },
+                { day: 1, label: 'Day 1 — Research', tasks: ['Watch 20 minutes of posts in your niche', 'Save 10 examples with strong hooks', 'Write down 5 repeated audience questions', 'Follow credible accounts for reference'] },
+                { day: 2, label: 'Day 2 — Engage', tasks: ['Leave 5 useful comments in your niche', 'Bookmark 5 more examples', 'Draft your first slideshow without publishing pressure', 'Ask Hermes to turn your saves into patterns'] },
+                { day: 3, label: 'Day 3 — Test', tasks: ['Review one draft against the checklist', 'Publish only if it is accurate and on-brand', 'Reply to every real comment', 'Start the draft-first workflow slowly'] },
               ].map(({ day, label, tasks }) => (
                 <div key={day} className={`border-[2px] p-4 cursor-pointer transition-all ${warmupDay >= day ? 'border-[#22c55e] bg-[#f0fdf4]' : warmupDay === day - 1 ? 'border-[#22c55e] bg-[#fffbeb]' : 'border-[#ddd] bg-white'}`} onClick={() => setWarmupDay(day === warmupDay ? day - 1 : day)}>
                   <div className="font-mono text-xs font-bold uppercase mb-2">{label}</div>
@@ -228,12 +385,12 @@ const staggerContainer = {
             </div>
             {warmupDay < 3 && (
               <div className="mt-4 p-3 bg-[#fffbeb] border-[2px] border-[#f59e0b] text-sm font-serif text-[#92400e]">
-                ⚠ Complete all 3 days before activating automation. Skipping this = shadowban. It's not worth it.
+                Complete all 3 days before increasing volume. Skipping review and warmup creates unnecessary account risk.
               </div>
             )}
             {warmupDay === 3 && (
               <div className="mt-4 p-3 bg-[#f0fdf4] border-[2px] border-[#22c55e] text-sm font-serif text-[#14532d]">
-                ✓ Warmup complete. You are cleared for automated posting. The Ghost is ready.
+                ✓ Warmup complete. You are ready to test the draft-first workflow carefully.
               </div>
             )}
           </div>
@@ -242,36 +399,44 @@ const staggerContainer = {
             title="Class 04 Success Criteria + Rescue Prompts"
             checklist={[
               "3-day warmup complete.",
-              "Postiz connected to TikTok with API key stored in Hermes.",
+              "Postiz connected to TikTok with the private access key stored in Hermes.",
               "First 7 days of images generated and loaded into Postiz.",
-              "Android phone connected and verified with Hermes.",
-              "First automated post cycle completed without shadowban."
+	              "First draft queue reviewed by a human.",
+              "First draft-and-review cycle completed without account warnings."
             ]}
             prompts={[
-              '"Hermes, audit our TikTok automation pipeline. Report what\'s connected, what\'s pending, and what\'s failing."',
-              '"Postiz just gave me a 500 error when scheduling. Walk me through the 7 rules and show me which one we broke."'
+              '"Hermes, audit our TikTok content pipeline. Report what is connected, pending, risky, and ready for review."',
+              '"Postiz just gave me a 500 error when scheduling. Walk me through the draft rules and show me what to verify."'
             ]}
+          />
+          <StudentCompletionKit
+            eyebrow="Class 04 final standard"
+            title="Finish with a content system, not just content ideas"
+            outcomes={c4CompletionOutcomes}
+            drills={c4CompletionDrills}
+            proof={c4CompletionProof}
           />
         </div>
 
-        {/* ===== SECTION 1: ANTI-SHADOWBAN ===== */}
+        {/* ===== SECTION 1: PLATFORM SAFETY ===== */}
         <div className="mb-24">
           <NeedBox
             title="What you need before you start"
             items={[
               "A TikTok account you're willing to warm up.",
-              "A clear understanding of why reach matters (not just posting)."
+              "TikTok Community Guidelines open in another tab.",
+              "A clear understanding that review matters more than volume."
             ]}
           />
-          <SectionMeta minutes="12 min" focus="Avoiding the banhammer" />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. The Anti-Shadowban Protocol</h2>
+          <SectionMeta minutes="12 min" focus="Platform-safe posting" />
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. Platform-Safe Posting Protocol</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            99% of people who \"automate their TikTok\" get shadowbanned in week one. The reason is stupid simple: they post from the API. TikTok knows. TikTok punishes. This section is about making TikTok think a human is doing everything.
+            Most people break content systems by chasing volume before they understand platform rules. This section teaches a safer operating pattern: warm up the account, draft first, review claims and disclosures, then publish intentionally.
           </p>
 
-          {/* Shadowban Risk Calculator */}
+          {/* Account Risk Calculator */}
           <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
-            <h3 className="font-sans font-black uppercase text-sm mb-3">Shadowban Risk Calculator</h3>
+            <h3 className="font-sans font-black uppercase text-sm mb-3">Account Risk Calculator</h3>
             <p className="font-serif text-[#555] text-sm mb-4">Pick the scenario that matches your situation. See your actual risk score.</p>
             <div className="space-y-2 mb-6">
               {scenarios.map((s, i) => (
@@ -284,7 +449,7 @@ const staggerContainer = {
             </div>
             <div ref={shadowbanResultRef} className={`p-4 border-[2px] ${shadowbanScore < 20 ? 'border-[#22c55e] bg-[#f0fdf4]' : shadowbanScore < 60 ? 'border-[#f59e0b] bg-[#fffbeb]' : 'border-red-500 bg-red-50'}`}>
               <div className="font-mono text-xs font-bold uppercase mb-1">Your Risk Assessment</div>
-              <div className="font-serif text-base font-bold">{shadowbanScore < 20 ? '🟢 LOW RISK — Post away, ghost.' : shadowbanScore < 60 ? '🟡 MEDIUM RISK — Fix the weak points below.' : '🔴 HIGH RISK — You will get shadowbanned. Fix this before posting.'}</div>
+              <div className="font-serif text-base font-bold">{shadowbanScore < 20 ? 'LOW RISK — Draft workflow is healthy.' : shadowbanScore < 60 ? 'MEDIUM RISK — Fix the weak points below.' : 'HIGH RISK — pause and review before publishing.'}</div>
               <div className="mt-2 h-2 bg-[#ddd] rounded-full overflow-hidden">
                 <div className={`h-full transition-all duration-500 ${shadowbanScore < 20 ? 'bg-[#22c55e]' : shadowbanScore < 60 ? 'bg-[#f59e0b]' : 'bg-red-500'}`} style={{ width: `${shadowbanScore}%` }}></div>
               </div>
@@ -294,26 +459,26 @@ const staggerContainer = {
 
           {/* Why API posting kills reach */}
           <div className="bg-[#111] border-[4px] border-red-500 p-8 text-[#eae7de] shadow-[8px_8px_0_0_#dc2626]">
-            <h3 className="font-mono text-red-400 font-bold uppercase tracking-widest mb-4">Why Direct API Posting = Shadowban</h3>
+            <h3 className="font-mono text-red-400 font-bold uppercase tracking-widest mb-4">Why Blind Direct Posting Is Risky</h3>
             <p className="font-serif text-[#aaa] mb-4 leading-relaxed">
-              When you post via the Postiz API directly to TikTok, TikTok sees the API signature in the request. It's not a person. It's a bot. TikTok's algorithm downgrades bot posts before they even reach the For You page.
+              Official APIs and schedulers can be useful, but they come with platform rules, consent flows, metadata requirements, and content limits. A bad automation system ignores those rules and publishes low-quality or non-compliant content too quickly.
             </p>
             <p className="font-serif text-[#aaa] leading-relaxed">
-              <strong className="text-white">The Fix:</strong> Postiz sends your slideshow to <strong className="text-[#22c55e]">Drafts only</strong>. Your Android phone picks up the drafts and posts them natively — like a real human. TikTok sees a phone post. Reach stays alive.
+              <strong className="text-white">The Fix:</strong> keep Hermes in a <strong className="text-[#22c55e]">draft-first</strong> role. It can prepare assets, captions, and schedules, but publishing decisions should pass through human review and the platform's current rules.
             </p>
           </div>
 
           <CheckpointCard
-            title="Shadowban Checkpoint"
+            title="Platform Safety Checkpoint"
             pass={[
-              "You can explain why Android posting beats API direct-posting.",
+              "You can explain why draft-first publishing is safer than blind direct-posting.",
               "Your warmup is done or in progress.",
-              "You understand what shadowban looks like in practice."
+              "You know where to check platform rules before scaling."
             ]}
             fail={[
-              "You're still planning to post directly from the Postiz API.",
-              "Skipping warmup because you 'don't have time.'",
-              "Can't explain the difference between Draft and Direct Post."
+              "You're planning to publish at volume before review.",
+              "Skipping warmup and content checks because you are rushing.",
+              "Can't explain the difference between Draft, Scheduled, and Direct Post."
             ]}
           />
         </div>
@@ -327,7 +492,7 @@ const staggerContainer = {
               "Understanding that automation ≠ just hitting a button."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Stack — How the Ghost Moves</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Stack — How the Content System Moves</h2>
 
           {/* ASCII flow diagram */}
           <MacWindow title="80m_content_forge.arch" contentClass="bg-[#0d1117] p-6 font-mono text-sm text-[#22c55e]">
@@ -339,25 +504,25 @@ const staggerContainer = {
                     │ "Generate 7 days of slideshow images"
                     ▼
   ┌──────────────────────────────────────────────┐
-  │  Gemini API + Nano Banana 2                  │
-  │  AI Image Generation                         │
+  │  Gemini Image Generation                     │
+  │  Draft Visuals                               │
   │  3 slides × 3 posts × 7 days = 63 images    │
   └──────────────────┬───────────────────────────┘
                     │ "Schedule all posts to DRAFTS"
                     ▼
   ┌──────────────────────────────────────────────┐
-  │  Postiz.com ($29/mo)                         │
+  │  Postiz.com                                  │
   │  Agentic Scheduler — Draft Mode             │
   │  Connected to: TikTok, Instagram, LinkedIn  │
   └──────────────────┬───────────────────────────┘
                     │ Draft lives in TikTok account
                     ▼
   ┌──────────────────────────────────────────────┐
-  │  $50 Android Phone (Same WiFi as Server)    │
-  │  Your agent controls it via ADB             │
-  │  Picks up drafts, adds audio, posts natively │
+  │  Human Review Desk                           │
+  │  Claims, disclosures, links, timing checked  │
+  │  Approved posts move from draft to publish   │
   └──────────────────────────────────────────────┘
-                    │ ✓ NATIVE POST = NO SHADOWBAN
+                    │ ✓ REVIEWED POST = CLEAN HANDOFF
                     ▼
               ┌───────────────┐
               │   TikTok      │
@@ -369,10 +534,10 @@ const staggerContainer = {
           {/* Tool breakdown cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
             {[
-              { name: 'Hermes / OpenClaw', role: 'THE COORDINATOR', desc: 'The boss. Reads your brand rules from Fabric. Coordinates every step: image gen, Postiz scheduling, Android control. You talk to Hermes, Hermes talks to everything else.', icon: '🧠' },
-              { name: 'Postiz.com', role: 'THE SCHEDULER', desc: '$29/mo and worth every penny. Agentic-first social media management. You connect it to TikTok once, give Hermes the API key, and never touch it again. It holds drafts, not posts — the Android does the posting.', icon: '📅' },
-              { name: 'Gemini + Nano Banana 2', role: 'THE ARTIST', desc: 'AI image generation. Gemini creates the images, Nano Banana 2 refines them. You give it the 3-slide structure, it gives you batch-ready slideshow sets. No designers. No stock photos.', icon: '🎨' },
-              { name: '$50 Android Phone', role: 'THE HUMAN-TOUCH', desc: 'The secret. A cheap Samsung on your WiFi. Hermes controls it via ADB. It picks up drafts from Postiz, adds audio (the step TikTok cares about), and posts natively. TikTok thinks a human is doing it. Because technically, a robot pretending to be a human is indistinguishable.', icon: '📱' },
+	              { name: 'Hermes / 80M Agent Desktop', role: 'THE COORDINATOR', desc: 'The planner. It reads your brand rules, creates concepts, drafts captions, prepares image prompts, and hands everything to review before anything goes live.', icon: '🧠' },
+	              { name: 'Postiz.com', role: 'THE SCHEDULER', desc: 'The calendar and preview surface. You connect channels, create drafts, inspect previews, and track analytics without juggling every post manually.', icon: '📅' },
+	              { name: 'Gemini Image Generation', role: 'THE ARTIST', desc: 'The image workspace. Gemini or AI Studio creates draft slideshow visuals from your 3-slide structure so you can review and refine before publishing.', icon: '🎨' },
+              { name: 'Human Approval Layer', role: 'THE SAFETY CHECK', desc: 'The required review step. A real person checks claims, captions, disclosures, visuals, links, and timing before anything goes live.', icon: '📱' },
             ].map((tool, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
                 <div className="text-3xl mb-2">{tool.icon}</div>
@@ -389,14 +554,14 @@ const staggerContainer = {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A Postiz account (postiz.pro/ashen).",
+	              "A Postiz account.",
               "TikTok connected to Postiz.",
               "Instagram + LinkedIn connected if you want cross-posting."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. Postiz Setup — Your Agent Gets the Keys</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Here's the thing about Postiz: it's not for you. It's for your agent. You set it up once. Then Hermes owns it. That's the whole point.
+	            Postiz gives Hermes a clean place to prepare drafts, calendars, previews, and analytics. You still own the publishing decision.
           </p>
 
           {/* Postiz Setup Simulator */}
@@ -407,8 +572,8 @@ const staggerContainer = {
               {[
                 { step: 1, label: 'Connect TikTok to Postiz', detail: 'Go to Postiz → Channels → Add TikTok → Scan QR code with your TikTok account', done: postizStep > 0 },
                 { step: 2, label: 'Connect Instagram + LinkedIn (optional)', detail: 'Same process. Each channel can cross-post from the same drafts queue.', done: postizStep > 1 },
-                { step: 3, label: 'Grab your API key', detail: 'Postiz → Settings → API Keys → Create new key. Copy it. You need this next.', done: postizStep > 2 },
-                { step: 4, label: 'Store API key in Hermes', detail: 'Paste the key to your agent with the prompt below. This is the last manual step.', done: postizStep > 3 },
+                { step: 3, label: 'Grab your private access key', detail: 'Postiz → Settings → API Keys → Create new key. Copy it. You need this next.', done: postizStep > 2 },
+                { step: 4, label: 'Store the key in Hermes', detail: 'Paste the key to your agent with the prompt below. This is the last manual step.', done: postizStep > 3 },
               ].map(({ step, label, detail, done }) => (
                 <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] bg-white'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-sm shrink-0 ${done ? 'bg-[#22c55e] text-white' : 'bg-[#ddd] text-[#555]'}`}>
@@ -429,14 +594,14 @@ const staggerContainer = {
             </button>
             {postizStep === 4 && (
               <div className="mt-4 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
-                <p className="font-serif text-sm text-[#14532d] font-bold">Postiz is wired. Hermes has the API key. Now every post goes through drafts — never direct.</p>
+	                <p className="font-serif text-sm text-[#14532d] font-bold">Postiz is wired. Hermes has the access rules. Start with one draft, review it, then scale carefully.</p>
               </div>
             )}
           </div>
 
           {/* Agent prompt MacWindow */}
           <div ref={postizTerminalRef}>
-            <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Here's your Postiz API key: ${postizApiKey || '[YOUR-KEY-HERE]'}
+            <MacWindow title="Hermes command box" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Here's my private Postiz access key: ${postizApiKey || '[YOUR-KEY-HERE]'}
 Store it in your memory for ${'`'}[Project Name]${'`'}.
 Use this for all future post scheduling.
 Rule: ALL posts go to DRAFTS only. Never direct publish.
@@ -446,8 +611,8 @@ Max 5 hashtags per post.
 Caption max 1,000 characters.
 Reply "Stored and ready" when done.`}>
             <div className="space-y-2">
-              <p className="text-[#aaa]">// Paste this to Hermes once you have your Postiz API key</p>
-              <p className="text-[#eae7de]">hermes: Here's your Postiz API key:</p>
+              <p className="text-[#aaa]">// Paste this to Hermes once you have your private Postiz access key</p>
+              <p className="text-[#eae7de]">hermes: Here's my private Postiz access key:</p>
               <p className="text-[#38bdf8]">${postizApiKey || '[COPY-PASTE-YOUR-KEY-HERE]'}</p>
               <p className="text-[#eae7de]">hermes: Store it in memory. All posts → DRAFTS only.</p>
               <p className="text-[#aaa] italic">hermes: Stored and ready. What do you want to post first?</p>
@@ -455,23 +620,23 @@ Reply "Stored and ready" when done.`}>
             </MacWindow>
           </div>
           <div className="mt-2 p-3 border-[2px] border-[#111] bg-[#fdfaf6]">
-            <p className="font-mono text-[10px] text-[#555] uppercase mb-1">Your API Key (paste in the terminal above)</p>
+		            <p className="font-mono text-[10px] text-[#555] uppercase mb-1">Your Private Postiz Access Key (paste into the Hermes prompt above)</p>
             <input value={postizApiKey} onChange={e => setPostizApiKey(e.target.value)} placeholder="postiz_live_xxxxxxxxxxxxxxx" className="w-full bg-transparent font-mono text-xs text-[#111] outline-none" />
           </div>
         </div>
 
-        {/* ===== SECTION 4: GEMINI + NANO BANANA 2 ===== */}
+	        {/* ===== SECTION 4: GEMINI IMAGE GENERATION ===== */}
         <div className="mb-24">
-          <NeedBox
-            title="What you need before you start"
-            items={[
-              "A Gemini API key (ai.google.dev).",
-              "Nano Banana 2 accessible (or substitute with Imagen 3 / DALL-E 3)."
-            ]}
-          />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Gemini + Nano Banana 2 — The Image Studio</h2>
-          <p className="font-serif text-xl mb-8 leading-relaxed">
-            You don't need a designer. You need the right prompt. Gemini creates the base, Nano Banana 2 polishes it. Together they make slideshow images that look better than most creators are making manually.
+	          <NeedBox
+	            title="What you need before you start"
+	            items={[
+		              "Google AI Studio access. If support says you need a key, use a separate Gemini key.",
+	              "A product, offer, or account niche to turn into visuals."
+	            ]}
+	          />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Gemini Image Generation — The Image Studio</h2>
+	          <p className="font-serif text-xl mb-8 leading-relaxed">
+	            You don't need to be a designer. You need a specific prompt, a clear format, and a review pass. Gemini can create the draft visuals; you decide what is accurate, readable, and on-brand.
           </p>
 
           {/* ImagePromptBuilder */}
@@ -519,7 +684,7 @@ Reply "Stored and ready" when done.`}>
               <p className="font-serif text-sm text-red-700">Result: Generic. No hook. No brand. Looks like every other AI image. Zero saves, zero shares.</p>
             </div>
             <div className="border-[3px] border-[#22c55e] bg-[#f0fdf4] p-6">
-              <h4 className="font-sans font-black uppercase text-sm mb-3 text-[#14532d]">Boss Mode Prompt</h4>
+	              <h4 className="font-sans font-black uppercase text-sm mb-3 text-[#14532d]">Specific Prompt</h4>
               <div className="font-mono text-xs bg-white p-3 border mb-2">"Anime Quran verse, soft gradient background, minimal text overlay 'What does this verse really mean?', vertical 9:16, cinematic lighting"</div>
               <p className="font-serif text-sm text-[#14532d]">Result: Specific. On-brand. Looks intentional. Saves happen. Shares happen.</p>
             </div>
@@ -532,7 +697,7 @@ Reply "Stored and ready" when done.`}>
             title="What you need before you start"
             items={[
               "Your product/app/service clearly defined.",
-              "Gemini API connected to Hermes."
+              "Gemini image access connected to Hermes."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. The 3-Slide Formula — Hook, Info, CTA</h2>
@@ -596,13 +761,13 @@ Reply "Stored and ready" when done.`}>
             title="What you need before you start"
             items={[
               "Hermes running with Gemini connected.",
-              "Postiz connected with API key stored.",
+              "Postiz connected with the private access key stored.",
               "Your 3-slide formula defined."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. Building the Stockpile</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Don't generate one post at a time. Generate in batches. One week of content in a single session. Your agent does the work, you review it in 10 minutes. Then you have a month of posts ready to run on autopilot.
+	            Don't generate one post at a time. Generate in batches. One week of draft content in a single session. Your agent prepares the work, then you review the claims, visuals, captions, and timing before anything goes live.
           </p>
 
           {/* StockpileBuilder */}
@@ -637,12 +802,12 @@ Reply "Stored and ready" when done.`}>
               </div>
               <div className="mt-4 border-t border-[#333] pt-4 text-center">
                 <p className="font-serif text-[#aaa] text-sm">One batch session = <span className="text-[#22c55e] font-bold">{stockpileDays * stockpilePosts * 3}</span> images generated</p>
-                <p className="font-serif text-[#555] text-xs mt-1">Time investment: ~45 minutes with Hermes. Then it's autopilot.</p>
+	                <p className="font-serif text-[#555] text-xs mt-1">Time investment: about 45 minutes with Hermes, then a focused review pass.</p>
               </div>
             </div>
           </div>
 
-          <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Batch generate ${stockpileDays} days of TikTok slideshow images.
+          <MacWindow title="Hermes stockpile prompt" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Batch generate ${stockpileDays} days of TikTok slideshow images.
 ${stockpilePosts} posts/day × 3 slides = ${stockpileDays * stockpilePosts * 3} images total.
 For each day: generate a unique angle, hook, and CTA.
 All images: vertical 9:16, clean design, text overlays readable.
@@ -669,9 +834,9 @@ Reply with a summary of what was generated.`}>
               "Postiz connected with TikTok."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. Postiz 7 Rules — Don't Get Banned</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. Postiz 7 Rules — Keep the Workflow Reviewable</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            These aren't suggestions. These are the laws. Break one and your account gets flagged. Follow all seven and your automation runs forever, quietly, like a ghost.
+            These aren't suggestions. These are operating rules. Follow them and your draft workflow stays reviewable, measurable, and easier to fix when something breaks.
           </p>
 
           {/* PostizRulesChecker */}
@@ -704,7 +869,7 @@ Reply with a summary of what was generated.`}>
 
           <MacWindow title="postiz_rules.md" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`POSTIZ SCHEDULING RULES — [PROJECT NAME]
 1. All posts → DRAFTS only. Never direct publish.
-2. Audio = None. We add audio manually on the phone.
+	2. Audio is checked during review.
 3. Max 5 hashtags per post. Use only niche-relevant tags.
 4. Caption max 1,000 characters. Be concise.
 5. Schedule at posted times: 9am EST, 12pm EST, 5pm EST.
@@ -712,7 +877,7 @@ Reply with a summary of what was generated.`}>
 7. Each post must have a unique title based on the content.
 REVISION DATE: [TODAY]`}>
             <div className="space-y-2">
-              <p className="text-[#aaa]">// Store this file in your OpenClaw workspace</p>
+	              <p className="text-[#aaa]">// Store this file in your 80M workspace</p>
               <p className="text-[#eae7de]">📁 /skills/postiz-rules.md</p>
               {ruleLabels.map((label, i) => (
                 <p key={i} className="text-[#22c55e]">{i+1}. {label}</p>
@@ -721,31 +886,32 @@ REVISION DATE: [TODAY]`}>
           </MacWindow>
         </div>
 
-        {/* ===== SECTION 8: THE SECRET ANDROID ===== */}
-        <div className="mb-24">
-          <NeedBox
-            title="What you need before you start"
-            items={[
-              "A $50 Samsung Android on the same WiFi as your server.",
-              "Postiz with drafts loaded."
-            ]}
-          />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Secret Android — The Human Layer</h2>
+	        {/* ===== SECTION 8: REVIEW LAYER ===== */}
+	        <div className="mb-24">
+	          <NeedBox
+	            title="What you need before you start"
+	            items={[
+	              "Postiz with at least one draft loaded.",
+	              "TikTok Community Guidelines open.",
+	              "A simple place to track approved and rejected drafts."
+	            ]}
+	          />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. Review Layer — The Human Approval Step</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            This is the part nobody talks about. Every post scheduler in the world tells you to connect the API. Then you get shadowbanned. The 80m approach is different: you buy a cheap Android, your agent controls it over WiFi, and it posts like a human would. TikTok never knows.
+            This is the part people skip when they get excited. Hermes can draft, schedule, and prepare assets, but a human still needs to approve the post, verify claims, check disclosures, and make sure the content fits the platform before it goes live.
           </p>
 
-          {/* AndroidSetupSimulator */}
-          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
-            <h3 className="font-sans font-black uppercase text-sm mb-4">Android Setup Simulator</h3>
-            <div className="space-y-3">
-              {[
-                { step: 1, label: 'Buy a $50 Samsung Android', detail: 'Galaxy A-series or equivalent. New, not used. You need a fresh TikTok install.', done: androidStep > 0 },
-                { step: 2, label: 'Install TikTok on the Android', detail: 'Create a new TikTok account or log into your existing one. This is the account that runs on the phone.', done: androidStep > 1 },
-                { step: 3, label: 'Connect to same WiFi as your server', detail: 'The Android and your OpenClaw server must be on the same network. Write down the IP address.', done: androidStep > 2 },
-                { step: 4, label: 'Enable Developer Options + USB Debugging', detail: 'Settings → About Phone → Tap Build Number 7 times. Then Settings → Developer Options → Enable USB Debugging.', done: androidStep > 3 },
-                { step: 5, label: 'Connect Hermes via ADB over WiFi', detail: 'Run: adb connect [phone-ip]:5555. Verify connection: adb devices', done: androidStep > 4 },
-                { step: 6, label: 'Verify with test command', detail: 'hermes: check if Android is connected and responsive.', done: androidStep > 5 },
+	          {/* ReviewSetupSimulator */}
+	          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
+	            <h3 className="font-sans font-black uppercase text-sm mb-4">Draft Review Simulator</h3>
+	            <div className="space-y-3">
+	              {[
+	                { step: 1, label: 'Open the draft queue', detail: 'Open Postiz and inspect the next scheduled draft before it goes public.', done: androidStep > 0 },
+	                { step: 2, label: 'Check claims and sources', detail: 'Verify that every factual claim, price, testimonial, and offer is true.', done: androidStep > 1 },
+	                { step: 3, label: 'Check platform rules', detail: 'Review TikTok guidelines, disclosure needs, music/audio rights, and prohibited content.', done: androidStep > 2 },
+	                { step: 4, label: 'Check mobile readability', detail: 'Make sure text is readable on a phone and does not cover important visuals.', done: androidStep > 3 },
+	                { step: 5, label: 'Approve, edit, or reject', detail: 'Only approve drafts that match brand, offer, and platform rules.', done: androidStep > 4 },
+	                { step: 6, label: 'Save the decision', detail: 'Record what changed so Hermes can improve the next batch.', done: androidStep > 5 },
               ].map(({ step, label, detail, done }) => (
                 <div key={step} className={`flex items-center gap-4 p-4 border-[2px] transition-all ${done ? 'border-[#22c55e] bg-[#f0fdf4]' : 'border-[#ddd] bg-white'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-sm shrink-0 ${done ? 'bg-[#22c55e] text-white' : 'bg-[#ddd] text-[#555]'}`}>
@@ -762,52 +928,55 @@ REVISION DATE: [TODAY]`}>
               setAndroidStep(s => Math.min(s + 1, 6));
               scrollToRef(androidTerminalRef);
             }} className="mt-4 font-sans font-black text-sm uppercase px-6 py-3 bg-[#111] text-[#eae7de] border-[2px] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
-              {androidStep < 6 ? `Complete Step ${androidStep + 1}` : '✓ Android Connected'}
+	              {androidStep < 6 ? `Complete Review Step ${androidStep + 1}` : '✓ Review Complete'}
             </button>
           </div>
 
-          <div ref={androidTerminalRef}>
-            <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`# Step 1: Find your Android's IP
-hermes: what is the IP address of the Android phone on our network?
+	          <div ref={androidTerminalRef}>
+	            <MacWindow title="Hermes review prompt" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`Hermes, review this draft before it publishes.
 
-# Step 2: Connect via ADB
-adb connect 192.168.1.104:5555
+Check:
+1. factual claims
+2. offer accuracy
+3. platform-rule risk
+4. disclosure requirements
+5. mobile readability
+6. caption clarity
 
-# Step 3: Verify
-adb devices
-# Output: 192.168.1.104:5555    device
-
-# Step 4: Verify Hermes can see it
-hermes: run 'adb devices' and report what phones are connected.`}>
-            <div className="space-y-2">
-              <p className="text-[#aaa]">// Run these on your OpenClaw server terminal</p>
-              <p className="text-[#38bdf8]">hermes: Find Android IP on our network</p>
-              <p className="text-[#aaa] italic">hermes: Android found at 192.168.1.104</p>
-              <p className="text-[#eae7de]">$ adb connect 192.168.1.104:5555</p>
-              <p className="text-[#aaa]">connected to 192.168.1.104:5555</p>
-              <p className="text-[#aaa] italic">hermes: Android connected. Ready to receive commands.</p>
-            </div>
-          </MacWindow>
+Return:
+- approve / edit / reject
+- exact edits needed
+- why the decision protects the account`}>
+	            <div className="space-y-2">
+	              <p className="text-[#aaa]">// Paste this to Hermes before approving a draft</p>
+	              <p className="text-[#38bdf8]">hermes: Review this draft before it publishes.</p>
+	              <p className="text-[#aaa] italic">hermes: Decision: edit. The claim needs a source and the CTA should be softer.</p>
+	              <p className="text-[#eae7de]">You approve only after the edits are made.</p>
+	            </div>
+	          </MacWindow>
         </div>
 
         {/* ===== SECTION 9: CRON AUTOMATION ===== */}
         <div className="mb-24">
-          <NeedBox
-            title="What you need before you start"
-            items={[
-              "Android connected and verified.",
-              "Postiz stocked with at least one week of drafts.",
-              "Stockpile generation skill file saved."
-            ]}
-          />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. Cron Automation — The Ghost Runs on Its Own</h2>
-          <p className="font-serif text-xl mb-8 leading-relaxed">
-            Three cron jobs. That's the whole automation. One monitors Postiz drafts and posts them. One generates new stockpile monthly. One audits the system weekly. Set these once, and your content machine runs while you do actual work.
-          </p>
+	          <NeedBox
+	            title="What you need before you start"
+	            items={[
+	              "Postiz stocked with at least one week of drafts.",
+	              "Stockpile generation skill file saved.",
+	              "A weekly review habit you will actually keep."
+	            ]}
+	          />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. Schedule Automation — The System Checks Itself</h2>
+	          <p className="font-serif text-xl mb-8 leading-relaxed">
+	            Three reminders. That's the useful automation. One checks drafts before scheduled windows. One prepares the next stockpile monthly. One audits performance weekly. Set these once so the system stays reviewed, measured, and current.
+	          </p>
 
-          {/* CronBuilder */}
-          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
-            <h3 className="font-sans font-black uppercase text-sm mb-4">Cron Expression Builder</h3>
+	          {/* ScheduleBuilder */}
+	          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
+	            <h3 className="font-sans font-black uppercase text-sm mb-4">Schedule Translation Builder</h3>
+	            <p className="font-serif text-sm text-[#555] leading-relaxed mb-4">
+	              Pick review times in normal language. The small number patterns below are the advanced schedule translation Hermes can explain if support needs them.
+	            </p>
             <div className="mb-6">
               <label className="font-mono text-[10px] font-bold uppercase text-[#555] block mb-2">Your posting times (EST)</label>
               <div className="flex flex-wrap gap-3">
@@ -823,11 +992,11 @@ hermes: run 'adb devices' and report what phones are connected.`}>
             </div>
             <div ref={cronOutputRef} className="bg-[#111] p-4 font-mono text-xs text-[#22c55e] space-y-2">
               <div>
-                <div className="text-[#aaa] uppercase mb-1">// Draft → Phone Posting Cron</div>
+	                <div className="text-[#aaa] uppercase mb-1">// Draft Review Reminder</div>
                 <div className="text-[#eae7de]">
                   {cronTimes.map((t) => `0 ${parseInt(t)} * * *`).join('\n')}
                 </div>
-                <div className="text-[#aaa] mt-1">→ Run Android posting check at {cronTimes.join(', ')} EST daily</div>
+	                <div className="text-[#aaa] mt-1">→ Review upcoming drafts at {cronTimes.join(', ')} EST daily</div>
               </div>
               <div>
                 <div className="text-[#aaa] uppercase mb-1">// Monthly Stockpile Refresh</div>
@@ -837,31 +1006,31 @@ hermes: run 'adb devices' and report what phones are connected.`}>
               <div>
                 <div className="text-[#aaa] uppercase mb-1">// Weekly System Audit</div>
                 <div className="text-[#eae7de]">0 10 * * 1</div>
-                <div className="text-[#aaa] mt-1">→ Every Monday 10am: audit Postiz, Android, stockpile status</div>
+	                <div className="text-[#aaa] mt-1">→ Every Monday 10am: audit Postiz, content quality, stockpile status</div>
               </div>
             </div>
           </div>
 
-          <MacWindow title="hermes_terminal" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`hermes: Set up the following cron jobs:
+	          <MacWindow title="Hermes schedule prompt" contentClass="bg-[#111] p-6 font-mono text-sm text-[#22c55e]" code={`hermes: Set up the following review schedules:
 
-1. Daily at ${cronTimes[0] || '09:00'} EST: Check Postiz for new drafts. 
-   If drafts exist, push to Android for native posting.
+	1. Daily at ${cronTimes[0] || '09:00'} EST: Check Postiz for upcoming drafts.
+	   Return anything that needs review, edits, disclosure, or approval.
 
 2. Monthly on the 1st at 9am: Generate a ${stockpileDays}-day 
    content stockpile and load into Postiz.
 
-3. Weekly every Monday at 10am: Audit the TikTok automation 
-   pipeline. Report: posts published, engagement, failures.
+	3. Weekly every Monday at 10am: Audit the TikTok content
+	   pipeline. Report: published posts, engagement, failures, and learnings.
 
-Reply with the crontab entries when done.`}>
+	Reply with the plain-English schedule confirmation. Include advanced cron patterns only after the explanation.`}>
             <div className="space-y-2">
               <p className="text-[#aaa]">// Give this to Hermes to wire the automation</p>
-              <p className="text-[#eae7de]">hermes: Set up our TikTok cron jobs.</p>
-              <p className="text-[#aaa] italic">hermes: Configuring 3 cron jobs now...</p>
-              <p className="text-[#aaa]">✓ Draft check: {cronTimes[0] || '09:00'} EST daily</p>
+	              <p className="text-[#eae7de]">hermes: Set up our TikTok review schedules.</p>
+	              <p className="text-[#aaa] italic">hermes: Configuring 3 review reminders now...</p>
+	              <p className="text-[#aaa]">✓ Draft review: {cronTimes[0] || '09:00'} EST daily</p>
               <p className="text-[#aaa]">✓ Monthly stockpile: 1st of month, 9am</p>
               <p className="text-[#aaa]">✓ Weekly audit: Monday 10am</p>
-              <p className="text-[#22c55e]">hermes: All cron jobs active. The ghost is running.</p>
+	              <p className="text-[#22c55e]">hermes: Schedules active. Draft review and weekly audits are running.</p>
             </div>
           </MacWindow>
         </div>
@@ -878,20 +1047,20 @@ Reply with the crontab entries when done.`}>
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. The Dumb-Proof Dictionary</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { term: 'Shadowban', def: 'TikTok silently hiding your content from For You pages without telling you. Your account looks normal to you, but nobody new sees your posts.' },
-              { term: 'Nano Banana 2', def: 'Google Gemini\'s image generation model. Free tier available. Used for creating slideshow images at scale.' },
-              { term: 'Postiz API', def: 'Postiz\'s developer key that lets your agent (Hermes) schedule posts, manage drafts, and control the queue without touching the UI.' },
-              { term: 'ADB (Android Debug Bridge)', def: 'A command-line tool that lets your server talk to the Android phone over WiFi. This is how Hermes controls the physical phone.' },
-              { term: 'Slideshow Marketing', def: 'TikTok video format using static images with text overlays that auto-advance. Easiest format to automate — no video editing required.' },
-              { term: 'UGC', def: 'User Generated Content. The type of content real users create. AI-generated slideshows mimicking UGC perform well because they look authentic.' },
-              { term: 'Reel.Farm', def: 'The team that pioneered TikTok slideshow automation at scale. Their posts hit 5.6M+ views. The system we\'re copying uses their approach.' },
-              { term: 'Warmup Protocol', def: '3-day process of behaving like a human on TikTok before posting — scrolling, liking, commenting. Required to avoid shadowban.' },
-              { term: 'Stockpile', def: 'A batch of pre-generated slideshow images sitting in Postiz, ready to be posted. One stockpile session = one month of content.' },
-              { term: 'Draft Mode', def: 'Postiz setting that sends posts to your TikTok DRAFTS folder instead of publishing directly. Required for Android-native posting.' },
+              { term: 'Account Risk', def: 'The chance that rushed volume, weak review, bad claims, or platform-rule issues hurt the account.' },
+              { term: 'Gemini Image Generation', def: 'Google image generation through Gemini or AI Studio. Used for creating draft slideshow visuals.' },
+              { term: 'Postiz Access Key', def: 'A private key that lets approved tools create and manage social drafts, schedules, and posts. Treat it like a password.' },
+	              { term: 'Review Gate', def: 'A required approval checkpoint before content goes public.' },
+	              { term: 'Slideshow Marketing', def: 'TikTok video format using static images with text overlays that auto-advance. Easy to draft because it does not require advanced video editing.' },
+	              { term: 'UGC', def: 'User Generated Content. Use it as a style reference, but do not pretend a real customer made content if they did not.' },
+              { term: 'Creative Center', def: 'TikTok research dashboard for trends, ads, songs, creators, and content inspiration.' },
+              { term: 'Warmup Protocol', def: 'A few days of normal account activity and quality checks before increasing publishing volume.' },
+              { term: 'Stockpile', def: 'A batch of pre-generated draft ideas, images, and captions ready for review.' },
+              { term: 'Draft Mode', def: 'A safer workflow where content is prepared first, reviewed, and only then published.' },
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-5 shadow-[4px_4px_0_0_#111]">
                 <h4 className="font-sans font-black text-lg uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#aaa] text-sm leading-relaxed">{item.def}</p>
+                <p className="font-serif text-[#333] text-sm leading-relaxed">{item.def}</p>
               </div>
             ))}
           </div>
@@ -902,52 +1071,59 @@ Reply with the crontab entries when done.`}>
           <NeedBox
             title="What you need before you start"
             items={[
-              "Everything in this class is free or already purchased.",
-              "The tools you need are listed below."
+              "Postiz or another scheduler account.",
+              "Google AI Studio or Gemini image access.",
+              "TikTok Community Guidelines and official rules open.",
+              "A place to save approved prompts and reviewed drafts."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">11. Resource Locker — Everything You Need</h2>
 
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
-            <ul className="space-y-4 font-serif text-base">
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://postiz.pro/ashen" target="_blank" rel="noreferrer">Postiz.com (ashen's ref)</a>
-                <span className="text-[#555]"> — $29/mo agentic social scheduler. Use ashen's ref: postiz.pro/ashen</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://ai.google.dev" target="_blank" rel="noreferrer">Google AI Studio (Gemini API)</a>
-                <span className="text-[#555]"> — Free tier available. Get your API key here.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://www.android.com/samsung" target="_blank" rel="noreferrer">Samsung Galaxy A-Series ($50-80)</a>
-                <span className="text-[#555]"> — The $50 Android for posting. Galaxy A15 or A25 recommended.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://developer.android.com/tools/adb" target="_blank" rel="noreferrer">Android ADB Documentation</a>
-                <span className="text-[#555]"> — How to connect your Android to your server over WiFi.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://reelfarm.gg" target="_blank" rel="noreferrer">Reel.Farm</a>
-                <span className="text-[#555]"> — The AI UGC integration for Postiz. Mixed with your slideshow images.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://crontab.guru" target="_blank" rel="noreferrer">Crontab Guru</a>
-                <span className="text-[#555]"> — Translate cron expressions into plain English.</span>
-              </li>
-            </ul>
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Official References + Tools</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {c4ResourceLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">YouTube Tutorials for Students</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {c4TutorialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
 
             <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
               <p className="font-sans font-black text-sm uppercase mb-2">Skill File Template</p>
-              <p className="font-serif text-xs text-[#aaa] mb-2">Save this as <code className="bg-white px-1 font-mono">/skills/tiktok-slideshow.SKILL.md</code> in your OpenClaw workspace:</p>
+              <p className="font-serif text-xs text-[#333] mb-2">Save this as <code className="bg-white px-1 font-mono">/skills/tiktok-slideshow.SKILL.md</code> in your workspace:</p>
               <pre className="bg-[#111] text-[#22c55e] p-3 font-mono text-xs overflow-x-auto">{`# TikTok Slideshow Automation Skill
 
 ## Purpose
-Generate and schedule TikTok slideshow content automatically.
+Generate, review, and schedule TikTok slideshow draft content.
 
 ## Stack
-- Gemini API + Nano Banana 2 for image generation
-- Postiz for scheduling (DRAFTS only)
-- $50 Android for native posting
+- Google AI Studio or approved Gemini image access for image generation
+- Postiz for draft scheduling, previews, and analytics
+- Human approval before publishing
 
 ## 3-Slide Formula
 Slide 1 (Hook): [specific result or curiosity gap]
@@ -955,22 +1131,28 @@ Slide 2 (Info): [the actual useful content]
 Slide 3 (CTA): [emotional pull + clear action]
 
 ## Rules
-1. All posts → Postiz DRAFTS only
-2. Max 5 hashtags
-3. Caption < 1,000 characters
-4. Audio = None (add on phone)
-5. Schedule: 9am, 12pm, 5pm EST
-6. Always run warmup protocol first`}</pre>
+1. Draft first; do not publish without review
+2. Check TikTok Community Guidelines before scale
+3. Verify claims, offers, and disclosures
+4. Keep captions readable and platform-appropriate
+5. Track results weekly
+6. Save approved prompts and assets`}</pre>
             </div>
 
             <div className="mt-6 p-4 bg-[#fffbeb] border-[2px] border-[#f59e0b]">
               <p className="font-sans font-black text-sm uppercase mb-2">Rescue Prompts</p>
-              <ul className="font-mono text-xs text-[#aaa] space-y-2">
-                <li>"Hermes, audit our TikTok pipeline. What's connected, what's stocked, what's due for refresh?"</li>
-                <li>"Postiz gave me a 500 error. Walk through the 7 rules and tell me which one we broke."</li>
-                <li>"Android isn't responding to ADB. Walk me through the troubleshooting checklist."</li>
-                <li>"Our posts got 0 views. Check warmup status, posting method, and shadowban signals."</li>
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {c4HermesPrompts.map((prompt) => (
+                  <CopyBlock key={prompt} text={prompt} label="Copy Content Prompt" />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-[#fdfaf6] border-[2px] border-[#111]">
+              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+              <p className="font-serif text-sm text-[#333] leading-relaxed">
+                Instructor production note: Course 04 content, scheduler, TikTok rules, and Gemini image tutorials are now logged in the internal scrape queue for original 80M motion explainers.
+              </p>
             </div>
           </div>
         </div>
@@ -1005,7 +1187,7 @@ Slide 3 (CTA): [emotional pull + clear action]
         <div className="mb-24 border-[3px] border-[#111] bg-white p-8 shadow-[8px_8px_0_0_#111]">
           <h3 className="font-sans font-black uppercase text-sm mb-4">Section Quizzes — Class 04</h3>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-            {[{s:1,l:'Anti-Shadowban'},{s:2,l:'The Stack'},{s:3,l:'Postiz Setup'},{s:4,l:'Image Gen'},{s:5,l:'3-Slide Formula'}].map(({s,l}) => (
+            {[{s:1,l:'Platform Safety'},{s:2,l:'The Stack'},{s:3,l:'Postiz Setup'},{s:4,l:'Image Gen'},{s:5,l:'3-Slide Formula'}].map(({s,l}) => (
               <button key={s} onClick={() => { setQuizSection(s); setQuizActive(true); }} className="font-mono text-xs font-bold uppercase px-4 py-3 bg-[#111] text-[#eae7de] border-[2px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] transition-colors">
                 Quiz {s}: {l}
                 {passedQuizzes.includes(s) && <span className="ml-1 text-[#22c55e]">✓</span>}
@@ -1016,19 +1198,19 @@ Slide 3 (CTA): [emotional pull + clear action]
 
         {/* CLASS 04 COMPLETE */}
         <div className="border-[4px] border-[#22c55e] bg-[#f0fdf4] p-10 shadow-[12px_12px_0_0_#111] mb-12">
-          <div className="text-center">
-            <div className="font-mono text-6xl mb-4">👻</div>
-            <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 04 Complete.</h2>
-            <p className="font-serif text-xl text-[#aaa] mb-8 leading-relaxed">
-              You just built a fully autonomous TikTok content machine. Your agent generates the images. Postiz schedules the drafts. Your Android posts natively. And you — you sleep while TikTok works for you.
-            </p>
+	          <div className="text-center">
+	            <div className="font-mono text-6xl mb-4">✓</div>
+	            <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 04 Complete.</h2>
+	            <p className="font-serif text-xl text-[#aaa] mb-8 leading-relaxed">
+	              You just built a draft-first TikTok content operation. Hermes prepares ideas, images, captions, and schedule reminders. Postiz holds the drafts. You review, approve, and improve the system with real results.
+	            </p>
             <div className="inline-grid grid-cols-2 gap-4 text-left mb-8">
               {[
-                'Postiz API key stored in Hermes',
+                'Postiz private access key stored in Hermes',
                 'Gemini image generation pipeline tested',
                 'First stockpile generated and loaded',
-                'Android connected and verified',
-                '3 cron jobs active',
+	                'Human review checklist active',
+	                '3 review reminders active',
                 'Skill file saved in workspace',
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-2 font-serif text-sm text-[#14532d]">
@@ -1050,7 +1232,7 @@ Slide 3 (CTA): [emotional pull + clear action]
       </div>
       </div>
       </div>
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -1060,41 +1242,41 @@ const quizDataC07 = [
   {
     section: 1,
     questions: [
-      { q: "Which agent in the 80m system is best suited for financial tracking and budget management?", options: ["Prawnius (o1)", "Sir Clawthchilds (o2)", "Claudnelius (o3)", "Knaight of Affairs (o5)"], correct: 1, explanation: "Sir Clawthchilds (o2) handles finances, budgets, and money-related tasks. Use Prawnius for quick one-offs, Sir Clawthchilds for money talk." },
-      { q: "What does the Agent Council in 80m actually do?", options: ["It lets all 7 agents respond to every message simultaneously", "It lets you delegate specific task types to specialized agents, each optimized for their domain", "It automatically posts to TikTok", "It runs your cron jobs"], correct: 1, explanation: "The Agent Council is your specialized workforce. Each agent (Prawnius, Sir Clawthchilds, Claudnelius, etc.) handles their lane. Hermes delegates to the right one." },
-      { q: "You need help writing Python code. Which agent should you route this to?", options: ["Labrina (o6) — social media agent", "Claudnelius (o3) — code and tech agent", "Knowledge Knaight (o4) — memory and facts", "Prawnius (o1) — quick tasks"], correct: 1, explanation: "Claudnelius (o3) is the code and tech specialist. It's optimized for programming, design, and technical problem-solving. Claudnelius has the tools and context for development work." },
+      { q: "What is 80M Agent Desktop for a beginner?", options: ["A coding school", "The normal desktop app where you chat with Hermes, manage memory, run schedules, and control tools", "A social media app only", "A spreadsheet template"], correct: 1, explanation: "The desktop app is the command center. Beginners open the app, choose a provider, talk to Hermes, save memory, and use schedules/tools through normal screens." },
+      { q: "What should happen before connecting outside apps like Discord, Slack, email, or SMS?", options: ["Connect everything immediately", "Save clean memory, write approval rules, and test one safe workflow", "Delete all sessions", "Turn off Hermes"], correct: 1, explanation: "Gateway connections are powerful because they touch outside channels. Set identity, rules, and approval gates first so Hermes prepares work safely instead of acting blindly." },
+      { q: "What is the safest first Hermes message?", options: ["A vague 'do everything for me'", "Name, goal, one thing to track, and 'save this to memory'", "A random command from a tutorial", "A private key pasted into Discord"], correct: 1, explanation: "The first useful move is identity plus one concrete job. Hermes should know who you are, what matters, and what you want remembered before automation starts." },
     ]
   },
   {
     section: 2,
     questions: [
-      { q: "What is a 'Memory Dump' and when should you use it?", options: ["Deleting old conversations from Hermes", "Pasting all your disorganized thoughts and context into Hermes so it can organize and remember everything", "Exporting your memory to a text file", "Setting up encrypted memory storage"], correct: 1, explanation: "The Memory Dump is your 'dump everything in' move. Paste everything you want Hermes to know — your situation, goals, blockers, preferences — and let Hermes organize it. Think of it as the 'set it and forget it' of context setting." },
-      { q: "What does 'chain-of-thought prompting' mean in plain English?", options: ["Asking Hermes to write chains on social media", "Telling Hermes to think step-by-step before answering, which produces more accurate and reasoned responses", "Linking multiple conversations together", "Creating a chain of agents that pass tasks between each other"], correct: 1, explanation: "Chain-of-thought means adding 'think step by step' or 'reason through this before answering' to your prompt. It forces Hermes to show its work, catching errors and producing better reasoning." },
-      { q: "What makes 'Boss Mode' prompting different from vague prompting?", options: ["Boss Mode means typing in all caps", "Boss Mode gives specific, directive instructions with clear outcomes — you get results instead of suggestions", "Boss Mode requires a special API key", "Boss Mode is only for Pro tier users"], correct: 1, explanation: "Boss Mode isn't a feature — it's a tone. Instead of 'can you maybe help me with my budget?' you say 'Here are my income sources. Here are my expenses. Give me a monthly budget breakdown and tell me what to cut.' Specific input, specific output." },
+      { q: "How should students use the 15 real-world app examples?", options: ["Pick the closest example, copy the prompt, replace details, and review the output", "Memorize every example", "Skip them and build from scratch", "Only use the trade examples"], correct: 0, explanation: "The examples are starting points. Students choose the closest life/business situation, paste it to Hermes, then edit details until it matches their reality." },
+      { q: "What should a bonus build become before Hermes acts on it?", options: ["A clear request with approval rules and a small first version", "A secret automation with no review", "A public post", "A random download"], correct: 0, explanation: "Bonus ideas are not permission to automate everything. Turn them into one small version, add approval boundaries, and test before expanding." },
+      { q: "What is the Custom Builder for?", options: ["Turning a student’s exact messy problem into a copyable Hermes setup prompt", "Changing provider billing", "Deleting memories", "Installing random tools"], correct: 0, explanation: "If none of the examples fit, the custom builder captures the problem and returns a plain-English prompt Hermes can use to create a tracker, reminders, and summaries." },
     ]
   },
   {
     section: 3,
     questions: [
-      { q: "What is Fabric in the 80m system?", options: ["A code framework for building apps", "The long-term memory layer — every conversation, decision, and context is stored in SQLite for persistent recall", "A type of agent specialized in research", "A webhook integration service"], correct: 1, explanation: "Fabric is the memory backbone. When you say 'save this to memory,' it goes into Fabric. Every session, every decision, every context gets stored in SQLite. Next conversation, Hermes already knows you." },
-      { q: "How does memory work in the 80m system when you start a new session?", options: ["Memory is wiped every session", "Fabric stores long-term context in SQLite, so Hermes retains your profile, goals, and history across sessions", "You have to re-enter your name every time", "Memory only works on Pro tier"], correct: 1, explanation: "Fabric ensures continuity. Your name, your goals, your preferences — all stored in SQLite. Start a new session, Hermes says 'Hey Mike, welcome back. Last time we talked about your plumbing business. Where'd we leave off?'" },
-      { q: "What does the mcp_memory tool actually do?", options: ["It deletes old memories", "It stores and retrieves context — surfacing relevant memories from past sessions when you need them", "It encrypts your conversations", "It syncs with Google Calendar"], correct: 1, explanation: "mcp_memory is the memory access tool. It handles storing new context, retrieving relevant memories, and surfacing them at the right time. When you say 'remember this,' mcp_memory handles it." },
+      { q: "What is memory in the 80m desktop app?", options: ["A design theme", "Saved context Hermes can use later: your profile, goals, preferences, rules, and decisions", "A type of agent specialized in research", "A payment screen"], correct: 1, explanation: "Memory is the continuity layer. When you say 'save this to memory,' Hermes can use that context in future sessions instead of making you repeat everything." },
+      { q: "How does memory help when you start a new session?", options: ["Memory is wiped every session", "Hermes can recall saved profile, goals, preferences, and history", "You have to re-enter your name every time", "Memory only works on Pro tier"], correct: 1, explanation: "Memory stores what should carry forward: who you are, what you do, what rules matter, and what was decided before." },
+      { q: "What should you say when you want Hermes to remember something?", options: ["Delete this", "Save this to memory and tell me what you saved", "Ignore this", "Save a random note somewhere"], correct: 1, explanation: "Use clear language. 'Save this to memory' tells Hermes the information should become durable context, and asking for a confirmation helps you catch mistakes." },
     ]
   },
   {
     section: 4,
     questions: [
-      { q: "What is a Skill in the 80m system?", options: ["A personality trait of an agent", "A reusable workflow or tool package you can install to extend what Hermes can do", "A scheduling template", "A type of cron job"], correct: 1, explanation: "Skills are like browser extensions for Hermes. They add capabilities — Notion sync, Stripe billing, YouTube pipeline. You install a skill, Hermes gains a new ability. Browse available skills and pick what you need." },
-      { q: "How do you install a new skill in 80m?", options: ["Download a file from the internet and upload it", "Ask Hermes to install it and walk through the setup — 'I want to install the notion skill'", "Use the Skill Store app on your phone", "Skills come pre-installed and can't be added"], correct: 1, explanation: "Skills install through conversation. Tell Hermes 'I want to install the [skill name] skill' and it walks you through setup. Most skills just need an API key and a brief. No downloading, no coding." },
+      { q: "What is a Skill in the 80m system?", options: ["A personality trait of an agent", "A reusable workflow or tool package you can install to extend what Hermes can do", "A scheduling template", "A type of recurring reminder"], correct: 1, explanation: "Skills are like browser extensions for Hermes. They add capabilities such as Notion sync, Stripe billing, or YouTube research. Install one, test one small workflow, then expand." },
+      { q: "How do you install a new skill in 80m?", options: ["Download a file from the internet and upload it", "Ask Hermes to install it and walk through the setup — 'I want to install the notion skill'", "Use the Skill Store app on your phone", "Skills come pre-installed and can't be added"], correct: 1, explanation: "Skills install through conversation. Tell Hermes 'I want to install the [skill name] skill' and it walks you through setup. Some skills need a private access key and a brief. No coding." },
       { q: "Which skill would you install if you wanted Hermes to automatically summarize YouTube videos?", options: ["stripe-80m", "youtube-content", "obsidian", "cortex"], correct: 1, explanation: "The youtube-content skill handles YouTube workflows — transcripts, summaries, spark pipelines. Give it a URL, get a summary, thread, or content repurposed. Perfect for research automation." },
     ]
   },
   {
     section: 5,
     questions: [
-      { q: "What is a cron job in the 80m system?", options: ["A type of agent that codes for you", "A scheduled task that runs automatically at specific times — ghost workers that run while you sleep", "An emergency button for when Hermes stops responding", "A way to backup your memory to the cloud"], correct: 1, explanation: "Cron jobs are your ghost workers. Set them up once — 'every day at 9am, send me a morning brief' — and they run on schedule forever. You set it, you forget it, you get results. That's the whole idea." },
-      { q: "You want Hermes to send you a morning brief every weekday at 8am. What cron expression do you need?", options: ["*/5 * * * * (every 5 minutes)", "0 8 * * 1-5 (8:00 AM, Monday through Friday)", "0 0 1 * * (midnight on the 1st of every month)", "30 21 * * * (8:30 PM every day)"], correct: 1, explanation: "The cron expression '0 8 * * 1-5' means: at minute 0, hour 8, every day, every month, Monday(1) through Friday(5). That's your weekday morning at 8am. Cron syntax is: minute | hour | day | month | weekday." },
-      { q: "Which of these is the best use case for a cron job in 80m?", options: ["Asking Hermes a one-off question", "Generating a weekly summary every Friday at 4pm — something you want to happen regularly without manually triggering it", "Fixing a broken memory", "Uploading a single file"], correct: 1, explanation: "Cron jobs are for recurring, predictable, automated tasks. Weekly wrap-ups, daily briefs, monthly finance audits — things that happen on a schedule and don't need your input each time. One-off tasks are for direct Hermes messages." },
+      { q: "What is a schedule in the 80m system?", options: ["A type of agent that codes for you", "A recurring task that runs at a chosen time", "An emergency button for when Hermes stops responding", "A way to backup your memory to the cloud"], correct: 1, explanation: "Schedules are recurring helpers. Set one up once, like every weekday at 8am, and Hermes prepares the agreed output until you change or delete it." },
+      { q: "What is the safest first schedule?", options: ["A public message sender", "A private weekday morning brief with no external sending", "A random hourly task", "A payment charge"], correct: 1, explanation: "Start with a private brief or review. Add external actions only after memory, rules, and approval gates are clear." },
+      { q: "Which of these is the best use case for a schedule in 80m?", options: ["Asking Hermes a one-off question", "Generating a weekly summary every Friday at 4pm because it should happen regularly", "Fixing a broken memory", "Uploading a single file"], correct: 1, explanation: "Schedules are for recurring, predictable tasks: weekly wrap-ups, daily briefs, monthly finance audits, and review reminders." },
     ]
   },
 ];
@@ -1105,32 +1287,32 @@ const quizDataC04 = [
   {
     section: 1,
     questions: [
-      { q: "Why does posting directly from the Postiz API get your TikTok account shadowbanned?", options: ["TikTok blocks all third-party apps", "TikTok detects the API signature and treats it as bot activity, which destroys reach", "Postiz has a bug that posts to the wrong account", "TikTok doesn't allow any automation"], correct: 1, explanation: "TikTok flags accounts that post via API signature because it's a telltale bot pattern. The fix is Draft Mode + Android posting — TikTok sees a phone post and treats it as organic human activity." },
-      { q: "What is the warmup protocol and why does it matter?", options: ["Logging into TikTok on your phone 3 times", "A 3-day process of behaving like a human on TikTok before posting — scrolling, liking, commenting, and posting soft content — so TikTok's algorithm identifies you as a real person", "Charging your Android phone to full before first use", "Installing TikTok on a fresh Android before posting"], correct: 1, explanation: "TikTok's algorithm profiles new accounts. Without warmup, automated posts look suspicious. With 3 days of human behavior, your account has legitimacy signals before the automation kicks in." },
-      { q: "What is the Shadowban Risk Calculator checking for?", options: ["How many followers you have", "Whether your warmup is complete, what posting method you use (API vs Android), and your account age — all of which affect whether TikTok flags your content", "Your content quality score", "How many hashtags you're using"], correct: 1, explanation: "Shadowban risk is a combination of account age, warmup status, and posting method. New accounts posting via API = highest risk. Aged accounts posting via Android after full warmup = lowest risk." },
+      { q: "Why is blind direct publishing risky for a business account?", options: ["All third-party tools are banned", "It can skip review, disclosure, platform-rule checks, and quality control", "Postiz has a bug that posts to the wrong account", "TikTok does not allow any scheduling"], correct: 1, explanation: "The risk is not just the tool. The risk is publishing too quickly without checking claims, disclosures, platform rules, and content quality." },
+      { q: "What is the warmup protocol for in this course?", options: ["Logging into TikTok exactly 3 times", "Building normal account activity and review discipline before increasing content volume", "Charging your phone before first use", "Installing a new app before posting"], correct: 1, explanation: "Warmup is about responsible account operation: normal activity, quality control, and a review rhythm before you scale volume." },
+      { q: "What is the Account Risk Calculator checking for?", options: ["How many followers you have", "Whether the account has warmup, review, draft-first publishing, and reasonable volume", "Your content quality score only", "How many hashtags you're using"], correct: 1, explanation: "Account risk is a combination of account activity, publishing volume, review quality, disclosure, and whether the workflow is draft-first or blind publishing." },
     ]
   },
   {
     section: 2,
     questions: [
-      { q: "In the 80m Content Forge stack, what role does the Android phone play?", options: ["A backup for when Postiz is down", "The human-touch layer — Hermes controls it to post natively so TikTok thinks a real person is posting", "A WiFi hotspot for the server", "A way to monitor TikTok analytics"], correct: 1, explanation: "The Android is the secret. Postiz sends to Drafts, Hermes picks them up via ADB, the phone posts natively. TikTok's algorithm sees phone-based posting and treats it as organic. No Android = no shadowban-free automation." },
-      { q: "What does Hermes coordinate in the Content Forge pipeline?", options: ["Only image generation", "Everything — image generation via Gemini, Postiz scheduling via API, and Android control via ADB", "Only posting to TikTok", "Only storing API keys"], correct: 1, explanation: "Hermes is the foreman. It takes your content brief, sends it to Gemini for image generation, loads drafts into Postiz, and coordinates the Android to pick them up and post. You're the client, Hermes is the operator." },
-      { q: "Why is Postiz described as 'for your agent, not for you'?", options: ["Postiz is broken on mobile", "Once you connect TikTok and give Hermes the API key, you never touch Postiz again — Hermes manages the entire queue", "Postiz only works on servers", "Postiz requires a coding degree to use"], correct: 1, explanation: "The one-time Postiz setup is: connect TikTok, grab API key, give key to Hermes. After that, Hermes owns the queue. You only touch Postiz if something breaks." },
+      { q: "In the 80M Content Forge stack, what is the human approval layer for?", options: ["A backup for when Postiz is down", "Reviewing claims, captions, disclosures, visuals, links, and timing before publishing", "A WiFi hotspot for the server", "A way to avoid all platform rules"], correct: 1, explanation: "The human approval layer protects the account and the business. Hermes can prepare drafts, but a person should approve what goes live." },
+      { q: "What does Hermes coordinate in the Content Forge pipeline?", options: ["Only image generation", "Research, draft ideas, image prompts, captions, scheduling prep, and review checklists", "Only posting to TikTok", "Only storing private keys"], correct: 1, explanation: "Hermes coordinates the content operation. It should prepare and organize the work, then hand it to review before publishing." },
+      { q: "Why is Postiz useful in this workflow?", options: ["Postiz is broken on mobile", "It gives a place to preview, schedule, manage drafts, and inspect analytics across channels", "Postiz only works on servers", "Postiz requires a coding degree"], correct: 1, explanation: "Postiz is the scheduler and review surface. It helps organize drafts and analytics so the student is not manually juggling every post." },
     ]
   },
   {
     section: 3,
     questions: [
-      { q: "What is Draft Mode in Postiz?", options: ["A feature that saves your post as a draft in Postiz's database", "A setting that sends posts to your TikTok Drafts folder instead of publishing directly — required for Android-native posting", "A way to preview posts before scheduling", "A backup system for failed posts"], correct: 1, explanation: "Draft Mode is what makes the Android step work. Posts go to your TikTok account's native Drafts folder. The Android picks them up from there, adds audio, and posts. No Draft Mode = Hermes posts directly = shadowban." },
-      { q: "What information do you need to give Hermes to activate Postiz?", options: ["Your TikTok username and password", "Your Postiz API key, plus the 7 posting rules", "Your credit card number", "Nothing — Hermes already knows how to use Postiz"], correct: 1, explanation: "Hermes needs your Postiz API key to authenticate, plus the 7 rules to ensure posts go to Drafts only with the right settings. The API key is found in Postiz → Settings → API Keys." },
-      { q: "What is the correct sequence of Postiz setup steps?", options: ["Generate API key → Connect TikTok → Give to Hermes", "Connect TikTok → Grab API key → Store in Hermes with rules", "Create Postiz account → Post immediately → Add TikTok later", "Install Postiz app → Login → Done"], correct: 1, explanation: "The right order: (1) Connect TikTok to Postiz, (2) Grab the API key from Settings, (3) Give the key to Hermes along with all 7 rules. Skip step 1 and there's nothing to automate." },
+      { q: "What is the safest first Postiz workflow?", options: ["Publish everything immediately", "Create drafts, preview them, review rules, then approve only the posts that are ready", "Skip captions", "Give everyone your login"], correct: 1, explanation: "A draft-first workflow gives you a review checkpoint before anything goes public." },
+      { q: "What information should Hermes receive for Postiz?", options: ["Your TikTok password", "The private access method, approved posting rules, and a clear 'do not publish without approval' boundary", "Your credit card number", "Nothing"], correct: 1, explanation: "Hermes needs access instructions and rules, not personal passwords. The boundary matters: prepare drafts and schedules, but do not publish without approval." },
+      { q: "What is the correct setup sequence?", options: ["Generate a key → publish immediately", "Connect accounts → create access safely → save rules → test with one draft", "Create account → post immediately", "Install app → done"], correct: 1, explanation: "Start with a small test: connect, configure access, store rules, create one draft, review, then scale." },
     ]
   },
   {
     section: 4,
     questions: [
-      { q: "What is Nano Banana 2 and why does it matter for slideshow marketing?", options: ["A TikTok feature for slideshow creation", "Google Gemini's image generation model — used to create professional slideshow images at scale without designers", "A Samsung phone model", "A Postiz plugin"], correct: 1, explanation: "Nano Banana 2 is Google Gemini's image gen model. You give it a text prompt, it produces an image. Combined with the 3-slide structure, you can generate hundreds of professional slideshow sets without a design team." },
-      { q: "Why does a vague prompt like 'make a nice TikTok image' produce bad results?", options: ["Gemini is broken", "Vague prompts give the AI no specific direction — no subject, style, mood, or format. The output matches the input: generic.", "TikTok has image restrictions", "Nano Banana 2 requires coding to use"], correct: 1, explanation: "AI image gen is only as good as your prompt. 'Nice TikTok image' = random output. 'Anime Quran verse, soft gradient background, minimal text overlay, vertical 9:16, cinematic lighting' = exactly what you wanted." },
+	      { q: "Why does Gemini image generation matter for slideshow marketing?", options: ["It is a TikTok feature for slideshow creation", "It can create draft visuals from clear prompts, then a person reviews them before posting", "It is a Samsung phone model", "It is a Postiz plugin"], correct: 1, explanation: "Gemini image generation turns a specific prompt into draft visuals. The course uses it with the 3-slide structure, then teaches students to review the output before publishing." },
+	      { q: "Why does a vague prompt like 'make a nice TikTok image' produce bad results?", options: ["Gemini is broken", "Vague prompts give the AI no specific direction — no subject, style, mood, or format. The output matches the input: generic.", "TikTok has image restrictions", "Gemini requires coding to use"], correct: 1, explanation: "AI image generation is only as good as your prompt. 'Nice TikTok image' gives no useful direction. A prompt with audience, subject, style, format, and readability rules gives Hermes something concrete to produce." },
       { q: "How many images do you need for one day of TikTok slideshow content?", options: ["1 image", "3 images (one per slide)", "9 images (3 slides × 3 posts)", "As many as you feel like"], correct: 1, explanation: "One TikTok slideshow post = 3 images (hook, info, CTA). One day of content at 3 posts/day = 9 images. The stockpile calculator shows you exactly how many you need for any batch size." },
     ]
   },
@@ -1139,7 +1321,7 @@ const quizDataC04 = [
     questions: [
       { q: "What is the job of Slide 1 (The Hook) in the 3-slide formula?", options: ["Give all the information at once", "Stop the scroll — make the viewer curious or promise a tangible result in the first 2 seconds", "Show your brand logo", "Introduce yourself as the creator"], correct: 1, explanation: "The Hook's one job: stop the scroll. If they keep swiping, nothing else matters. Good hooks lead with a result, a controversy, or a curiosity gap. Bad hooks explain context first." },
       { q: "What makes the 3-slide formula effective for slideshow marketing?", options: ["It uses video instead of images", "It has a clear structure that guides the viewer from curiosity → value → action, which matches how TikTok's algorithm rewards completion rate", "It posts automatically", "It uses more hashtags"], correct: 1, explanation: "TikTok's algorithm measures completion rate. The 3-slide formula maximizes completion: Hook gets them to watch, Info keeps them engaged, CTA drives the save/share. High completion rate = more For You distribution." },
-      { q: "Why is 'emotional pull' important for Slide 3 (The CTA)?", options: ["It makes the post longer", "It triggers a behavioral response — saves, shares, and comments — which are the signals TikTok uses to amplify content beyond your followers", "It adds more hashtags", "It prevents shadowban"], correct: 1, explanation: "The CTA isn't just telling them what to do — it's making them feel something while doing it. 'Screenshots this' = implied value. 'DM me your results' = engagement. The emotion drives the action, and the action drives the algorithm." },
+	      { q: "Why is 'emotional pull' important for Slide 3 (The CTA)?", options: ["It makes the post longer", "It triggers a behavioral response — saves, shares, and comments — which are signals platforms use to understand engagement", "It adds more hashtags", "It replaces review"], correct: 1, explanation: "The CTA is not just telling them what to do. It gives a clear next action and a reason to care. The emotion drives the action, and the action helps you learn what the audience values." },
     ]
   },
 ];
@@ -1151,6 +1333,9 @@ const CourseOneContent = ({ onClose }) => {
   const lessonScrollRef = useRef(null);
   const [terminalStep, setTerminalStep] = useState(0);
   const [subMonths, setSubMonths] = useState(1);
+  const [hardwareChecks, setHardwareChecks] = useState([]);
+  const [setupStep, setSetupStep] = useState(0);
+  const [firstWin, setFirstWin] = useState('executive');
   const [errorVisible, setErrorVisible] = useState(false);
   const [completedSections, setCompletedSections] = useState([]);
   const [quizActive, setQuizActive] = useState(false);
@@ -1161,36 +1346,230 @@ const CourseOneContent = ({ onClose }) => {
   });
 
   const sections = [
-    { id: 's0', label: 'Intro: Why We\'re Doing This' },
-    { id: 's1', label: '1. The Terminal Protocol' },
-    { id: 's2', label: '2. The Agent Council' },
-    { id: 's3', label: '3. The Hardware Reality Check' },
-    { id: 's4', label: '4. Why Docker?' },
-    { id: 's5', label: '5. Troubleshooting Guide' },
-    { id: 's6', label: '6. Localhost vs The World' },
-    { id: 's7', label: '7. Keeping the Monster Alive' },
-    { id: 's8', label: '8. The Zero-Code Playbook' },
-    { id: 's9', label: '9. Dictionary' },
-    { id: 's10', label: '10. Resource Locker' },
+    { id: 's0', label: 'Intro: Desktop-first setup' },
+    { id: 's1', label: '1. Why + API key safety' },
+    { id: 's2', label: '2. Command box rescue' },
+    { id: 's3', label: '3. Agent Council' },
+    { id: 's4', label: '4. Desktop app tour' },
+    { id: 's5', label: '5. Hardware check' },
+    { id: 's6', label: '6. Docker, only if needed' },
+    { id: 's7', label: '7. Red error guide' },
+    { id: 's8', label: '8. Localhost vs internet' },
+    { id: 's9', label: '9. Maintenance' },
+    { id: 's10', label: '10. Zero-code playbook' },
+    { id: 's11', label: '11. Dictionary + resources' },
   ];
 
   const toggleSection = (id) => {
     setCompletedSections(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   };
 
+  const toggleHardwareCheck = (idx) => {
+    setHardwareChecks(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
+  };
+
+  const hardwareChecklist = [
+    {
+      label: "16GB+ memory",
+      plain: "Memory is the computer's desk space. Less desk space means the assistant freezes when too many things are open.",
+      check: "Mac: Apple menu -> About This Mac. Windows: Settings -> System -> About."
+    },
+    {
+      label: "20GB free storage",
+      plain: "Storage is closet space. Hermes, logs, models, and updates need room to unpack without breaking.",
+      check: "Mac: System Settings -> General -> Storage. Windows: Settings -> System -> Storage."
+    },
+    {
+      label: "Stable internet",
+      plain: "The first install downloads the assistant and dependencies. After setup, more work can happen locally.",
+      check: "Do the install on home WiFi, not airport or hotel WiFi."
+    },
+    {
+      label: "One AI provider ready",
+      plain: "A provider is the brain service Hermes can call. OpenRouter is the simplest default because it lets you switch models later.",
+      check: "Create the key before class, then paste it only inside 80m Agent Desktop."
+    },
+    {
+      label: "80m Agent Desktop downloaded",
+      plain: "This is the real customer path. The app installs Hermes, stores settings, shows memory, runs schedules, and gives you chat.",
+      check: "Use the latest release for your operating system."
+    }
+  ];
+
+  const desktopSetupSteps = [
+    {
+      title: "Download 80m Agent Desktop",
+      detail: "Grab the release for your machine. Windows uses .exe, macOS uses .dmg, Linux uses .AppImage or .deb."
+    },
+    {
+      title: "Open the app and let first-run setup work",
+      detail: "The app checks whether Hermes already exists, installs missing pieces, and shows progress instead of making you guess."
+    },
+    {
+      title: "Choose a provider",
+      detail: "Pick OpenRouter for flexibility, OpenAI or Anthropic for direct accounts, or a local model if you already know what that means."
+    },
+    {
+      title: "Paste the key once",
+      detail: "An API key is a private password for the AI service. Never paste it into Discord, screenshots, websites, or public files."
+    },
+    {
+      title: "Send your first real command",
+      detail: "Ask Hermes to create a useful output you can inspect: a task list, inbox plan, client follow-up, or daily brief."
+    },
+    {
+      title: "Verify the core screens",
+      detail: "Open Chat, Sessions, Skills, Memory, Tools, Schedules, Gateway, and Settings so you know where the controls live."
+    }
+  ];
+
+  const firstWinPrompts = {
+    executive: {
+      label: "Executive Assistant",
+      prompt: `Hermes, act as my chief of staff for the next 20 minutes.
+
+I do not know technical setup language yet, so explain every action in plain English.
+
+Build my first operating system:
+1. Ask me for my timezone, working hours, and preferred update channel.
+2. Create a one-page daily brief template.
+3. Create a simple task list with Inbox, Today, Waiting, and Done.
+4. Tell me what to put in memory so you remember my business.
+5. Do not send emails, calendar invites, or external messages without my approval.`
+    },
+    client: {
+      label: "Client Follow-Up",
+      prompt: `Hermes, help me stop losing client follow-ups.
+
+I am a non-technical business owner. Walk me through this like I am using an assistant, not writing code.
+
+Create:
+1. A client follow-up tracker with columns for name, last contact, promise made, next action, and due date.
+2. A daily reminder prompt I can run every morning.
+3. Three polite follow-up message templates.
+4. A rule: never send anything externally until I approve the final message.`
+    },
+    sales: {
+      label: "Sales Pipeline",
+      prompt: `Hermes, set up a simple sales pipeline for me.
+
+Use plain English. No coding terms unless you define them first.
+
+I need:
+1. A list of lead stages from new lead to paid customer.
+2. A one-screen tracker I can update daily.
+3. A weekly review checklist.
+4. A follow-up schedule for leads who go quiet.
+5. A short explanation of which 80m tools I should connect later.`
+    },
+    creator: {
+      label: "Content System",
+      prompt: `Hermes, turn my scattered content ideas into a weekly content system.
+
+Explain every step like I have never used automation before.
+
+Create:
+1. A place to dump raw ideas.
+2. A weekly content calendar.
+3. A reusable prompt for turning one idea into a post, thread, short video outline, and email.
+4. A review checklist before anything gets posted.
+5. A schedule for when you should remind me to record or approve content.`
+    }
+  };
+
+  const c1CompletionOutcomes = [
+    "Download the correct installer for Windows, macOS, or Linux.",
+    "Explain API keys as private paid access and keep them out of public places.",
+    "Open 80m Agent Desktop, choose a provider, and send a first useful Hermes prompt.",
+    "Recognize common setup words: provider, model, memory, schedule, tool, skill, log, and port.",
+    "Use the terminal only as a guided rescue lane, not as the main product experience."
+  ];
+
+  const c1CompletionDrills = [
+    "Ask Hermes for a PASS/FAIL setup audit and paste one red warning if any appears.",
+    "Save name, timezone, business, main goal, and one hard rule to memory.",
+    "Create one private daily brief or follow-up tracker with no external sending.",
+    "Explain .exe, .dmg, .AppImage, and .deb to another beginner in one minute."
+  ];
+
+  const c1CompletionProof = [
+    "80M Agent Desktop opens and reaches Chat.",
+    "Hermes returns one structured answer.",
+    "Memory contains the student's starter profile.",
+    "The student knows where Settings, Memory, Skills, Schedules, and Logs live."
+  ];
+
+  const plainEnglishTerms = [
+    { term: "80m Agent Desktop", def: "The app your clients use. It gives Hermes a normal desktop interface: chat, memory, schedules, settings, tools, and gateways." },
+    { term: "Hermes", def: "The assistant engine. It can chat, use tools, remember context, run scheduled work, and delegate to specialized agents." },
+    { term: "Provider", def: "The AI company or model service Hermes talks to, such as OpenRouter, OpenAI, Anthropic, Google, or a local model." },
+    { term: "API key", def: "A private access key. Treat it like a password for paid AI usage." },
+    { term: "Tool", def: "A capability Hermes can use, like reading files, using the web, creating images, running code, or searching memory." },
+    { term: "Skill", def: "A reusable workflow. Once installed, Hermes knows how to repeat that kind of work without being retrained every time." },
+    { term: "Memory", def: "Saved context about you, your business, your preferences, and previous decisions." },
+    { term: "Schedule", def: "A recurring job. Example: every weekday morning, prepare a brief before you wake up." }
+  ];
+
+  const installerDecisionTree = [
+    { situation: "I am on Windows", pick: "Download the .exe", why: "That is the normal Windows installer. Double-click it, follow prompts, then open 80m Agent Desktop." },
+    { situation: "I am on macOS", pick: "Download the .dmg", why: "That is the normal Mac app package. Open it, drag the app if asked, then launch it from Applications." },
+    { situation: "I am on Linux and I want the easiest path", pick: "Use the .AppImage", why: "An AppImage is a portable Linux app file. It is usually the least confusing beginner option." },
+    { situation: "I am on Ubuntu/Debian Linux and support told me to install a package", pick: "Use the .deb", why: "A .deb is an Ubuntu/Debian installer package. Use it only if it matches your Linux system." },
+    { situation: "I do not know my system", pick: "Ask Hermes first", why: "Paste: 'I am on [Windows/Mac/Linux]. Which 80M installer should I download and what should I avoid?'" }
+  ];
+
+  const c1LinuxSurvivalTerms = [
+    { term: "Terminal", def: "A command text box. You type or paste instructions, press Enter, then read the result." },
+    { term: "Command", def: "One instruction for the computer, like open this folder, check this service, or show the version." },
+    { term: "Path", def: "A file address. Example: /home/name/Downloads means Downloads inside that user's home folder." },
+    { term: "Home folder (~)", def: "Your personal folder. On Linux, ~ is shorthand for your home folder." },
+    { term: "Permission", def: "A rule for who can read, change, or run a file. If Linux says permission denied, do not force it blindly." },
+    { term: "Process", def: "An app or helper currently running in the background." },
+    { term: "Port", def: "A numbered door apps use to talk locally or over the internet. Example: 3000 often means a local web app." },
+    { term: "Service", def: "A background helper that starts, stops, restarts, and keeps software alive." },
+    { term: "Log", def: "The receipt book. Logs show what happened, when it happened, and what error appeared." },
+    { term: "Environment variable", def: "A named setting, often used for private keys or configuration. Beginners should not paste these publicly." }
+  ];
+
+  const basicToolLinks = [
+    { label: "80M Agent Desktop Releases", href: "https://github.com/guapdad4000/80m-agent-desktop-v3/releases/", note: "Download the customer app: Windows .exe, macOS .dmg, Linux AppImage/deb." },
+    { label: "Docker Desktop", href: "https://docs.docker.com/get-started/introduction/get-docker-desktop/", note: "Basic container runtime. Use when the setup/support flow asks for Docker." },
+    { label: "Ubuntu Command Line for Beginners", href: "https://ubuntu.com/tutorials/command-line-for-beginners", note: "Official beginner reference for terminal, folders, paths, and basic Linux commands." },
+    { label: "Ubuntu Server Docs", href: "https://ubuntu.com/server/docs/", note: "Official Ubuntu server reference for students who later touch Linux servers with support." },
+    { label: "OpenRouter API Keys", href: "https://openrouter.ai/settings/keys", note: "Recommended beginner provider. Set a small key credit limit before pasting into 80M." },
+    { label: "OpenAI API Keys", href: "https://platform.openai.com/api-keys", note: "Direct OpenAI provider path. Keep keys private and rotate leaked keys immediately." },
+    { label: "Anthropic Console", href: "https://console.anthropic.com/", note: "Direct Claude provider path. Use workspace/spend controls for safety." },
+    { label: "VS Code", href: "https://code.visualstudio.com/", note: "Optional text editor for workspace files. Not required for normal clients." },
+    { label: "GitHub Desktop", href: "https://desktop.github.com/download/", note: "Optional visual GitHub tool for downloading/managing templates." },
+    { label: "Discord", href: "https://discord.com/download", note: "Support, announcements, and community help." }
+  ];
+
+  const tutorialLinks = [
+    { label: "Docker in 12 minutes", href: "https://www.youtube.com/watch?v=DQdB7wFEygo", note: "Beginner Docker concept video. Watch before touching Docker settings." },
+    { label: "Docker crash course", href: "https://www.youtube.com/watch?v=pg19Z8LL06w", note: "Longer reference for images, containers, compose, and ports." },
+    { label: "OpenRouter API key tutorial", href: "https://www.youtube.com/watch?v=VvJvJ0uXiVQ", note: "How to create an OpenRouter key for model access." },
+    { label: "OpenAI API key quick tutorial", href: "https://www.youtube.com/watch?v=Lj43aSwNpog", note: "Short direct OpenAI key walkthrough." },
+    { label: "Claude API key quick tutorial", href: "https://www.youtube.com/watch?v=vgncj7MJbVU", note: "Short Anthropic/Claude key walkthrough. Verify UI freshness before filming." },
+    { label: "VS Code official beginner tutorial", href: "https://www.youtube.com/watch?v=f8_uF_IDV50", note: "Optional editor basics from the VS Code channel." },
+    { label: "GitHub Desktop clone tutorial", href: "https://www.youtube.com/watch?v=PoZNIbs_wx8", note: "Plain clone/download flow for people scared of Git." },
+    { label: "Mac Terminal basics", href: "https://www.youtube.com/watch?v=aKRYQsKR46I", note: "Mac command text-box basics." },
+    { label: "PowerShell basics", href: "https://www.youtube.com/watch?v=cDcS6iL1G4I", note: "Windows command text-box basics." },
+    { label: "Discord complete tutorial", href: "https://www.youtube.com/watch?v=z5c6Bc-S0TI", note: "Community/support app basics." }
+  ];
+
   const terminalLogs = [
     "[SYSTEM] Initiating 80m Lazy-Install Protocol...",
-    "[NETWORK] Bypassing unnecessary nerd-shit...",
-    "[NETWORK] Fetching OpenClaw dependencies...",
+    "[NETWORK] Downloading only what the assistant needs...",
+    "[NETWORK] Checking the 80M desktop runtime...",
     "[NETWORK] Fetching Hermes core logic...",
     "[DOCKER] Building containers (this is where the magic happens)...",
-    "[PROCESS] Unpacking brain.tar.gz...",
+    "[PROCESS] Unpacking the assistant workspace...",
     "✔ Hermes successfully linked.",
-    "✔ OpenClaw successfully linked.",
+    "✔ 80M workspace successfully linked.",
     "✔ Local Database instantiated.",
     "✔ Agent Council instantiated.",
-    "✔ Bullsh*t filters applied.",
-    "[SUCCESS] The monster is alive. Awaiting your command."
+    "✔ Safety filters applied.",
+    "[SUCCESS] Hermes is ready. Awaiting your first useful command."
   ];
 
   const handleRunInstall = () => {
@@ -1209,13 +1588,13 @@ const CourseOneContent = ({ onClose }) => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col"
+      className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate"
     >
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
           <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 01</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Install the Stack</h2>
+          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Install the App</h2>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -1261,58 +1640,206 @@ const CourseOneContent = ({ onClose }) => {
         <div id="c1-intro" className="mb-24">
           <NeedBox
             items={[
-              "A laptop or mini‑PC with 16GB+ RAM (yes, that matters).",
-              "Stable internet (you can’t download the brain over dial‑up).",
-              "Docker Desktop installed.",
-              "One model provider account (OpenAI or Anthropic).",
-              "Your API key copied somewhere safe (not in a tweet).",
+              "A laptop, desktop, or mini-PC with 16GB+ memory.",
+              "Stable internet for the first install.",
+              "The latest 80m Agent Desktop release for your operating system.",
+              "One AI provider account: OpenRouter is the easiest default; OpenAI, Anthropic, Google, and local models also work.",
+              "One private API key ready to paste into the app.",
               "Discord access for support + updates."
             ]}
           />
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
             From Zero to <br/><span className="italic text-[#22c55e]">Alive.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
-            Welcome to Class 01. The biggest barrier to AI is "Installation Hell." Most people download a file, get a red error message they don't understand, and go back to watching Netflix. We are skipping the hell.
+          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6 mb-8">
+            Welcome to Class 01. The goal is not to make you "technical." The goal is to get the 80m Agent Desktop running, teach you what the screens mean, and help you get one useful result from Hermes before you leave.
           </p>
-          <p className="font-serif text-sm text-[#555] mt-3">
-            Keep it simple: copy/paste the defaults first, verify green checks, then customize one thing at a time.
+          <p className="font-serif text-sm text-[#555] mt-3 mb-8">
+            The beginner rule: install with the desktop app first, verify green checks, then customize one thing at a time. The terminal is a rescue lane, not the whole course.
           </p>
+
+          <div className="mb-8 border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5 mb-6">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Desktop-first install path</p>
+                <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight">The setup flow clients actually use</h3>
+              </div>
+              <div className="font-mono text-xs uppercase tracking-widest border-[2px] border-[#111] bg-white px-3 py-2 w-fit">
+                Step {setupStep + 1}/{desktopSetupSteps.length}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6">
+              <div className="space-y-2">
+                {desktopSetupSteps.map((step, i) => (
+                  <button
+                    key={step.title}
+                    onClick={() => setSetupStep(i)}
+                    className={`w-full text-left border-[2px] px-4 py-3 transition-all ${setupStep === i ? 'border-[#22c55e] bg-[#f0fdf4] shadow-[4px_4px_0_0_#111]' : 'border-[#ddd] bg-white hover:border-[#111]'}`}
+                  >
+                    <span className="font-mono text-xs font-black uppercase text-[#22c55e]">0{i + 1}</span>
+                    <span className="block font-sans font-black uppercase text-sm text-[#111] mt-1">{step.title}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="border-[3px] border-[#111] bg-white p-6">
+                <h4 className="font-sans font-black uppercase text-xl mb-3">{desktopSetupSteps[setupStep].title}</h4>
+                <p className="font-serif text-[#333] text-lg leading-relaxed mb-5">{desktopSetupSteps[setupStep].detail}</p>
+                <div className="bg-[#111] text-[#eae7de] border-[3px] border-[#111] p-5">
+                  <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">What the app is doing for you</p>
+                  <p className="font-serif text-[#ddd] leading-relaxed">
+                    80m Agent Desktop checks install health, configures Hermes, saves provider settings, opens the chat workspace, and gives you screens for sessions, memory, skills, tools, schedules, gateways, models, and backups.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Download decision tree</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Which installer do I click?</h3>
+            <div className="space-y-3">
+              {installerDecisionTree.map((item) => (
+                <div key={item.situation} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr] gap-3 border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-sans font-black uppercase text-sm text-[#111]">{item.situation}</p>
+                  <p className="font-mono text-xs uppercase tracking-wider text-[#22c55e]">{item.pick}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.why}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Before you click install</p>
+                <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight">Hardware + account readiness</h3>
+              </div>
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555]">{hardwareChecks.length}/{hardwareChecklist.length} ready</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {hardwareChecklist.map((item, i) => {
+                const checked = hardwareChecks.includes(i);
+                return (
+                  <button
+                    key={item.label}
+                    onClick={() => toggleHardwareCheck(i)}
+                    className={`text-left border-[3px] p-5 transition-all ${checked ? 'border-[#22c55e] bg-[#f0fdf4] shadow-[5px_5px_0_0_#111]' : 'border-[#111] bg-[#fdfaf6] hover:-translate-y-0.5'}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center border-[2px] border-[#111] ${checked ? 'bg-[#22c55e]' : 'bg-white'}`}>
+                        {checked ? <span className="block h-2 w-2 bg-[#111]"></span> : null}
+                      </span>
+                      <div>
+                        <h4 className="font-sans font-black uppercase text-base text-[#111]">{item.label}</h4>
+                        <p className="font-serif text-sm text-[#333] leading-relaxed mt-1">{item.plain}</p>
+                        <p className="font-mono text-[11px] text-[#555] mt-3 uppercase tracking-wider">{item.check}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mb-8 border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e]">
+            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Translation layer</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-4">Words you will hear, in human language</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plainEnglishTerms.map((item) => (
+                <div key={item.term} className="border-[2px] border-[#333] bg-[#171717] p-4">
+                  <h4 className="font-sans font-black uppercase text-[#22c55e] mb-1">{item.term}</h4>
+                  <p className="font-serif text-sm text-[#ddd] leading-relaxed">{item.def}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Linux survival glossary</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Linux words translated for normal people</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c1LinuxSurvivalTerms.map((item) => (
+                <div key={item.term} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-sans font-black uppercase text-[#111] mb-1">{item.term}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.def}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 bg-[#111] text-[#eae7de] border-[2px] border-[#22c55e] p-4">
+              <p className="font-sans font-black uppercase text-sm text-[#22c55e] mb-2">Support rule</p>
+              <p className="font-serif text-sm text-[#ddd] leading-relaxed">
+                If support gives a Linux command, paste it exactly, run one command at a time, and copy the final output back to Hermes. Do not guess extra words.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
-              <h3 className="font-sans font-black uppercase text-sm mb-3">OpenClaw Install Path (Copy/Paste)</h3>
-              <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-2 text-sm">
-                <li>Install Docker Desktop and make sure it is running.</li>
-                <li>Open terminal and paste the setup script in Section 1.</li>
-                <li>Confirm services are healthy with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>.</li>
-                <li>Open the local dashboard and verify commands run end-to-end.</li>
+              <h3 className="font-sans font-black uppercase text-sm mb-3">80m Agent Desktop Path</h3>
+              <ol className="list-decimal list-inside font-serif text-[#333] space-y-2 text-sm">
+                <li>Open the app and follow the first-run setup.</li>
+                <li>Choose provider and paste your private API key.</li>
+                <li>Wait for install and health checks to finish.</li>
+                <li>Open Chat and send the first-win prompt below.</li>
               </ol>
-              <p className="font-mono text-xs text-[#555] mt-3">Prompt: "Check OpenClaw health, list failing services, and give me exact fix commands."</p>
+              <p className="font-mono text-xs text-[#555] mt-3">Prompt: "Check my 80m Agent Desktop setup and explain any red warnings in plain English."</p>
             </div>
             <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 shadow-[6px_6px_0_0_#22c55e]">
-              <h3 className="font-sans font-black uppercase text-sm mb-3 text-[#22c55e]">Hermes Install + First Voice Test</h3>
-              <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-2 text-sm">
-                <li>Confirm Hermes service is linked during install output.</li>
-                <li>Load your mic permissions and test wake phrase.</li>
-                <li>Run one voice command that writes a file or task output.</li>
-                <li>Verify logs show request → delegation → response cycle.</li>
+              <h3 className="font-sans font-black uppercase text-sm mb-3 text-[#22c55e]">Advanced terminal rescue path</h3>
+              <ol className="list-decimal list-inside font-serif text-[#ddd] space-y-2 text-sm">
+                <li>Use this only if the desktop app asks you to diagnose something.</li>
+                <li>Run health commands exactly as shown; do not improvise.</li>
+                <li>Copy red error text into Hermes and ask for a plain-English fix.</li>
+                <li>Change one setting at a time, then test again.</li>
               </ol>
-              <p className="font-mono text-xs text-[#777] mt-3">Prompt: "Hermes, run a mic check and return latency + failure reasons if any."</p>
+              <p className="font-mono text-xs text-[#777] mt-3">Prompt: "Hermes, translate this error and give me the safest next click or command."</p>
             </div>
           </div>
           <CourseBoostPanel
             title="Class 01 Success Criteria + Rescue Prompts"
             checklist={[
-              "OpenClaw containers show healthy in docker compose.",
-              "Hermes receives one voice command and returns structured output.",
-              "AGENTS.md and identity files are filled before automations.",
-              "One morning brief cron job runs without manual intervention."
+              "80m Agent Desktop opens without red health warnings.",
+              "Hermes receives one message and returns a useful structured answer.",
+              "Memory has at least your name, timezone, business, and main goal.",
+              "One low-risk schedule is drafted before you automate anything external."
             ]}
             prompts={[
-              "\"Run a full install audit and report failures by service with exact fix commands.\"",
-              "\"Validate Hermes voice pipeline: mic input, model response, and output latency.\""
+              "\"Run a full setup audit. Explain every warning in plain English and list the safest next step.\"",
+              "\"Create my first useful workspace: daily brief, task list, memory profile, and follow-up rules.\""
             ]}
           />
+          <StudentCompletionKit
+            eyebrow="Class 01 final standard"
+            title="The student leaves with a working app and a first Hermes win"
+            outcomes={c1CompletionOutcomes}
+            drills={c1CompletionDrills}
+            proof={c1CompletionProof}
+          />
+
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// First useful win</p>
+                <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight">Pick the first thing Hermes should build for you</h3>
+              </div>
+              <span className="font-mono text-xs uppercase tracking-widest text-[#555]">No code. Paste and answer questions.</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+              {Object.entries(firstWinPrompts).map(([key, item]) => (
+                <button
+                  key={key}
+                  onClick={() => setFirstWin(key)}
+                  className={`font-sans font-black text-xs md:text-sm uppercase border-[3px] px-3 py-3 transition-all ${firstWin === key ? 'bg-[#22c55e] text-[#111] border-[#111] shadow-[4px_4px_0_0_#111]' : 'bg-[#fdfaf6] text-[#111] border-[#ddd] hover:border-[#111]'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <p className="font-serif text-[#333] leading-relaxed mb-4">
+              This is the moment the course should feel real. The student pastes one complete prompt, Hermes asks for missing details, and the app creates something useful instead of just proving it installed.
+            </p>
+            <CopyBlock text={firstWinPrompts[firstWin].prompt} label="Copy First-Win Prompt" />
+          </div>
           <ResourceList
             title="Jump Links"
             items={[
@@ -1344,6 +1871,31 @@ const CourseOneContent = ({ onClose }) => {
               </div>
             </div>
           </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Money safety before automation</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-4">The API key is not a password to memorize. It is a private meter.</h3>
+            <p className="font-serif text-[#333] text-lg leading-relaxed mb-5">
+              An API key lets Hermes pay for AI work on your account. That is why the setup is powerful and why it needs a rule: create one key for 80m, keep it private, set spending limits where your provider supports them, and delete/replace it if it ever appears somewhere public.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { title: "OpenRouter", body: "Best starter path for most clients. One key can access many model providers, and key-level credit limits make beginner mistakes less expensive." },
+                { title: "OpenAI", body: "Direct OpenAI account. Good if you already use the platform. Use project keys, keep them server-side, and never paste them into public code or screenshots." },
+                { title: "Anthropic", body: "Direct Claude account. Create keys in Console, use workspaces/spend controls, and watch usage until your first workflows are stable." }
+              ].map((item) => (
+                <div key={item.title} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <h4 className="font-sans font-black uppercase text-[#111] mb-2">{item.title}</h4>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 bg-[#f0fdf4] border-[2px] border-[#22c55e] p-4">
+              <p className="font-sans font-black uppercase text-sm text-[#14532d] mb-2">Student rule</p>
+              <p className="font-serif text-[#14532d] leading-relaxed">
+                If a lesson, Discord message, or website asks you to paste an API key outside 80m Agent Desktop or your provider console, stop and ask support first.
+              </p>
+            </div>
+          </div>
         </div>
           <div className="mt-8 mb-4 text-center">
             <button
@@ -1360,28 +1912,31 @@ const CourseOneContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Terminal app open (Mac: Terminal, Windows: PowerShell).",
-              "Your lazy‑install command ready to paste.",
-              "Permission to run a script (yes, click Allow).",
-              "The mental stability to watch a fake progress log."
+              "Only open Terminal or PowerShell if the desktop app tells you to.",
+              "Know this: a terminal is just a text box where the computer follows written instructions.",
+              "Copy commands exactly. Do not retype from memory.",
+              "If anything turns red, copy the red text and ask Hermes to translate it."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. The Terminal Protocol</h2>
-          <MacWindow title="your_computer_terminal.exe" contentClass="bg-[#111] p-6 h-96 overflow-y-auto font-mono text-sm text-[#eae7de]">
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. The Command Box Rescue Protocol</h2>
+          <p className="font-serif text-xl mb-8 leading-relaxed">
+            Most clients will use 80m Agent Desktop and never live in a terminal. You still need to recognize one because it is the emergency room for install problems. The rule is simple: paste exactly, wait, then read the last green or red line.
+          </p>
+          <MacWindow title="support_command_window.exe" contentClass="bg-[#111] p-6 h-96 overflow-y-auto font-mono text-sm text-[#eae7de]">
             <p className="text-[#555] mb-4">Last login: {new Date().toDateString()} on ttys001</p>
             <p className="text-[#38bdf8] mb-4">lazy_user@macbook-pro ~ % <span className="text-[#eae7de]">_</span></p>
 
             {terminalStep === 0 && (
               <div className="mt-8 border-[2px] border-[#333] p-6 bg-[#1a1a1a] text-center max-w-lg mx-auto">
-                <p className="mb-4 text-[#aaa]">Don't type. Just Paste. That is the 80m secret.</p>
+                <p className="mb-4 text-[#ddd]">Practice the motion once: paste a command, let it run, then look for the final status. This is a simulation.</p>
                 <button onClick={handleRunInstall} className="font-sans font-black text-lg px-8 py-4 bg-[#22c55e] text-[#111] hover:bg-[#4ade80] transition-colors w-full shadow-[4px_4px_0_0_#111]">
-                  Paste the 80m Setup Script
+                  Simulate the Setup Script
                 </button>
               </div>
             )}
             {terminalStep > 0 && (
               <div className="space-y-2">
-                <p className="text-[#38bdf8]">lazy_user@macbook-pro ~ % <span className="text-[#eae7de]">curl -sL https://80m.ai/lazy-install.sh | bash</span></p>
+	                <p className="text-[#38bdf8]">student@computer ~ % <span className="text-[#eae7de]">80m setup check --plain-english</span> <span className="text-[#777]"># simulation only</span></p>
                 {terminalLogs.slice(0, terminalStep).map((log, idx) => (
                   <p key={idx} className={log.includes('[SUCCESS]') || log.includes('✔') ? 'text-[#22c55e]' : 'text-[#aaa]'}>{log}</p>
                 ))}
@@ -1403,16 +1958,18 @@ const CourseOneContent = ({ onClose }) => {
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Agent Council</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            You don't have one AI. You have a team. Each agent specializes in one thing — writing, research, scheduling, coding — and they check each other's work before anything reaches you.
+            You do not have one generic chatbot. You have Hermes coordinating a team. In plain English: Hermes is the manager, and each specialist handles a lane so the student can ask for outcomes instead of tool names.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { name: "Hermes", role: "Chief of Staff", desc: "Coordinates the council. Takes your input and distributes work." },
-              { name: "Prawnius", role: "Quick Task Agent", desc: "Fast one-off commands. Research, copy, code snippets." },
-              { name: "Claudnelius", role: "Code & Design", desc: "Technical architecture, UI, debugging. The builder." },
-              { name: "Knaight", role: "Intelligence", desc: "Research, memory, knowledge graphs. The brain." },
-              { name: "Clawdette", role: "Operations", desc: "Scheduling, delegation, follow-ups. The executor." },
-              { name: "Sir Clawthchilds", role: "Finance", desc: "Budgets, spreadsheets, ROI analysis. The numbers." },
+              { name: "Hermes", role: "Chief Coordinator", desc: "The main assistant you talk to. Routes work, checks tools, remembers context, and keeps the whole system moving." },
+              { name: "Prawnius", role: "Quick Task Agent", desc: "Fast one-off help: short research, summaries, small drafts, and quick fixes that should not become a project." },
+              { name: "Claudnelius", role: "Code + Design", desc: "Builds and repairs technical work. If the client needs a website, app, workflow, or bug fix, this is the builder lane." },
+              { name: "Knowledge Knaight", role: "Research + Memory", desc: "Finds facts, reads saved knowledge, and turns messy information into something the rest of the system can use." },
+              { name: "Knaight of Affairs", role: "Schedule + Coordination", desc: "Handles calendar logic, reminders, follow-ups, and keeping people aligned without constant manual nudging." },
+              { name: "Sir Clawthchilds", role: "Finance", desc: "Budgets, invoices, spreadsheets, pricing, ROI, and money decisions that need clean numbers." },
+              { name: "Labrina", role: "Content + Social", desc: "Turns ideas into content plans, posts, hooks, scripts, and community replies." },
+              { name: "Clawdette", role: "Operations", desc: "Everyday execution: task cleanup, document prep, checklists, delegation, and making sure loose ends get closed." },
             ].map((agent) => (
               <div key={agent.name} className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
                 <span className="font-mono text-[#22c55e] text-xs font-bold uppercase">{agent.role}</span>
@@ -1425,7 +1982,55 @@ const CourseOneContent = ({ onClose }) => {
 
         {/* Section 4: Hardware Checklist */}
         <div className="mb-24">
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. The Hardware Reality Check</h2>
+          <NeedBox
+            title="What you need before you start"
+            items={[
+              "80m Agent Desktop open.",
+              "A successful first message in Chat.",
+              "Permission to click around without changing advanced settings yet."
+            ]}
+          />
+          <SectionMeta minutes="18 min" focus="Desktop app tour" />
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. What the 80m Agent Desktop Actually Does</h2>
+          <p className="font-serif text-xl mb-8 leading-relaxed">
+            This is the part most non-coders need most. The app is not just a chat box. It is the control room for Hermes: conversations, memory, tools, schedules, connected apps, models, backups, and work boards.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {[
+              { screen: "Chat", job: "Talk to Hermes and watch tool progress stream live.", first: "Ask for a setup audit or daily brief." },
+              { screen: "Sessions", job: "Find old conversations and continue where you left off.", first: "Search for your first setup conversation." },
+              { screen: "Memory", job: "See what Hermes remembers about you and your business.", first: "Save name, timezone, role, business, and top goal." },
+              { screen: "Skills", job: "Install reusable workflows like content, email, research, or finance helpers.", first: "Browse before installing; pick one workflow you repeat weekly." },
+              { screen: "Tools", job: "Turn capabilities on and off: web, files, terminal, image generation, memory, delegation, and more.", first: "Leave defaults on until support tells you otherwise." },
+              { screen: "Schedules", job: "Create recurring jobs with delivery targets.", first: "Draft a weekday morning brief, but approve before it sends anywhere." },
+              { screen: "Kanban", job: "Track multi-agent tasks, blockers, comments, and run history.", first: "Create one task called 'Finish my first workspace setup'." },
+              { screen: "Gateway", job: "Connect messaging surfaces like Telegram, Discord, Slack, email, and webhooks.", first: "Do not connect external messaging until your memory and rules are clean." },
+            ].map((item) => (
+              <div key={item.screen} className="border-[3px] border-[#111] bg-white p-5 shadow-[5px_5px_0_0_#111]">
+                <p className="font-mono text-xs uppercase tracking-widest text-[#22c55e] mb-2">{item.screen}</p>
+                <p className="font-serif text-[#333] leading-relaxed mb-3">{item.job}</p>
+                <p className="font-sans text-sm font-black uppercase text-[#111]">First action: <span className="font-serif normal-case font-normal text-[#555]">{item.first}</span></p>
+              </div>
+            ))}
+          </div>
+          <CheckpointCard
+            title="Desktop Tour Checkpoint"
+            pass={[
+              "You can explain Chat, Memory, Skills, Tools, Schedules, Gateway, and Settings without technical words.",
+              "You know where to check old sessions and setup errors.",
+              "You created or copied one useful first-win prompt."
+            ]}
+            fail={[
+              "You think 80m is only a chatbot.",
+              "You are turning on external gateways before rules and memory are set.",
+              "You cannot find where API/provider settings live."
+            ]}
+          />
+        </div>
+
+        {/* Section 4: Hardware Checklist */}
+        <div className="mb-24">
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. The Hardware Reality Check</h2>
           <div className="bg-[#111] border-[4px] border-[#111] p-8 text-[#eae7de]">
             <p className="font-serif text-lg mb-8 text-[#aaa]">Before you install anything, make sure your machine can handle it. The 80m stack is designed to run on:</p>
             <div className="space-y-4">
@@ -1452,14 +2057,14 @@ const CourseOneContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Docker Desktop installed and running (Class 01 Intro).",
-              "A terminal window open.",
-              "The ability to copy/paste two commands."
+	              "Only continue if the desktop app or support says Docker is part of your setup.",
+	              "Docker Desktop installed and open, if needed.",
+	              "Hermes open so it can translate any confusing message."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Why Docker? (The Shipping Container Metaphor)</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. Docker in Plain English (Optional Support Vocabulary)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Docker is like a shipping container for software. Everything your AI needs — the brain, the memory, the tools — gets packed into one box. That box runs the same on your laptop as it does on a server. No "works on my machine" problems.
+	            Docker is like a sealed moving box for software. If your setup uses it, Docker keeps the helper parts together so the app runs the same way every time. You do not need to become a Docker person; you only need to know what support means when they say "is Docker running?"
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] p-6 bg-white">
@@ -1478,13 +2083,14 @@ const CourseOneContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Docker running from Section 1.",
-              "A problem that's making you want to throw your computer."
+	              "80m Agent Desktop open.",
+	              "A screenshot or copied text from the warning.",
+	              "The rule: read the last line first, then ask Hermes to translate it."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. The "Holy S*it, It's Red" Guide</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. The Red Error Guide</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Eventually, your terminal will spit out red text. To a nerd, this is a roadmap. To you, it looks like your computer is about to explode. It isn't.
+	            Eventually, an app, browser, or command window may show red text. Red does not mean you broke everything. It usually means one part is missing, asleep, blocked, or waiting for permission.
           </p>
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-10 shadow-[8px_8px_0_0_#111]">
             <button
@@ -1502,7 +2108,7 @@ const CourseOneContent = ({ onClose }) => {
                   </div>
                   <div className="bg-[#f0fdf4] p-6 border-2 border-[#22c55e]">
                     <h4 className="font-sans font-black uppercase text-sm mb-2 text-[#111]">80m Translation:</h4>
-                    <p className="font-serif text-lg text-[#aaa]">"I'm trying to talk to the Brain, but the Brain isn't awake yet. Open the Ollama app and try again."</p>
+	                    <p className="font-serif text-lg text-[#14532d]">"Hermes is trying to talk to a local model service, but that service is not awake yet. Open the model app or ask support which provider should be selected."</p>
                   </div>
                 </motion.div>
               )}
@@ -1519,7 +2125,7 @@ const CourseOneContent = ({ onClose }) => {
               "The difference between 192.168.x.x and a real IP address."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. 127.0.0.1: Your Home Address</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. 127.0.0.1: Your Home Address</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
             When you see <code className="bg-[#111] text-[#22c55e] px-2 py-1 text-sm font-mono">localhost</code> or <code className="bg-[#111] text-[#22c55e] px-2 py-1 text-sm font-mono">127.0.0.1</code>, that is computer-speak for "This house."
           </p>
@@ -1539,20 +2145,20 @@ const CourseOneContent = ({ onClose }) => {
         <div className="mb-24">
           <NeedBox
             title="What you need before you start"
-            items={[
-              "Docker Compose running from Class 01.",
-              "A mini-PC or server that's supposed to stay on 24/7.",
-              "Coffee. This is the maintenance class."
-            ]}
+	            items={[
+	              "80m Agent Desktop installed and signed in to your provider.",
+	              "Your backup/export location chosen.",
+	              "Release notes or Discord announcements checked before big updates."
+	            ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. Keeping the Monster Alive</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. Keeping the System Alive</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            AI moves fast. Yesterday's model is today's trash. We've built an auto-update protocol so your stack doesn't rot.
+	            AI tools change quickly. The safe maintenance habit is boring on purpose: back up settings, read the update note, update one thing at a time, then run a setup audit in Hermes.
           </p>
           <div className="bg-yellow-50 border-[3px] border-[#111] p-8 border-l-[12px] border-l-[#111]">
-            <h3 className="font-sans font-black text-2xl uppercase mb-4 italic">The "Lazy Update" Rule:</h3>
-            <p className="font-serif text-lg leading-relaxed mb-6">
-              Once a week, just run <code className="bg-white px-2 font-mono text-sm border">docker-compose pull</code>. It fetches the latest improvements while you sleep. If it isn't broken, don't touch it. If it is broken, we'll fix it in the Discord before you even wake up.
+	            <h3 className="font-sans font-black text-2xl uppercase mb-4 italic">The Update Rule:</h3>
+	            <p className="font-serif text-lg leading-relaxed mb-6">
+	              Once a week, open Settings, check for updates, export or back up your local settings, and ask Hermes to run a setup audit after the update. If everything is working, do not start changing advanced settings just because a tutorial showed them.
             </p>
           </div>
         </div>
@@ -1561,36 +2167,34 @@ const CourseOneContent = ({ onClose }) => {
         <div className="mb-24" id="c1-playbook">
           <NeedBox
             title="What you need before you start"
-            items={[
-              "All previous sections complete.",
-              "Your AGENTS.md file open in a text editor.",
-              "The 7-agent names written down somewhere."
-            ]}
+	            items={[
+	              "All previous sections complete.",
+	              "Your Memory and Soul/settings screens open in 80m Agent Desktop.",
+	              "The 7 agent names or lanes written down somewhere."
+	            ]}
           />
           <SectionMeta minutes="14 min" focus="Install discipline + automation" />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Zero‑Code Playbook (For People With Better Things to Do)</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. The Zero‑Code Playbook (For People With Better Things to Do)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            You’re not here to learn computer science. You’re here to stop drowning in busywork. This is the exact path to get{" "}
-            <GlossaryTooltip term="OpenClaw" definition="Your local assistant runtime and workspace engine" href="#c1-dictionary" />{" "}
-            behaving like a real assistant — without coding, without nerd rituals, and without pretending you care about “frameworks.”
+	            You’re not here to learn computer science. You’re here to stop drowning in busywork. This is the exact path to get 80m Agent Desktop and Hermes behaving like a real assistant without coding, without developer rituals, and without pretending you care about frameworks.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
               <h4 className="font-sans font-black uppercase mb-3">The 7‑Step Adulting Protocol</h4>
               <ol className="list-decimal list-inside font-serif text-[#aaa] space-y-3">
-                <li><strong>Install OpenClaw clean:</strong> Run default install, then confirm with <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">docker compose ps</code>. Example: if a container is "Exited", restart before moving on.</li>
-                <li><strong>Locate your workspace:</strong> Open the root folder and bookmark it. Example: keep it in Finder/Explorer favorites so edits take seconds.</li>
-                <li><strong>Write AGENTS.md rules:</strong> Define mission, output format, and "never do" list. Example: "Never send an email without approval."</li>
-                <li><strong>Define identity files:</strong> Fill USER.md + IDENTITY.md with your tone, role, and boundaries. Example: "Concise, no fluff, business-first."</li>
+	                <li><strong>Install the desktop app clean:</strong> Use the release for your operating system, finish first-run setup, then wait for the health check before touching anything else.</li>
+	                <li><strong>Locate your workspace:</strong> Know where your saved files live. Example: keep the folder in Finder/Explorer favorites so support can help quickly.</li>
+	                <li><strong>Write assistant rules:</strong> Define mission, output format, and "never do" list in Memory/Soul or the app's rules screen. Example: "Never send an email without approval."</li>
+	                <li><strong>Define identity:</strong> Tell Hermes your tone, role, boundaries, timezone, and main business goal. Example: "Concise, no fluff, business-first."</li>
                 <li><strong>Connect real tools:</strong> Add Gmail + Calendar with least-privilege permissions. Example: read calendar + draft emails only.</li>
                 <li><strong>Create one source of truth:</strong> Single tasks file (no duplicate lists). Example: <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">tasks.md</code> with Inbox / Today / Waiting.</li>
-                <li><strong>Schedule heartbeat automation:</strong> Use <GlossaryTooltip term="Cron" definition="A scheduler that runs commands at defined times" href="#c1-dictionary" /> to run daily review + check-ins. Example: 7:00am brief and 4:30pm follow-up digest.</li>
+	                <li><strong>Schedule one heartbeat:</strong> Use the Schedules screen for a daily review or check-in. Example: 7:00am brief and 4:30pm follow-up digest, both approval-first.</li>
               </ol>
             </div>
             <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e]">
               <h4 className="font-sans font-black uppercase mb-3 text-[#22c55e]">Common Dumb Mistakes (Don’t Do These)</h4>
               <ul className="font-serif text-[#aaa] space-y-3">
-                <li>Installing OpenClaw but never touching AGENTS.md.</li>
+	                <li>Installing the app but never telling Hermes your rules, business, tone, or hard boundaries.</li>
                 <li>Letting 4 different task lists fight each other.</li>
                 <li>Not telling it how you want to be contacted.</li>
                 <li>Assuming it “just knows” your business context.</li>
@@ -1602,12 +2206,12 @@ const CourseOneContent = ({ onClose }) => {
             title="Playbook Checkpoint"
             pass={[
               "You have exactly one tasks file and one heartbeat schedule.",
-              "AGENTS.md + identity files are filled with explicit rules.",
+	              "Memory/Soul or assistant rules are filled with explicit boundaries.",
               "At least one tool integration (email/calendar) is verified."
             ]}
             fail={[
               "Multiple conflicting task lists still exist.",
-              "No cron/heartbeat means the assistant is still reactive.",
+	              "No schedule/heartbeat means the assistant is still reactive.",
               "You cannot explain your assistant rules in 60 seconds."
             ]}
           />
@@ -1618,25 +2222,25 @@ const CourseOneContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Your workspace folder open (~/clawd or wherever you installed).",
-              "A text editor (VS Code, Notepad, literally anything).",
-              "Two minutes to read file names without panicking."
+	              "80m Agent Desktop open.",
+	              "Your workspace or saved-files folder bookmarked.",
+	              "Two minutes to read tool names without panicking."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. The Dumb‑Proof Dictionary</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. The Plain-English Dictionary</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
             You’ll see these words everywhere. Here’s what they actually mean in human language.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { term: "Workspace", def: "Your agent’s home folder. If it’s not in here, it doesn’t exist." },
-              { term: "AGENTS.md", def: "The rulebook. The first thing OpenClaw reads. Your assistant’s job description." },
-              { term: "SOUL.md", def: "Personality + boundaries. The difference between ‘helpful’ and ‘annoying.’" },
-              { term: "HEARTBEAT", def: "A scheduled check‑in. This is how your assistant becomes proactive." },
+	              { term: "Workspace", def: "Your assistant’s saved-files area. This is where useful context, outputs, and working documents should live." },
+	              { term: "Rules", def: "Your assistant’s job description: mission, boundaries, approval rules, and preferred output style." },
+	              { term: "Soul", def: "Personality + boundaries. The difference between helpful and annoying." },
+	              { term: "Heartbeat", def: "A scheduled check-in. This is how your assistant becomes proactive." },
               { term: "Skills", def: "Reusable workflows. Teach it one good process and it runs it forever." },
               { term: "Memory", def: "Durable context files. It remembers your world across sessions." },
               { term: "Tools", def: "External services it can use (email, calendar, docs)." },
-              { term: "Cron", def: "A Linux/macOS scheduler that runs commands at specific times using a 5-part pattern (minute hour day month weekday)." }
+	              { term: "Cron", def: "An advanced scheduler word. In the desktop app, think of it as the behind-the-scenes version of Schedules." }
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
@@ -1645,21 +2249,21 @@ const CourseOneContent = ({ onClose }) => {
             ))}
           </div>
           <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
-            <h4 className="font-sans font-black uppercase mb-3">Cron in OpenClaw (Detailed)</h4>
-            <p className="font-serif text-[#aaa] mb-4">
-              Cron lets OpenClaw run jobs while you are offline. Format: <code className="bg-[#fdfaf6] border px-1 font-mono text-xs">minute hour day month weekday command</code>.
+	            <h4 className="font-sans font-black uppercase mb-3">Schedules Behind the Scenes (Advanced)</h4>
+	            <p className="font-serif text-[#aaa] mb-4">
+	              Schedules let Hermes prepare recurring work while you are away. Advanced systems may show cron patterns, which are just compact time rules. Students should create schedules in the app first and ask Hermes to translate any pattern before using it.
             </p>
             <ul className="font-mono text-xs space-y-2 text-[#222]">
-              <li><code className="bg-[#fdfaf6] border px-1">0 7 * * * /root/80m/scripts/morning-brief.sh</code> → Sends your 7:00 AM daily brief.</li>
-              <li><code className="bg-[#fdfaf6] border px-1">*/30 * * * * /root/80m/scripts/inbox-triage.sh</code> → Checks inbox every 30 minutes.</li>
-              <li><code className="bg-[#fdfaf6] border px-1">30 16 * * 1-5 /root/80m/scripts/eod-wrap.sh</code> → Weekday end-of-day summary at 4:30 PM.</li>
+		              <li><code className="bg-[#fdfaf6] border px-1">0 7 * * 1-5</code> {'->'} Weekday 7:00 AM daily brief.</li>
+		              <li><code className="bg-[#fdfaf6] border px-1">*/30 9-17 * * 1-5</code> {'->'} Every 30 minutes during business hours.</li>
+		              <li><code className="bg-[#fdfaf6] border px-1">30 16 * * 1-5</code> {'->'} Weekday end-of-day summary at 4:30 PM.</li>
             </ul>
           </div>
           <ResourceList
             title="Dictionary Resources"
             items={[
-              { label: "OpenClaw Course Anatomy (local) ", href: "#", note: "Walkthrough of folder structure + role of each core file." },
-              { label: "ClawChief Repo", href: "https://github.com/snarktank/clawchief", note: "Reference workspace layout, prompts, and automations." },
+	              { label: "80M Agent Desktop Releases", href: "https://github.com/guapdad4000/80m-agent-desktop-v3/releases/", note: "Download or update the customer desktop app." },
+	              { label: "80M Resource Queue", href: "#c1-resources", note: "Student downloads, tutorials, and copy/paste setup prompts." },
               { label: "crontab.guru", href: "https://crontab.guru", note: "Translate cron patterns into plain English fast." }
             ]}
           />
@@ -1670,68 +2274,84 @@ const CourseOneContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A model provider account (OpenAI or Anthropic).",
-              "Access to your Gmail + Calendar credentials.",
+              "A model provider account: OpenRouter, OpenAI, Anthropic, Google, or local.",
+              "The 80m Agent Desktop release page.",
               "Discord installed for support.",
-              "GitHub account (for grabbing templates).",
-              "Know this: a Dev Console is just the website where you create API keys. That’s it."
+              "Optional later: Gmail + Calendar credentials.",
+              "Know this: a console is just a settings website where you create private keys. That is it."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. Resource Locker (Read This, Win Faster)</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">11. Resource Locker (Read This, Win Faster)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            These are the exact references we use to turn OpenClaw into a real assistant. No fluff. All leverage.
+            These are the exact downloads and tutorial references students need. The first list is for doing the work. The second list is for learning the tool without pretending they already know developer language.
           </p>
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
-            <ul className="space-y-4 font-serif text-lg">
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://platform.openai.com" target="_blank" rel="noreferrer">OpenAI Dev Console</a>
-                <span className="text-[#555]"> — Create API keys for OpenClaw/Hermes model calls. Keep them secret.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://console.anthropic.com" target="_blank" rel="noreferrer">Anthropic Console</a>
-                <span className="text-[#555]"> — Alternative provider with Claude models. Same secret‑key rule.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://discord.com/app" target="_blank" rel="noreferrer">Discord App</a>
-                <span className="text-[#555]"> — Support + announcements.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://docs.docker.com/desktop/" target="_blank" rel="noreferrer">Docker Desktop Docs</a>
-                <span className="text-[#555]"> — Official install + troubleshooting for Mac/Windows.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://docs.github.com/en/get-started/start-your-journey/hello-world" target="_blank" rel="noreferrer">GitHub Hello World</a>
-                <span className="text-[#555]"> — If Git feels scary, this is the 10-minute primer.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://github.com/snarktank/clawchief" target="_blank" rel="noreferrer">ClawChief Repo</a>
-                <span className="text-[#555]"> — Templates + workflows you can steal.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://www.youtube.com/watch?v=9ZbbxSgrjhw&t=3847s" target="_blank" rel="noreferrer">OpenClaw Inspiration Talk</a>
-                <span className="text-[#555]"> — The origin story behind priority maps.</span>
-              </li>
-            </ul>
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Basic Tool Downloads</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {basicToolLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">YouTube Tutorials for Students</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {tutorialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-8 border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+              <p className="font-serif text-sm text-[#333] leading-relaxed">
+                Instructor production note: these tutorials are also logged in the internal scrape queue for later transcript research and original 80M-branded infographic videos.
+              </p>
+            </div>
+
             <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
               <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Rescue Prompts</p>
-              <ul className="font-mono text-xs text-[#1f2937] space-y-2">
-                <li>"Audit my OpenClaw install. Return PASS/FAIL for Docker, containers, API keys, and memory files."</li>
-                <li>"Hermes, generate a morning brief template with sections for Calendar, Inbox, Priorities, and Follow-Ups."</li>
-                <li>"Create a safe first-week cron schedule with one morning brief and one end-of-day recap."</li>
-              </ul>
+              <CopyBlock
+                label="Copy Setup Audit Prompt"
+                text={`Hermes, audit my 80m Agent Desktop setup.
+
+Return PASS/FAIL for:
+1. Hermes install health
+2. selected model provider
+3. API key loaded safely
+4. chat streaming
+5. memory/user profile
+6. skills access
+7. schedules availability
+8. gateway status
+
+Explain every failed item in plain English. Give me the safest next click or command. Do not ask me to change advanced settings unless needed.`}
+              />
             </div>
             <div className="mt-8 border-t-2 border-[#111] pt-6 text-sm font-mono text-[#555]">
-              Local docs: /home/falcon/Documents/How to turn your OpenClaw.txt • /home/falcon/Documents/openclaw course Anatomy.txt
+	              Instructor note: keep private internal docs out of screenshots. Student-facing setup should point to official downloads, support, and the 80M app screens.
             </div>
             <div className="mt-6 border-[2px] border-[#111] p-4 bg-[#fdfaf6]">
-              <p className="font-sans font-black text-sm uppercase mb-3">Tools & Technologies (for course builders)</p>
-              <ul className="font-serif text-sm text-[#aaa] space-y-1">
-                <li><a className="underline font-black" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noreferrer">HTML/CSS/JavaScript</a> — Front-end foundations.</li>
-                <li><a className="underline font-black" href="https://react.dev/" target="_blank" rel="noreferrer">React</a> / <a className="underline font-black" href="https://vuejs.org/" target="_blank" rel="noreferrer">Vue</a> / <a className="underline font-black" href="https://angular.dev/" target="_blank" rel="noreferrer">Angular</a> — Interactive UI frameworks.</li>
-                <li><a className="underline font-black" href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noreferrer">Markdown Editor Guide</a> — Write and maintain curriculum text.</li>
-                <li><a className="underline font-black" href="https://git-scm.com/doc" target="_blank" rel="noreferrer">Git Docs</a> — Version control and collaboration.</li>
-                <li><a className="underline font-black" href="https://docs.netlify.com/" target="_blank" rel="noreferrer">Netlify</a> / <a className="underline font-black" href="https://vercel.com/docs" target="_blank" rel="noreferrer">Vercel</a> / <a className="underline font-black" href="https://pages.github.com/" target="_blank" rel="noreferrer">GitHub Pages</a> — Hosting and deployment options.</li>
-              </ul>
+              <p className="font-sans font-black text-sm uppercase mb-3">Do not start here</p>
+              <p className="font-serif text-sm text-[#333] leading-relaxed">
+                Students do not need to learn GitHub, Sass, React, or terminal culture to finish Class 01. Those are builder tools. The customer path is: download app, choose provider, paste private key, send first useful prompt, verify memory, then create one safe schedule.
+              </p>
             </div>
           </div>
         </div>
@@ -1789,7 +2409,7 @@ const CourseOneContent = ({ onClose }) => {
         </div>{/* close max-w-4xl */}
         </div>{/* close flex-1 overflow-y-auto */}
       </div>
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -1810,17 +2430,24 @@ const CourseTwoContent = ({ onClose }) => {
   const [tokenHistLabel, setTokenHistLabel] = useState('~38K tokens');
   const [tokenRemWidth, setTokenRemWidth] = useState(45);
   const [tokenRemLabel, setTokenRemLabel] = useState('~58K tokens');
+  const [promptBuilder, setPromptBuilder] = useState({
+    role: 'Hermes, act as my operations chief of staff.',
+    context: 'I run a small business and I keep losing track of client follow-ups.',
+    task: 'Build a simple daily follow-up system I can use inside 80M Agent Desktop.',
+    rules: 'Use plain English. Ask before sending anything externally. Keep the first version simple.',
+    output: 'Return a checklist, a daily prompt, and three message templates.'
+  });
 
   const sections = [
-    { id: 's0', label: 'Intro: Stop Asking, Command' },
+    { id: 's0', label: 'Intro: Brief Hermes Properly' },
     { id: 's1', label: '1. Prompt Translator' },
     { id: 's2', label: '2. Context Window' },
-    { id: 's3', label: '3. Laundry List Method' },
-    { id: 's4', label: '4. Fabric Memory' },
-    { id: 's5', label: '5. Chain of Thought' },
+    { id: 's3', label: '3. Clean Brief Recipe' },
+    { id: 's4', label: '4. Memory' },
+    { id: 's5', label: '5. Reasoning Checks' },
     { id: 's6', label: '6. Voice Interaction' },
     { id: 's7', label: '7. Morning Brief' },
-    { id: 's8', label: '8. Bossy Prompt Formula' },
+    { id: 's8', label: '8. Firm Prompt Formula' },
     { id: 's9', label: '9. Dictionary' },
     { id: 's10', label: '10. Resource Locker' },
   ];
@@ -1836,13 +2463,158 @@ const CourseTwoContent = ({ onClose }) => {
   };
   const resetPrompt = () => setPromptState(0);
 
+  const updatePromptBuilder = (field, value) => {
+    setPromptBuilder(prev => ({ ...prev, [field]: value }));
+  };
+
+  const generatedPrompt = `ROLE:
+${promptBuilder.role}
+
+CONTEXT:
+${promptBuilder.context}
+
+TASK:
+${promptBuilder.task}
+
+RULES:
+${promptBuilder.rules}
+
+OUTPUT:
+${promptBuilder.output}`;
+
+  const promptAuditChecks = [
+    { label: 'Role', bad: '"Help me"', good: '"Act as my client follow-up assistant."' },
+    { label: 'Context', bad: '"Write a reply"', good: '"This is for a warm lead who asked about pricing yesterday."' },
+    { label: 'Task', bad: '"Make it better"', good: '"Rewrite this message in 3 versions with one clear call to action."' },
+    { label: 'Rules', bad: '"Sound good"', good: '"70 words max, no hype, confident but not pushy."' },
+    { label: 'Output', bad: '"Give me ideas"', good: '"Return a table with option, subject line, message, and best use case."' }
+  ];
+
+  const promptDiagnosisTree = [
+    { symptom: 'Hermes gives a generic answer', fix: 'Add role, business context, exact task, and the output format you want.' },
+    { symptom: 'Hermes sounds too formal or too hype', fix: 'Give two tone examples: one sentence you like and one sentence you hate.' },
+    { symptom: 'Hermes ignores an important rule', fix: 'Put the rule under RULES on its own line, then ask Hermes to self-check against it.' },
+    { symptom: 'Hermes writes too much', fix: 'Set a length limit and output shape: "Return 5 bullets, each under 12 words."' },
+    { symptom: 'Hermes asks too many questions', fix: 'Tell it what assumptions it may make and what questions are truly blocking.' },
+    { symptom: 'Hermes wants to send, publish, buy, delete, or connect something', fix: 'Add approval boundaries: draft only, explain first, and wait for my yes.' }
+  ];
+
+  const c2BeginnerTerms = [
+    { term: 'Prompt', def: 'The message you give Hermes. A strong prompt is a short job brief, not magic words.' },
+    { term: 'Context', def: 'The useful facts Hermes needs to understand the job: customer, goal, situation, examples, and rules.' },
+    { term: 'Token', def: 'A piece of text the model reads or writes. Long messy inputs use more of the assistant desk space.' },
+    { term: 'Output format', def: 'The shape of the answer: table, checklist, bullets, email draft, CSV, plan, or scorecard.' },
+    { term: 'Constraint', def: 'A limit or rule: 70 words, no hype, ask before sending, cite sources, or use plain English.' },
+    { term: 'Self-check', def: 'A short review Hermes does after answering: did it follow the rules and miss anything obvious?' }
+  ];
+
+  const c2ClientPlaybooks = [
+    {
+      title: 'Client Follow-Up',
+      use: 'When a lead or client goes quiet.',
+      prompt: `ROLE: Hermes, act as my client follow-up assistant.
+
+CONTEXT: I spoke with [client name] about [offer/problem] on [date]. They have not replied since [last message].
+
+TASK: Draft 3 follow-up messages.
+
+RULES: Warm, short, no guilt, no pressure, one clear next step. Do not send anything externally.
+
+OUTPUT: Return a table with Tone, Message, Best Use Case, and Risk Check.`
+    },
+    {
+      title: 'Daily Operator',
+      use: 'When the student feels scattered.',
+      prompt: `ROLE: Hermes, act as my daily operator.
+
+CONTEXT: I have these tasks, meetings, and worries today: [paste list].
+
+TASK: Pick the top 3 priorities and the first action for each.
+
+RULES: Plain English. No productivity theory. Flag anything that needs my approval.
+
+OUTPUT: Return Today, Waiting On, Risks, and First Action.`
+    },
+    {
+      title: 'Offer Cleaner',
+      use: 'When the student cannot explain what they sell.',
+      prompt: `ROLE: Hermes, act as my offer strategist.
+
+CONTEXT: I sell [service/product] to [audience]. The problem they have is [problem].
+
+TASK: Rewrite my offer so a non-technical client understands the result.
+
+RULES: No jargon. No fake guarantees. Make the outcome measurable.
+
+OUTPUT: Return one sentence offer, 3 proof bullets, and a simple call to action.`
+    },
+    {
+      title: 'Content Draft',
+      use: 'When a raw idea needs to become content.',
+      prompt: `ROLE: Hermes, act as my content editor.
+
+CONTEXT: Here is my rough idea: [paste idea].
+
+TASK: Turn it into one short post, one video outline, and one email idea.
+
+RULES: Keep claims honest. Add a review checklist before publishing.
+
+OUTPUT: Return Post, Video Outline, Email Idea, and Safety Check.`
+    }
+  ];
+
+  const c2CompletionOutcomes = [
+    'Turn any vague ask into ROLE, CONTEXT, TASK, RULES, and OUTPUT.',
+    'Diagnose why Hermes gave a weak answer and improve the next prompt.',
+    'Ask for a visible plan, final answer, and self-check without needing technical reasoning terms.',
+    'Use memory deliberately: save stable facts, not random temporary noise.',
+    'Create reusable prompts for daily planning, client follow-up, offers, and content.'
+  ];
+
+  const c2CompletionDrills = [
+    'Rewrite one messy prompt into the 5-part Hermes brief.',
+    'Ask Hermes to score a prompt from 1-10 and improve it to a 10.',
+    'Create one reusable prompt for a real recurring task.',
+    'Dictate a rough thought, clean it into a prompt, then copy the final version.'
+  ];
+
+  const c2CompletionProof = [
+    'One reusable prompt is saved to the workspace.',
+    'Hermes produces a table/checklist exactly as requested.',
+    'The student can explain token, context, constraint, and output format.',
+    'A memory update prompt has been tested and verified.'
+  ];
+
+  const c2ResourceLinks = [
+    { label: '80M Agent Desktop Releases', href: 'https://github.com/guapdad4000/80m-agent-desktop-v3/releases/', note: 'Open Hermes in the customer desktop app before practicing prompts.' },
+    { label: 'OpenAI Prompt Engineering', href: 'https://platform.openai.com/docs/guides/prompt-engineering', note: 'Official guide for instructions, examples, reusable prompts, and context.' },
+    { label: 'OpenAI Text Generation Guide', href: 'https://platform.openai.com/docs/guides/text', note: 'Official guide for model inputs, outputs, instructions, and structured responses.' },
+    { label: 'OpenAI Reasoning Best Practices', href: 'https://platform.openai.com/docs/guides/reasoning-best-practices', note: 'Use this for safer reasoning prompts and model behavior expectations.' },
+    { label: 'Anthropic Clear Prompting', href: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct', note: 'Official Claude guide: clear, direct, detailed instructions with context.' },
+    { label: 'Claude Prompting Best Practices', href: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices', note: 'Useful examples for explicit instructions, examples, and tool workflows.' },
+    { label: 'Gemini Prompting Strategies', href: 'https://ai.google.dev/gemini-api/docs/prompting-strategies', note: 'Official Google guide for clear instructions, examples, and prompt iteration.' },
+    { label: 'Wispr Flow Download', href: 'https://wisprflow.ai/downloads', note: 'Optional voice-to-text tool for students who think better out loud.' },
+    { label: 'Prompting Guide', href: 'https://www.promptingguide.ai/', note: 'Beginner-friendly outside reference. Use it for examples, not doctrine.' }
+  ];
+
+  const c2TutorialLinks = [
+    { label: 'Prompt Engineering Full Course', href: 'https://www.youtube.com/watch?v=2BpCk4d2Cc0', note: 'Beginner-friendly broad overview from Tech With Tim.' },
+    { label: 'Prompt Engineering Tutorial', href: 'https://www.youtube.com/watch?v=_ZvnD73m40o', note: 'FreeCodeCamp reference for prompt structure and LLM behavior.' },
+    { label: 'Perfect ChatGPT Prompt Formula', href: 'https://www.youtube.com/watch?v=jC4v5AS4RIM', note: 'Short prompt formula lesson that maps well to Hermes templates.' },
+    { label: 'Google Prompting Course in 20 Minutes', href: 'https://www.youtube.com/watch?v=p09yRj47kNM', note: 'Compressed overview of Google prompting principles.' },
+    { label: 'Anthropic Prompting 101', href: 'https://www.youtube.com/watch?v=ysPbXH0LpIE', note: 'Official Anthropic video reference for Claude-style prompting.' },
+    { label: 'Context Windows Explained', href: 'https://www.youtube.com/watch?v=TeQDr4DkLYo', note: 'Explains why too much messy context makes models worse.' },
+    { label: 'Tokens in 2 Minutes', href: 'https://www.youtube.com/watch?v=OjrGu0L5K7M', note: 'Quick explainer for token vocabulary.' },
+    { label: 'Wispr Flow Beginner Guide', href: 'https://www.youtube.com/watch?v=BEWYvMbKAyw', note: 'Official voice dictation starter video.' }
+  ];
+
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
           <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 02</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Talk to It Properly</h2>
+          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Brief Hermes Properly</h2>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -1888,34 +2660,108 @@ const CourseTwoContent = ({ onClose }) => {
         <div id="c2-intro" className="mb-24">
           <NeedBox
             items={[
-              "OpenClaw installed and running (if you can open it, you’re good).",
-              "A terminal/console (Mac: Terminal app, Windows: PowerShell).",
-              "Your Gmail + Calendar accounts handy for login.",
-              "A note of your timezone (so your agent doesn’t time‑travel).",
-              "Discord access for support (you’ll want it).",
-              "One place to paste prompts (Notes app, Notion, or a text file)."
+              "80M Agent Desktop open with Hermes ready to answer.",
+              "One real task you want help with today.",
+              "One messy message, email, note, or idea you want cleaned up.",
+              "Your timezone and business goal saved from Class 01.",
+              "A private note app for saving reusable prompts.",
+              "A beginner rule: do not learn jargon first. Learn what to say to Hermes."
             ]}
           />
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase">
-            Stop Asking. <br/><span className="italic text-[#22c55e]">Command.</span>
+            Stop Guessing. <br/><span className="italic text-[#22c55e]">Brief Hermes.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed border-l-[4px] border-[#111] pl-6">
-            If your AI is giving you generic garbage, it's because you're treating it like a magic 8-ball. It's a high-performance intern. Be specific.
+          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed border-l-[4px] border-[#111] pl-6">
+            If Hermes gives you generic answers, the problem is usually the brief. A good prompt tells Hermes who to act as, what you want done, what facts matter, what rules to follow, and what the finished output should look like.
           </p>
           <p className="font-serif text-sm text-[#555] mt-3">
-            Keep it simple: use the templates exactly as written, then tweak one rule at a time.
+            Keep it simple: use the formula exactly, test once, then change one rule at a time.
           </p>
+
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Interactive prompt builder</p>
+                <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight">Build a Hermes brief that works</h3>
+              </div>
+              <span className="font-mono text-xs uppercase tracking-widest text-[#555]">Role + Context + Task + Rules + Output</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                ['role', 'Role', 'Who should Hermes act as?'],
+                ['context', 'Context', 'What facts should Hermes know?'],
+                ['task', 'Task', 'What exact job should Hermes do?'],
+                ['rules', 'Rules', 'What must Hermes avoid or obey?'],
+                ['output', 'Output', 'What shape should the answer be?']
+              ].map(([field, label, helper]) => (
+                <label key={field} className={field === 'output' ? 'md:col-span-2' : ''}>
+                  <span className="font-sans font-black uppercase text-sm text-[#111]">{label}</span>
+                  <span className="block font-serif text-sm text-[#555] mb-2">{helper}</span>
+                  <textarea
+                    value={promptBuilder[field]}
+                    onChange={(e) => updatePromptBuilder(field, e.target.value)}
+                    className="w-full min-h-24 border-[3px] border-[#111] bg-[#fdfaf6] p-3 font-mono text-xs text-[#111] focus:outline-none focus:ring-4 focus:ring-[#22c55e]/30"
+                  />
+                </label>
+              ))}
+            </div>
+            <div className="mt-6">
+              <CopyBlock text={generatedPrompt} label="Copy Built Hermes Brief" />
+            </div>
+          </div>
+
+          <div className="mt-8 border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Prompt audit</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">The 5 checks before you press send</h3>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              {promptAuditChecks.map((item) => (
+                <div key={item.label} className="border-[2px] border-[#111] bg-white p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.label}</p>
+                  <p className="font-mono text-[11px] text-red-600 mb-2">Weak: {item.bad}</p>
+                  <p className="font-mono text-[11px] text-[#14532d]">Strong: {item.good}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// If the answer is bad</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Prompt diagnosis tree</h3>
+            <div className="space-y-3">
+              {promptDiagnosisTree.map((item, idx) => (
+                <div key={item.symptom} className="grid grid-cols-1 md:grid-cols-[2rem_1fr_1.3fr] gap-3 border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-mono font-black text-[#22c55e]">{idx + 1}</p>
+                  <p className="font-sans font-black uppercase text-sm text-[#111]">{item.symptom}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.fix}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e]">
+            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Beginner dictionary</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Prompting words in normal language</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c2BeginnerTerms.map((item) => (
+                <div key={item.term} className="border-[2px] border-[#333] bg-[#171717] p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-1">{item.term}</p>
+                  <p className="font-serif text-sm text-[#ddd] leading-relaxed">{item.def}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
             <h3 className="font-sans font-black uppercase text-sm mb-3">Fast Start: Copy/Paste Prompt Stack</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CopyBlock text="ROLE: Hermes Chief of Staff. TASK: Build my top 3 priorities for today from calendar + inbox. RULES: concise, no fluff. OUTPUT: numbered list." />
-              <CopyBlock text="TASK: Rewrite this message for a client. RULES: 70 words max, confident tone, one CTA. OUTPUT: 3 options." />
+              <CopyBlock text="ROLE: Hermes, act as my chief of staff. CONTEXT: I have a messy day and need priorities. TASK: Create my top 3 priorities. RULES: plain English, no fluff, ask before contacting anyone. OUTPUT: numbered list with next action." />
+              <CopyBlock text="ROLE: Hermes, act as my client communication assistant. TASK: Rewrite this message. RULES: 70 words max, confident tone, one CTA, no external sending. OUTPUT: 3 options labeled Warm, Direct, Premium. CONTEXT: [paste message]." />
             </div>
           </div>
           <CourseBoostPanel
             title="Class 02 Prompt Quality Checklist"
             checklist={[
-              "Every prompt includes ROLE, TASK, RULES, OUTPUT, and CONTEXT.",
+              "Every prompt includes ROLE, CONTEXT, TASK, RULES, and OUTPUT.",
               "Output format is explicit (table, bullets, JSON, etc.).",
               "Prompts are reusable templates saved to your workspace.",
               "At least one prompt is automated into a scheduled brief."
@@ -1924,6 +2770,13 @@ const CourseTwoContent = ({ onClose }) => {
               "\"Convert this vague ask into a strict ROLE/TASK/RULES/OUTPUT/CONTEXT prompt.\"",
               "\"Score this prompt from 1-10 for clarity and rewrite it to a 10.\""
             ]}
+          />
+          <StudentCompletionKit
+            eyebrow="Class 02 final standard"
+            title="The student can brief Hermes like a real operator"
+            outcomes={c2CompletionOutcomes}
+            drills={c2CompletionDrills}
+            proof={c2CompletionProof}
           />
           <ResourceList
             title="Jump Links"
@@ -1940,7 +2793,7 @@ const CourseTwoContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "An OpenClaw instance running.",
+              "80M Agent Desktop open.",
               "One vague prompt you've been using that you want to fix.",
               "The interactive translator widget below (built in)."
             ]}
@@ -1954,19 +2807,50 @@ const CourseTwoContent = ({ onClose }) => {
                 <p className="font-serif text-lg text-[#555] italic mt-2">"Hey, could you help me write an email to my customers? Make it sound nice."</p>
               </div>
               <div className="flex items-center justify-center">
-                {promptState === 0 && <button onClick={handleTranslate} className="font-sans font-black text-sm uppercase px-6 py-4 bg-[#111] text-[#22c55e] shadow-[4px_4px_0_0_#22c55e]">Translate →</button>}
-                {promptState === 1 && <div className="font-mono text-xs text-[#555] animate-pulse">Bossifying...</div>}
+                {promptState === 0 && <button onClick={handleTranslate} className="font-sans font-black text-sm uppercase px-6 py-4 bg-[#111] text-[#22c55e] shadow-[4px_4px_0_0_#22c55e]">Translate</button>}
+                {promptState === 1 && <div className="font-mono text-xs text-[#555] animate-pulse">Structuring...</div>}
                 {promptState === 2 && <button onClick={resetPrompt} className="font-sans font-black text-sm uppercase px-6 py-4 bg-[#eae7de] border-[3px] border-[#111] shadow-[4px_4px_0_0_#111]">Reset</button>}
               </div>
               <div className={`flex-1 border-[2px] border-[#333] p-6 relative ${promptState === 2 ? 'bg-[#f0fdf4] border-green-600' : 'bg-[#e5e5e5]'}`}>
                 <div className={`absolute -top-3 left-4 text-white font-mono text-xs font-bold px-2 py-1 uppercase tracking-widest border-[2px] border-[#111] ${promptState === 2 ? 'bg-green-600' : 'bg-gray-500'}`}>80m Standard</div>
                 {promptState === 2 ? (
                   <div className="font-serif text-lg text-[#111] mt-2 space-y-2">
-                    <p><strong>TASK:</strong> Write 3 urgent Black Friday emails.</p>
-                    <p><strong>RULES:</strong> Grade 6 reading level. Zero emojis. 50 words max.</p>
+                    <p><strong>ROLE:</strong> Hermes, act as my client communication assistant.</p>
+                    <p><strong>CONTEXT:</strong> I need to message customers about a limited-time Black Friday offer.</p>
+                    <p><strong>TASK:</strong> Write 3 email options.</p>
+                    <p><strong>RULES:</strong> Grade 6 reading level. No hype. 50 words max.</p>
+                    <p><strong>OUTPUT:</strong> Table with subject line, email body, and best use case.</p>
+                    <CopyBlock
+                      text={`ROLE: Hermes, act as my client communication assistant.
+
+CONTEXT: I need to message customers about a limited-time Black Friday offer.
+
+TASK: Write 3 email options.
+
+RULES: Grade 6 reading level. No hype. 50 words max.
+
+OUTPUT: Table with subject line, email body, and best use case.`}
+                      label="Copy Translated Prompt"
+                    />
                   </div>
                 ) : <p className="font-mono text-[#888] mt-2 text-center py-8">Awaiting command...</p>}
               </div>
+            </div>
+          </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Client-ready prompt playbooks</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-4">Pick the job, copy the brief, replace the brackets</h3>
+            <p className="font-serif text-[#333] leading-relaxed mb-5">
+              These are the prompts students should actually use with Hermes. They are written for normal work: follow-ups, daily planning, offers, and content drafts.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c2ClientPlaybooks.map((item) => (
+                <div key={item.title} className="border-[2px] border-[#111] bg-white p-4">
+                  <p className="font-sans font-black uppercase text-[#111] mb-1">{item.title}</p>
+                  <p className="font-serif text-sm text-[#555] mb-3">{item.use}</p>
+                  <CopyBlock text={item.prompt} label="Copy Client Prompt" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1980,9 +2864,9 @@ const CourseTwoContent = ({ onClose }) => {
               "Your most recent prompt (open it next to this tab)."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Context Window</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Context Window: The Assistant's Desk Space</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Think of the <GlossaryTooltip term="Context Window" definition="How much information the model can hold at once" href="#c2-dictionary" /> as AI short-term memory. You can hand it a massive document, a long conversation, a full brief — but it all has to fit in that window at once. Class 02 teaches you to manage it.
+            Think of the <GlossaryTooltip term="Context Window" definition="How much information Hermes can work with at once" href="#c2-dictionary" /> as the assistant's desk space. If the desk is packed with old notes, random screenshots, and unrelated files, the important job gets buried.
           </p>
           <div className="bg-[#111] p-8 text-[#eae7de] border-[3px] border-[#333]">
             <p className="font-mono text-xs text-[#aaa] mb-4 uppercase tracking-widest">// Context Window Visualizer</p>
@@ -2043,8 +2927,8 @@ const CourseTwoContent = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Section 3: Delegation */}
-        <div className="mb-24">
+	        {/* Section 3: Brief Recipe */}
+	        <div className="mb-24">
           <NeedBox
             title="What you need before you start"
             items={[
@@ -2052,82 +2936,99 @@ const CourseTwoContent = ({ onClose }) => {
               "The numbered list format below as a template."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. The Laundry List Method</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. The Clean Brief Recipe</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Stop giving one task at a time. Your agent council can handle a laundry list. We use numbered lists to make it execute 5 jobs in one go.
+	            Stop sending five separate half-prompts. Give Hermes one clean recipe: what to do first, second, third, and what not to do without approval. Numbered steps make it easier for the assistant to finish every part.
           </p>
           <div className="bg-white border-[3px] border-[#111] p-8">
-            <h4 className="font-sans font-black text-lg mb-4 uppercase">The Pro-Delegation Prompt:</h4>
+	            <h4 className="font-sans font-black text-lg mb-4 uppercase">The clean brief prompt:</h4>
             <div className="bg-gray-100 p-6 font-mono text-sm border-l-4 border-[#111]">
               1. Research the top 3 news stories in [industry] today.<br/>
               2. Summarize each in 2 sentences.<br/>
               3. Draft a LinkedIn post about story #1.<br/>
               4. Draft a tweet about story #2.<br/>
-              5. Email story #3 to my partner with the subject "FYI".
+              5. Draft an email about story #3, but do not send it until I approve.
             </div>
-            <p className="mt-4 font-serif italic text-sm text-[#777]">Note: If you don't number them, the AI will miss step 3 and 4 because it got excited about step 1.</p>
+            <p className="mt-4 font-serif italic text-sm text-[#555]">Note: number the work, then add the approval rule. That gives Hermes a finish line and a boundary.</p>
           </div>
         </div>
 
-        {/* Section 4: Fabric Memory */}
+        {/* Section 4: Memory */}
         <div className="mb-24">
           <NeedBox
             title="What you need before you start"
             items={[
-              "Fabric running (part of the 80m stack from Class 01).",
-              "Your SOUL.md and AGENTS.md files accessible."
+              "80M Agent Desktop open to Memory.",
+              "Your name, timezone, business, and current goal.",
+              "One hard rule you want Hermes to remember."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Fabric: Your Brand's Memory</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Memory: Stop Starting From Scratch</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Every time you use AI, it starts from scratch. Fabric changes that. It saves your brand voice, your customers, your preferences — and injects them automatically into every conversation.
+            Every generic AI chat starts cold. 80M memory lets Hermes remember your role, clients, style, limits, and recurring work. A better prompt plus better memory is where the app starts feeling personal.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] p-6 bg-[#111] text-[#eae7de]">
-              <h4 className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">Fabric Pattern</h4>
-              <p className="font-serif text-[#aaa] italic">"Summarize the following in the voice of a no-BS direct-response marketer who charges $10K/month."</p>
+              <h4 className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">Memory Prompt</h4>
+              <CopyBlock
+                text="Hermes, save this to memory: my name is [name], my timezone is [timezone], my business is [business], my current goal is [goal], my preferred tone is [tone], and my hard rule is [rule]. After saving, tell me what you will remember."
+                label="Copy Memory Prompt"
+              />
             </div>
             <div className="border-[3px] border-[#111] p-6 bg-[#f0fdf4]">
               <h4 className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">Result</h4>
-              <p className="font-serif text-[#aaa]">"Here's what you're missing: your current email sequence is losing you $40K/yr. Here's the fix."</p>
+              <p className="font-serif text-[#14532d]">Next time you ask for a client reply, Hermes can use your tone, your business context, and your approval rules without making you repeat the whole story.</p>
             </div>
           </div>
         </div>
 
-        {/* Section 5: Chain of Thought */}
+        {/* Section 5: Reasoning Checks */}
         <div className="mb-24">
           <NeedBox
             title="What you need before you start"
             items={[
-              "The interactive 'Show Thinking Logic' button below.",
+              "The interactive 'Show Plan Check' button below.",
               "One complex question you've been afraid to ask your AI."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. Chain of Thought: Make It Think</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. Reasoning Checks: Plan, Answer, Check</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            AI is fast. Sometimes it's too fast and makes stupid mistakes. We use the **"Think First" Protocol**. We tell it to write its logic out *before* it gives the answer.
+            AI is fast. Sometimes it answers before it has understood the job. Do not ask Hermes to reveal hidden model reasoning. Ask for a short visible plan, a clean final answer, and a self-check against your rules.
           </p>
           <div className="bg-[#111] p-8 border-[4px] border-[#333] text-[#eae7de] shadow-[12px_12px_0_0_#111]">
             <button
               onClick={() => setThoughtChain(!thoughtChain)}
               className="mb-8 font-sans font-black uppercase text-sm py-4 px-8 border-2 border-[#22c55e] text-[#22c55e] hover:bg-[#22c55e] hover:text-[#111] transition-all"
             >
-              {thoughtChain ? "Stop Thinking" : "Show Thinking Logic"}
+              {thoughtChain ? "Hide Plan Check" : "Show Plan Check"}
             </button>
             <AnimatePresence>
               {thoughtChain && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-mono text-xs space-y-4">
                   <p className="text-[#38bdf8]">&gt; USER: "Balance my monthly ad budget."</p>
-                  <p className="text-[#aaa]">&gt; AI THOUGHT PROCESS:<br/>
-                    1. Identify total spend from CSV.<br/>
-                    2. Compare against target CPA ($2.45).<br/>
-                    3. Calculate waste on underperforming campaigns.<br/>
-                    4. Draft recommendation based on 80m efficiency rules.
+                  <p className="text-[#aaa]">&gt; VISIBLE PLAN:<br/>
+                    1. Identify total spend and target outcome.<br/>
+                    2. Compare campaign performance against the target.<br/>
+                    3. Flag waste, risk, and the safest budget move.
                   </p>
-                  <p className="text-[#22c55e]">&gt; AI OUTPUT: "Stop campaign X immediately. Move $400 to Y."</p>
+                  <p className="text-[#22c55e]">&gt; FINAL ANSWER: "Pause campaign X, move $400 to Y, and review again in 48 hours."</p>
+                  <p className="text-[#f59e0b]">&gt; SELF-CHECK: "This follows your rule: no irreversible ad changes without approval."</p>
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+          <div className="mt-6 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+            <h4 className="font-sans font-black uppercase mb-3">Copy this when the task matters</h4>
+            <CopyBlock
+              text={`Hermes, before answering:
+1. Give me a short visible plan in 3 bullets.
+2. Ask one clarifying question only if the missing detail changes the answer.
+3. Give the final answer in the format I requested.
+4. End with a self-check against my rules.
+
+Do not take external action without my approval.`}
+              label="Copy Plan Answer Check Prompt"
+            />
           </div>
         </div>
 
@@ -2136,22 +3037,27 @@ const CourseTwoContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Wispr Flow installed (or a similar voice-to-clipboard tool).",
-              "Your phonetic dictionary config file."
+              "Optional: Wispr Flow or another voice-to-text app.",
+              "80M Agent Desktop open so you can paste dictated prompts into Hermes.",
+              "A quiet room for the first test."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. Speak To It (Phonetic Hacks)</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. Dictate, Then Review</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            You're running voice-control now. But sometimes the AI mishears "SaaS" as "Sass" or "80m" as "AD-M".
+            You do not have to type every prompt. Voice-to-text lets a student speak the messy version, then Hermes can turn it into a clean brief. The trick is to dictate structure out loud: role, context, task, rules, output.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] p-6 bg-[#eae7de]">
-              <h4 className="font-sans font-black uppercase mb-2">The Phonetic Dictionary</h4>
-              <p className="font-serif text-[#111]">Inside your OpenClaw config, we add a translation layer. It hears "ATM" and automatically writes "80m". This stops you from yelling at your computer like a lunatic.</p>
+              <h4 className="font-sans font-black uppercase mb-2">The Dictation Script</h4>
+              <p className="font-serif text-[#111] mb-4">Say the labels out loud. Example: "Role: Hermes, act as my scheduler. Context: I keep missing appointments. Task: build a reminder routine. Rules: ask before messaging anyone. Output: checklist."</p>
+              <CopyBlock
+                text="Role: Hermes, act as my [assistant type]. Context: [what is happening]. Task: [what I need done]. Rules: [what not to do]. Output: [how I want the answer formatted]."
+                label="Copy Voice Prompt Script"
+              />
             </div>
             <div className="border-[3px] border-[#111] p-6 bg-[#111] text-[#eae7de]">
               <h4 className="font-sans font-black uppercase mb-2 text-[#22c55e]">Hotkeys</h4>
-              <p className="font-serif text-[#aaa]">Don't leave the mic on 24/7. Use a "Push to Talk" button on your desk. It feels cooler, and the AI won't accidentally buy a boat while you're watching a movie.</p>
+              <p className="font-serif text-[#ddd]">Use push-to-talk or a clear record/stop habit. Dictate the prompt, read it once, then paste into Hermes. Voice is for speed, not for skipping review.</p>
             </div>
           </div>
         </div>
@@ -2161,25 +3067,38 @@ const CourseTwoContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Cron set up from Class 01.",
-              "Your calendar connected (Google Calendar or equivalent).",
-              "Your inbox accessible via IMAP."
+              "80M Agent Desktop open to the Schedules screen.",
+              "Your calendar or inbox connected only if you are ready for that.",
+              "A safety rule: draft first, send nothing externally without approval."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. The Morning Brief (Your First Automations)</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. The Morning Brief (Your First Schedule)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            By the end of Class 02, you'll have a cron job that wakes up at 7am, reads your emails and calendar, and delivers you a 5-bullet brief of what matters today. Before you're out of bed.
+            By the end of Class 02, you should be able to ask Hermes for a weekday morning brief that summarizes what matters, flags conflicts, and gives one first action. Start with a draft schedule. Do not connect external sending until your rules are clean.
           </p>
-          <MacWindow title="morning_brief.cron" contentClass="bg-[#111] p-6 font-mono text-sm text-[#eae7de]">
-            <p className="text-[#aaa] mb-4"># 80m Morning Brief — runs daily at 7:00 AM</p>
-            <p className="text-[#38bdf8]">0 7 * * * /root/80m/scripts/morning-brief.sh</p>
-            <p className="text-[#555] mt-4">// Output delivered to:<br/>
-            /root/80m/outputs/brief_$(date +\%Y-\%m-\%d).md</p>
-            <p className="text-[#555] mt-2">// Contents: emails, calendar, action items, priorities</p>
+          <MacWindow title="Hermes Morning Brief Prompt" contentClass="bg-[#111] p-6 font-mono text-sm text-[#eae7de]">
+            <p className="text-[#aaa] mb-4"># Paste this into 80M Agent Desktop</p>
+            <p className="text-[#38bdf8] whitespace-pre-wrap">{`Hermes, create a weekday morning brief schedule for 7:00 AM.
+
+Context: I want a simple daily operating brief before work starts.
+Task: Summarize today's priorities, calendar risks, waiting-on items, and one recommended first action.
+Rules: Do not send emails, texts, Discord messages, or calendar invites without my approval.
+Output: Show me the schedule draft, the brief template, and a test run for tomorrow.`}</p>
           </MacWindow>
+          <div className="mt-6">
+            <CopyBlock
+              text={`Hermes, create a weekday morning brief schedule for 7:00 AM.
+
+Context: I want a simple daily operating brief before work starts.
+Task: Summarize today's priorities, calendar risks, waiting-on items, and one recommended first action.
+Rules: Do not send emails, texts, Discord messages, or calendar invites without my approval.
+Output: Show me the schedule draft, the brief template, and a test run for tomorrow.`}
+              label="Copy Morning Brief Prompt"
+            />
+          </div>
         </div>
 
-        {/* Section 8: The Bossy Prompt Formula */}
+	        {/* Section 8: The Firm Prompt Formula */}
         <div className="mb-24">
           <SectionMeta minutes="11 min" focus="Prompt reliability system" />
           <NeedBox
@@ -2191,38 +3110,41 @@ const CourseTwoContent = ({ onClose }) => {
               "A destination (Gmail draft, Notion, or plain text file)."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Bossy Prompt Formula</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Firm Prompt Formula</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Prompts aren’t vibes. They’re instructions. Use this formula and you’ll stop getting “AI poetry” when you asked for a calendar update.
+	            Prompts are not vibes. They are instructions. Use this formula and Hermes will know the job, the boundaries, and what a finished answer should look like.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="border-[3px] border-[#111] p-6 bg-white shadow-[6px_6px_0_0_#111]">
               <h4 className="font-sans font-black uppercase mb-3">The Formula</h4>
-              <ul className="font-serif text-[#aaa] space-y-3">
+              <ul className="font-serif text-[#333] space-y-3">
                 <li><strong>ROLE:</strong> Who it is right now. (Executive assistant)</li>
-                <li><strong>TASK:</strong> The exact job. (Draft 3 replies)</li>
-                <li><strong>RULES:</strong> Constraints. (50 words, no emojis)</li>
-                <li><strong>OUTPUT:</strong> The <GlossaryTooltip term="Output Format" definition="Required structure like bullets/table/JSON" href="#c2-dictionary" />. (Bulleted list)</li>
                 <li><strong>CONTEXT:</strong> The facts it needs. (Client details)</li>
+                <li><strong>TASK:</strong> The exact job. (Draft 3 replies)</li>
+                <li><strong>RULES:</strong> Constraints. (50 words, no hype)</li>
+                <li><strong>OUTPUT:</strong> The <GlossaryTooltip term="Output Format" definition="Required structure like bullets/table/JSON" href="#c2-dictionary" />. (Bulleted list)</li>
               </ul>
             </div>
             <div className="border-[3px] border-[#111] p-6 bg-[#111] text-[#eae7de] shadow-[6px_6px_0_0_#22c55e]">
               <h4 className="font-sans font-black uppercase mb-3 text-[#22c55e]">Example (Copy + Paste)</h4>
-              <p className="font-mono text-xs text-[#aaa]">ROLE: Executive assistant. TASK: Draft 3 reply options to this email. RULES: 60 words max, confident tone, no emojis. OUTPUT: 3 bullets. CONTEXT: [paste email].</p>
+              <CopyBlock
+                text="ROLE: Hermes, act as my executive assistant. CONTEXT: [paste the email and what relationship I have with this person]. TASK: Draft 3 reply options. RULES: 60 words max, confident tone, no hype. OUTPUT: 3 bullets labeled Warm, Direct, and Follow-up."
+                label="Copy Formula Example"
+              />
             </div>
           </div>
           <ResourceList
             title="Prompting Resources"
             items={[
               { label: "Prompt Translator Section", href: "#c2-prompting", note: "Go back to Section 1 in this class." },
-              { label: "OpenClaw Inspiration Talk", href: "https://www.youtube.com/watch?v=9ZbbxSgrjhw&t=3847s", note: "How the pros structure directives." },
-              { label: "ClawChief Repo", href: "https://github.com/snarktank/clawchief", note: "Real-world assistant prompts + workflows." }
+              { label: "OpenAI Prompt Engineering", href: "https://platform.openai.com/docs/guides/prompt-engineering", note: "Official structure and examples." },
+	              { label: "Anthropic Clear Prompting", href: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct", note: "Official prompting process and success criteria." }
             ]}
           />
           <CheckpointCard
             title="Prompt Formula Checkpoint"
             pass={[
-              "Prompt includes ROLE/TASK/RULES/OUTPUT/CONTEXT in order.",
+              "Prompt includes ROLE/CONTEXT/TASK/RULES/OUTPUT in order.",
               "Output format is machine-checkable (table, list, JSON).",
               "Prompt is saved for reuse and adjusted after one test run."
             ]}
@@ -2240,7 +3162,7 @@ const CourseTwoContent = ({ onClose }) => {
             title="What you need before you start"
             items={[
               "A real example from your life (email, task, calendar invite).",
-              "A place to store your “rules” (AGENTS.md or a notes file).",
+	              "A place to store your rules: 80M Memory, Soul/settings, or a normal notes file.",
               "Two minutes of patience. That’s the whole requirement."
             ]}
           />
@@ -2250,22 +3172,22 @@ const CourseTwoContent = ({ onClose }) => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { term: "Context Window", def: "How much the AI can hold in its short-term memory at once." },
-              { term: "System Prompt", def: "The hidden instruction sheet it follows all session." },
-              { term: "Delegation", def: "Giving it a list of jobs so it executes more than one thing." },
-              { term: "Fabric", def: "Your brand memory. It makes the AI sound like you." },
-              { term: "Chain of Thought", def: "Telling it to think before it answers." },
+              { term: "Context Window", def: "The assistant's desk space: how much information Hermes can work with at once." },
+              { term: "System Prompt", def: "A deep instruction sheet controlled by the app or provider. Beginners usually do not edit this directly." },
+              { term: "Delegation", def: "Giving Hermes a clear job and, when useful, letting it route parts to the right specialist." },
+              { term: "Memory", def: "Saved context about you, your business, your rules, and past decisions." },
+              { term: "Reasoning Check", def: "Asking for a short plan, final answer, and self-check instead of a rushed answer." },
               { term: "Tool", def: "A connected service like Gmail or Calendar." },
-              { term: "Cron", def: "A scheduler that runs prompts/scripts automatically at set times." },
+              { term: "Schedule", def: "A recurring Hermes task, like a weekday morning brief." },
               { term: "Output Format", def: "The shape you want: bullets, table, JSON, etc." }
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#aaa]">{item.def}</p>
+                <p className="font-serif text-[#333]">{item.def}</p>
               </div>
             ))}
           </div>
-          <p className="font-serif text-[#aaa] mt-6">
+          <p className="font-serif text-[#555] mt-6">
             Pro move: when a term confuses you in class notes, jump to this dictionary first instead of guessing. It saves hours of bad prompts.
           </p>
         </div>
@@ -2275,43 +3197,49 @@ const CourseTwoContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A working OpenClaw session (so links are useful, not aspirational).",
-              "Your preferred note app for dumping snippets.",
-              "Two browser tabs: one for docs, one for your work.",
-              "Know this: a Dev Console is just the website where you create API keys. That’s it."
+              "80M Agent Desktop open.",
+              "Your prompt-builder output from the intro.",
+              "Your preferred note app for saving reusable prompts.",
+              "Know this: docs are references, not homework. Use them when a prompt breaks."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. Resource Locker</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. Resource Locker (Prompting)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Actual links you’ll use. Not “Read 800 docs.” Just the good stuff.
+            Actual links you’ll use. The official docs are here for accuracy; the videos are here for students who need the picture before the vocabulary.
           </p>
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
-            <ul className="space-y-4 font-serif text-lg">
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://platform.openai.com" target="_blank" rel="noreferrer">OpenAI Dev Console</a>
-                <span className="text-[#555]"> — Where API keys live. Don’t screenshot your key like a goblin.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://console.anthropic.com" target="_blank" rel="noreferrer">Anthropic Console</a>
-                <span className="text-[#555]"> — Alternative model provider. Same rules: keys = secret.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://discord.com/app" target="_blank" rel="noreferrer">Discord App</a>
-                <span className="text-[#555]"> — Where support + updates actually happen.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://github.com/snarktank/clawchief" target="_blank" rel="noreferrer">ClawChief Repo</a>
-                <span className="text-[#555]"> — Real workflows you can steal.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank" rel="noreferrer">OpenAI Prompting Guide</a>
-                <span className="text-[#555]"> — Official prompt patterns for structure and reliability.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noreferrer">Anthropic Prompting Guide</a>
-                <span className="text-[#555]"> — Clear examples for instruction quality and guardrails.</span>
-              </li>
-            </ul>
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Official References + Tools</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {c2ResourceLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">YouTube Tutorials for Students</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c2TutorialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
             <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
               <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Prompt Templates</p>
               <ul className="font-mono text-xs text-[#1f2937] space-y-2">
@@ -2319,6 +3247,12 @@ const CourseTwoContent = ({ onClose }) => {
                 <li>"Turn this brain dump into a clean task list with owner, due date, and dependencies."</li>
                 <li>"Generate a daily brief from my schedule. Flag conflicts and propose fixes."</li>
               </ul>
+            </div>
+            <div className="mt-6 p-4 bg-[#fdfaf6] border-[2px] border-[#111]">
+              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+              <p className="font-serif text-sm text-[#333] leading-relaxed">
+                Instructor production note: Course 02 prompting videos are now logged in the internal scrape queue for future original 80M motion explainers.
+              </p>
             </div>
           </div>
         </div>
@@ -2368,14 +3302,14 @@ const CourseTwoContent = ({ onClose }) => {
         )}
 
         <div className="border-t-[4px] border-[#111] pt-12 text-center">
-          <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 01 Complete.</h2>
+          <h2 className="font-serif text-4xl font-black mb-6 uppercase">Class 02 Complete.</h2>
           <button onClick={onClose} className="font-sans font-black text-xl px-12 py-6 bg-[#111] text-[#eae7de] border-[3px] border-[#111] hover:bg-[#22c55e] hover:text-[#111] shadow-[8px_8px_0_0_#111] transition-colors">
             Exit to Curriculum →
           </button>
         </div>
         </div>{/* close max-w-4xl */}
         </div>{/* close flex-1 overflow-y-auto */}
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -2386,9 +3320,9 @@ const quizDataC01 = [
   {
     section: 1,
     questions: [
-      { q: "What does the terminal command 'curl -sL url | bash' do?", options: ["Downloads a file to your desktop", "Fetches and runs a script directly from the internet without saving it", "Installs a package manager", "Creates a new Docker container"], correct: 1, explanation: "curl fetches data from a URL, the -s flag suppresses progress, -L follows redirects, and | bash pipes the output directly to the shell — so the script runs without ever touching your disk." },
-      { q: "What is Docker Desktop's main purpose in the 80m stack?", options: ["Runs your web browser", "Provides the container runtime that houses your AI agents", "Manages your files", "Compiles code faster"], correct: 1, explanation: "Docker Desktop is the container runtime — it lets Docker run the 80m stack as isolated containers on your local machine. Without it, Docker can't run anything." },
-      { q: "Why does 80m use Docker instead of installing dependencies directly?", options: ["Docker is faster", "Docker makes everything run in an isolated 'box' so it works the same on your laptop and on a server", "Docker is required by law", "Docker hosts the files"], correct: 1, explanation: "Docker containers include everything needed — brain, memory, tools — and run identically everywhere. No 'works on my machine' problems. One command sets up the whole stack." },
+      { q: "What is the first setup path for a non-coder?", options: ["Start by editing files", "Download 80m Agent Desktop, finish first-run setup, paste the provider key safely, then send a setup audit prompt", "Open random terminal commands from the internet", "Buy a server first"], correct: 1, explanation: "The beginner path is desktop-first: install the app, choose a provider, paste the private key only in trusted screens, and ask Hermes to audit setup before changing advanced settings." },
+      { q: "What is an API key in plain English?", options: ["A public username", "A private meter that lets Hermes use paid AI services on your account", "A design template", "A calendar invite"], correct: 1, explanation: "An API key is like a private paid access card. Treat it like a password, set spending limits where possible, and rotate it if it is ever exposed." },
+      { q: "When should a beginner use Terminal or PowerShell?", options: ["Before opening the app", "Only when the desktop app, Hermes, or support gives a specific diagnostic step", "Whenever a YouTube video says to", "Never under any circumstances"], correct: 1, explanation: "A command window is a rescue lane. Beginners should not improvise commands; they should copy exactly, read the last line, and ask Hermes to translate warnings." },
     ]
   },
   {
@@ -2404,7 +3338,7 @@ const quizDataC01 = [
     questions: [
       { q: "What is the minimum RAM required for the 80m stack?", options: ["4GB", "8GB", "16GB", "64GB"], correct: 2, explanation: "16GB is the floor for running the 80m stack comfortably. 8GB will run slow and frustrated. More RAM = more agents you can run simultaneously without things freezing." },
       { q: "What happens if you try to run the 80m stack on a machine with only 4GB RAM?", options: ["It runs faster", "It installs but crashes constantly", "Nothing special", "You need more hard drive space"], correct: 1, explanation: "4GB RAM is not enough — the AI models are heavy. You'll see constant crashes, frozen terminals, and a very frustrating experience. 16GB+ (ideally 32GB for M-series Mac) is the actual minimum." },
-      { q: "What does Docker Compose do when you run 'docker-compose up'?", options: ["Opens a web browser", "Starts all containers defined in docker-compose.yml as a single application", "Downloads files", "Creates a backup"], correct: 1, explanation: "docker-compose.yml defines your entire stack — brain, memory, tools. docker-compose up reads that file and starts all the containers together, linked and configured properly." },
+      { q: "Why does memory matter after the app is installed?", options: ["It makes the screen brighter", "It lets Hermes remember your name, timezone, business, rules, and goals across sessions", "It replaces your API key", "It turns off schedules"], correct: 1, explanation: "Memory is what stops Hermes from acting generic every session. Save identity, business context, tone, hard rules, and current priorities early." },
     ]
   },
   {
@@ -2412,15 +3346,15 @@ const quizDataC01 = [
     questions: [
       { q: "What is the difference between localhost and a public IP?", options: ["There is no difference", "localhost (127.0.0.1) is your computer talking to itself — nobody else can access it. A public IP is how the internet reaches you.", "localhost is faster", "Public IPs are only for websites"], correct: 1, explanation: "localhost/127.0.0.1 is a private loopback address — it's like talking to yourself in a room. Nobody external can access it. A public IP is your 'street address' that the whole internet can reach." },
       { q: "What is the secret tunnel mentioned in Class 03 for?", options: ["It makes downloads faster", "It lets you access your localhost AI from outside your network (e.g. from your phone)", "It encrypts your files", "It backs up your data"], correct: 1, explanation: "The Cloudflare Tunnel (Class 03) creates a secure connection from your server to Cloudflare — then you access your AI through Cloudflare instead of directly. Your phone can reach your AI even though it's behind your home router." },
-      { q: "What is a Dockerfile?", options: ["A text file with instructions Docker uses to build a container image", "A database backup", "A web page template", "An email template"], correct: 0, explanation: "A Dockerfile is a recipe card — it tells Docker which base OS to start from, which dependencies to install, which files to copy in, and which port to expose. Without it, Docker doesn't know what to build or run." },
+      { q: "What is the safest way to create the first schedule?", options: ["Let it message people immediately", "Start with a private daily brief or follow-up digest that requires approval before external messages", "Schedule every tool at once", "Skip memory and connect gateways first"], correct: 1, explanation: "The first schedule should create useful private output, not take public action. Add external sending only after rules, memory, and approvals are clear." },
     ]
   },
   {
     section: 5,
     questions: [
-      { q: "If Docker shows a container as 'Exited', what does that mean?", options: ["The container is running perfectly", "The container started but then stopped due to an error", "The container is paused", "The container needs more RAM"], correct: 1, explanation: "Exited means Docker tried to start the container but it crashed or the process finished. Check the logs with docker-compose logs [service-name] to see what went wrong." },
-      { q: "What command shows you running Docker containers?", options: ["docker ps", "docker-compose ps", "docker ps | grep", "docker ps ls"], correct: 1, explanation: "docker-compose ps shows all containers defined in your docker-compose.yml and their current status. docker ps alone only shows containers started with plain docker run, not docker-compose." },
-      { q: "What does 'docker-compose pull' do?", options: ["Deletes all containers", "Fetches the latest versions of your container images from the internet", "Starts all containers", "Creates a backup"], correct: 1, explanation: "docker-compose pull downloads fresh images for each service defined in docker-compose.yml. Run this once a week to keep your stack updated with the latest improvements." },
+      { q: "If something turns red, what should the student do first?", options: ["Delete the app", "Copy the exact warning into Hermes and ask for a plain-English next step", "Change five settings at once", "Post their API key for help"], correct: 1, explanation: "Copy the warning, protect private keys, ask Hermes to translate, and change one thing at a time. That keeps support possible and prevents panic-clicking." },
+      { q: "What does Docker mean in this beginner course?", options: ["A required identity students must learn", "An optional support word for the sealed software box that may run helper services", "A social media app", "A payment provider"], correct: 1, explanation: "Docker is useful vocabulary, not the student's main job. If the setup uses it, it keeps helper services bundled and consistent." },
+      { q: "What should happen before any major update?", options: ["Back up settings, read the update note, update one thing, then ask Hermes for a setup audit", "Delete memory", "Turn on every gateway", "Share logs publicly"], correct: 0, explanation: "Updates are safest when they are boring: backup, update, audit, verify. Avoid changing unrelated advanced settings during the same session." },
     ]
   },
 ];
@@ -2429,41 +3363,41 @@ const quizDataC02 = [
   {
     section: 1,
     questions: [
-      { q: "What is a context window?", options: ["The visible part of a web page", "The amount of text an AI can 'see' and work with in a single prompt — like its working memory", "A security feature", "A type of image format"], correct: 1, explanation: "The context window is the AI's working memory per conversation. If it's 128K tokens, you can paste in an entire book. Fill it with garbage and there's no room for actual work." },
-      { q: "What happens when you overload the context window with irrelevant info?", options: ["The AI gets smarter", "The AI may miss the actual task because there's too much noise in the context", "Nothing happens", "The AI ignores all previous messages"], correct: 1, explanation: "A stuffed context window dilutes what matters. The AI processes everything equally — so important instructions compete with filler. Be surgical: only include what's directly relevant to the task." },
-      { q: "What is a system prompt?", options: ["Your email subject line", "The foundational instructions that tell the AI who it is, how to behave, and what rules to follow — loaded before any user message", "A password", "A file name"], correct: 1, explanation: "The system prompt is the AI's constitution — who it is, how it thinks, what it never does. This is where you define the agent's identity, tone, and constraints. It's loaded once at the start of the session." },
+      { q: "What are the five parts of a strong Hermes brief?", options: ["Name, age, city, color, price", "Role, context, task, rules, and output", "Model, terminal, code, server, deploy", "Question, answer, joke, link, emoji"], correct: 1, explanation: "A reliable Hermes brief says who Hermes should act as, what facts matter, what job to do, what rules to obey, and what the finished answer should look like." },
+      { q: "Why is 'make it sound nice' a weak prompt?", options: ["It is too polite", "It does not define the audience, goal, rules, or output format", "It uses too many words", "It asks Hermes to use memory"], correct: 1, explanation: "Hermes can only aim at what you describe. Give audience, goal, tone, constraints, and output shape so the answer is usable." },
+      { q: "What should students do with bracketed placeholders like [client name]?", options: ["Leave them blank forever", "Replace them with real details before sending the prompt", "Delete the whole prompt", "Paste API keys there"], correct: 1, explanation: "Prompt templates are reusable because students replace the bracketed fields with the real facts for the current job." },
     ]
   },
   {
     section: 2,
     questions: [
-      { q: "What does 'Chain of Thought' prompting mean?", options: ["Writing long paragraphs", "Asking the AI to think step-by-step before giving you the final answer", "Using bullet points", "Sending multiple messages"], correct: 1, explanation: "Chain of Thought = 'think out loud before you answer.' Adding 'think step by step' or 'before you answer, walk through the logic' forces the AI to show its reasoning, which dramatically improves accuracy on complex tasks." },
-      { q: "Why does Chain of Thought improve AI outputs?", options: ["It doesn't improve outputs", "It forces the AI to work through the problem visibly, catching mistakes before it gives you a wrong answer", "It makes responses faster", "It reduces token usage"], correct: 1, explanation: "The AI can't just 'hallucinate' an answer when it's showing its work. Chain of Thought catches logical errors in real-time — the AI sees its own mistake in the chain and self-corrects before output." },
-      { q: "What is 'fabric' in the 80m context?", options: ["A type of clothing", "The 80m memory layer — a persistent, searchable knowledge system that lets your AI remember your brand, rules, and context across sessions", "A code library", "A type of database"], correct: 1, explanation: "Fabric is 80m's memory layer — it stores your agent's knowledge, your brand rules, past decisions, and context. Without it, every session starts from scratch. With it, your AI knows who you are and what you care about." },
+      { q: "What is a context window in plain English?", options: ["A browser decoration", "The assistant's desk space: the information Hermes can work with at once", "A payment screen", "A social media setting"], correct: 1, explanation: "Context is the working space for the current request. Keep it relevant so the important task is not buried under noise." },
+      { q: "What happens when you paste too much unrelated material?", options: ["Hermes always gets smarter", "Hermes may miss the real task because important details compete with clutter", "The API key changes", "Schedules stop working"], correct: 1, explanation: "Too much unrelated context makes the task harder to follow. Paste the facts that matter and summarize the rest." },
+      { q: "What is the safest context habit?", options: ["Paste every file you own", "Paste the exact goal, important facts, and any rules Hermes must obey", "Never give context", "Only send screenshots"], correct: 1, explanation: "Good context gives Hermes the right facts without stuffing the desk. Exact goal, key facts, and rules are enough for most student tasks." },
     ]
   },
   {
     section: 3,
     questions: [
-      { q: "What does the 'laundry list method' of prompting produce?", options: ["Short creative outputs", "More structured, thorough outputs with named categories and explicit lists — because the AI has clear places to put information", "Faster responses", "Fewer tokens used"], correct: 1, explanation: "Instead of dumping everything into one paragraph, the laundry list method gives the AI named buckets: Background, Task, Constraints, Output Format. Each bucket gets filled deliberately — and the AI fills all of them before stopping." },
-      { q: "What is the correct order for a laundry list prompt?", options: ["Task → Background → Format → Constraints", "Background → Task → Constraints → Output Format", "Constraints → Task → Background → Format", "Format → Constraints → Task → Background"], correct: 1, explanation: "The order is: 1) Background (what they need to know), 2) Task (what to do), 3) Constraints (rules and guardrails), 4) Output Format (how to structure the answer). Background first so the AI has context before receiving the task." },
-      { q: "What is 'delegation' in the agent context?", options: ["Copying text", "Handing a task off to a specialized sub-agent that has the right tools and context to execute it independently", "Writing an email", "Creating a file"], correct: 1, explanation: "Delegation is how the Agent Council works — Hermes takes your input, identifies which sub-agent is right for the task, hands off with the right context, and collects the result. Done right, you get a finished product, not a suggestion." },
+      { q: "Why do numbered steps help Hermes?", options: ["They make the prompt look technical", "They give Hermes a checklist so fewer parts are skipped", "They hide the task", "They replace memory"], correct: 1, explanation: "Numbered steps make the work easy to track. Hermes can complete each item and respect the approval rule at the end." },
+      { q: "Where should the approval rule go?", options: ["Nowhere", "Clearly inside the rules or final step", "Only in a screenshot", "Inside the API key"], correct: 1, explanation: "Approval rules need to be visible in the prompt: do not send, publish, charge, delete, or message externally without approval." },
+      { q: "What does delegation mean for a beginner?", options: ["Copying text", "Giving Hermes a clear job and letting it route specialist work when needed", "Writing an email yourself", "Creating a password"], correct: 1, explanation: "Beginners do not need agent architecture. They need to tell Hermes the outcome, rules, and when specialist help is useful." },
     ]
   },
   {
     section: 4,
     questions: [
-      { q: "What does Cron do in the 80m stack?", options: ["Sends emails", "Runs scheduled commands automatically — like a task scheduler for your server", "Manages Docker containers", "Compiles code"], correct: 1, explanation: "Cron is a Linux/macOS built-in scheduler. It runs commands at defined times — 7am brief, 4:30pm follow-up digest, weekly docker-compose pull. The 80m stack uses cron to move your business forward 24/7 without you being there." },
-      { q: "What is a cron expression and what does '0 7 * * 1-5' mean?", options: ["It means 'run every minute'", "It means 'at 7:00am, Monday through Friday' — the 5 fields are: minute hour day month weekday", "It means 'run once a year'", "It means 'never run'"], correct: 1, explanation: "Cron uses 5 fields: minute(0-59) hour(0-23) day(1-31) month(1-12) weekday(0-6, 0=Sun). '0 7 * * 1-5' = at 7:00am every weekday. '0,30 9 * * *' = at 9:00 and 9:30 every day." },
-      { q: "What does 'HEARTBEAT' do in the 80m context?", options: ["Plays music", "A scheduled daily check-in where your AI reviews tasks, flags blockers, and primes itself for the day ahead", "Sends emails", "Manages your calendar"], correct: 1, explanation: "The HEARTBEAT is your AI's daily morning ritual — at 7am it wakes up, reviews your task list, checks your calendar, and gives you a prioritized briefing: what to do today, what's blocked, what's waiting on others." },
+      { q: "What is memory in the 80M context?", options: ["A type of clothing", "Saved context that lets Hermes remember your brand, rules, preferences, and past decisions across sessions", "A code library", "A type of image file"], correct: 1, explanation: "Memory stores the useful context Hermes should not have to relearn every session: who you are, what you do, what tone you prefer, and what rules should not be broken." },
+      { q: "What should a memory prompt include first?", options: ["Random jokes", "Name, timezone, business, current goal, preferred tone, and hard rule", "Only a logo", "Only a password"], correct: 1, explanation: "The first memory pass should make Hermes useful right away: who you are, what you do, where you are, what matters, and what not to do." },
+      { q: "What should Hermes do after saving memory?", options: ["Ignore the student", "Repeat what it saved so the student can correct it", "Delete old chats", "Send an email"], correct: 1, explanation: "A confirmation lets students catch wrong assumptions early." },
     ]
   },
   {
     section: 5,
     questions: [
-      { q: "What does voice hacking mean in the 80m curriculum?", options: ["Breaking into voice servers", "Using voice-to-text so you can dictate commands to your AI instead of typing", "Recording audio", "Transcribing meetings"], correct: 1, explanation: "Voice hacking is using tools like Wispr Flow to dictate prompts instead of typing. You speak naturally, it converts to text and copies to clipboard, and your AI agent executes. 'Run a full audit of my inbox and flag anything urgent.' Done." },
-      { q: "What does AGENTS.md do?", options: ["It's a to-do list", "It's a configuration file that defines your agent's mission, output format, tools, and 'never do' rules — the AI reads this before every task", "It's an email template", "It's a backup file"], correct: 1, explanation: "AGENTS.md is the agent's constitution — it tells the AI: who it is, how to behave, what tools it has access to, output format rules, and explicit 'never do' restrictions. Without it, every task gets the generic AI treatment." },
-      { q: "What is the 'Bossy Prompt Formula'?", options: ["Being rude to the AI", "Background + Task + Constraints + Output Format — gives the AI no room to improvise, only to execute", "Using all caps", "Writing one-word prompts"], correct: 1, explanation: "The Bossy Prompt Formula is: 'Here's the context, here's exactly what to do, here are the rules, here's how to format the output.' You command, it executes. No wiggle room, no suggestions — just the product." },
+      { q: "What is the safest beginner version of a reasoning prompt?", options: ["Ask for hidden chain of thought", "Ask Hermes for a short visible plan, final answer, and self-check", "Ask for a random guess", "Tell Hermes to answer faster"], correct: 1, explanation: "For students, the practical pattern is Plan, Answer, Check: a short visible plan, a clean final answer, and a self-check against rules. That improves reliability without asking for hidden model reasoning." },
+      { q: "Why does the self-check step matter?", options: ["It makes the answer longer for no reason", "It forces Hermes to compare the answer against your rules before you act", "It changes your API key", "It replaces memory"], correct: 1, explanation: "The self-check step catches boundary problems, missing constraints, and risky actions before the student trusts or uses the output." },
+      { q: "What is the Firm Prompt Formula?", options: ["Being rude to the AI", "Role, context, task, rules, and output", "Using all caps", "Writing one-word prompts"], correct: 1, explanation: "Firm prompting means clear instructions, not rude language: role, context, task, rules, and output." },
     ]
   },
 ];
@@ -2480,9 +3414,9 @@ const quizData = [
   {
     section: 2,
     questions: [
-      { q: "What does Nginx do at your server's front door?", options: ["Sends emails", "Checks credentials before letting users through", "Stores files", "Runs Python scripts"], correct: 1, explanation: "Nginx is the bouncer — it sits in front of your server and checks every incoming request. 'Who are you? Are you allowed to be here?' It stops hackers and routes legitimate users to your AI." },
-      { q: "What port does HTTP traffic typically use?", options: ["22", "443", "80", "3000"], correct: 2, explanation: "Port 80 is the default for unencrypted HTTP traffic. Port 443 is for encrypted HTTPS. Port 22 is for SSH. Port 3000 is a common dev server port — not for production." },
-      { q: "What does 'proxy_pass' do in an Nginx config?", options: ["Sends email", "Forwards requests to your AI backend", "Blocks all traffic", "Restarts the server"], correct: 1, explanation: "proxy_pass tells Nginx to forward requests that it receives to another server — your AI backend running on localhost:8080, for example. This is how the bouncer hands off to the actual service." },
+      { q: "What is the plain-English job of Nginx in this course?", options: ["It writes social posts", "It acts like a front desk that sends web visitors to the right app", "It stores passwords", "It replaces Hermes"], correct: 1, explanation: "Nginx is the front desk. It receives website traffic and routes it to the app behind the scenes. Beginners do not need to write the config from scratch; they need to know what it does and when to ask for review." },
+      { q: "What should a student do before changing a live Nginx setup?", options: ["Paste random config from the internet", "Ask Hermes/support to review the domain, app address, certificate, and rollback plan", "Turn off HTTPS", "Delete old notes"], correct: 1, explanation: "A live front-door config can break access fast. The safe habit is: make a draft, review it, back up the old version, then change one thing at a time." },
+      { q: "What is the Nginx Config Builder for?", options: ["A reviewed support draft", "A magic one-click production fix", "A billing tool", "A TikTok scheduler"], correct: 0, explanation: "The builder creates a draft for Hermes or support to inspect. It is not permission to paste unverified server settings into production." },
     ]
   },
   {
@@ -2497,40 +3431,40 @@ const quizData = [
     section: 4,
     questions: [
       { q: "What does the green padlock in a browser URL bar mean?", options: ["The website is fast", "Traffic between you and the site is encrypted", "The website is government approved", "The website has no ads"], correct: 1, explanation: "The padlock means SSL/TLS encryption is active — all data between your browser and the website is scrambled and can't be read by hackers on the same WiFi, your ISP, or anyone in between." },
-      { q: "Who provides the free SSL certificates that Certbot uses?", options: ["Google", "Amazon", "Let's Encrypt", "Microsoft"], correct: 2, explanation: "Let's Encrypt is a non-profit certificate authority that issues free SSL certificates. Certbot is the tool that obtains and installs these certificates on your Nginx server automatically." },
-      { q: "What's the correct Certbot command for Nginx?", options: ["certbot install", "certbot run", "certbot nginx", "certbot start"], correct: 2, explanation: "certbot nginx — the 'nginx' subcommand tells Certbot to use the Nginx plugin, which automatically configures your Nginx site configuration. That's the whole point: you don't edit files manually." },
+      { q: "What should students verify about HTTPS?", options: ["That the padlock appears and someone knows who renews the certificate", "That the logo is bigger", "That every page has animations", "That the password is shorter"], correct: 0, explanation: "HTTPS is not just a one-time checkbox. The student should confirm the padlock works, there are no browser warnings, and Cloudflare, the host, or support knows who renews the certificate." },
+      { q: "What is the beginner-safe Certbot rule?", options: ["Run certificate commands from memory", "Use Certbot only when the setup actually needs it and Hermes/support confirms the steps", "Ignore browser warnings", "Publish without HTTPS"], correct: 1, explanation: "Certbot can manage HTTPS certificates for some server setups, but beginners should not guess commands on a live server. Ask for a reviewed checklist first." },
     ]
   },
   {
     section: 5,
     questions: [
       { q: "What's the main advantage of a Cloudflare Tunnel?", options: ["Makes server faster", "No router port forwarding needed", "Replaces Nginx", "Free hosting"], correct: 1, explanation: "Cloudflare Tunnel (formerly Argo Tunnel) creates an outbound connection from your server to Cloudflare — no incoming ports need to be opened on your router. The world reaches your server through Cloudflare instead of directly." },
-      { q: "What does 'cloudflared' do?", options: ["Hosts a website", "Creates an encrypted tunnel from your server to Cloudflare", "Manages DNS only", "Blocks DDoS attacks"], correct: 1, explanation: "cloudflared is the daemon that runs on your server and maintains the persistent tunnel connection to Cloudflare. It 'phones home' and keeps the tunnel open so Cloudflare can route traffic to you." },
-      { q: "What is your server's public IP?", options: ["192.168.x.x addresses", "10.x.x.x addresses", "The IP your ISP gives you that the world sees", "Always 1.1.1.1"], correct: 2, explanation: "192.168.x.x and 10.x.x.x are private IP ranges — used inside your network. Your public IP is what the internet sees. It's assigned by your ISP and changes (unless you pay for a static one). Check it at whatismyip.com." },
+      { q: "What is the connector's job in a tunnel setup?", options: ["Keep a secure bridge open from your app/server to Cloudflare", "Write invoices", "Delete logs", "Choose a logo"], correct: 0, explanation: "The small connector keeps the bridge alive so approved traffic can reach your app without opening your router directly to the world." },
+      { q: "What should you protect when using a temporary tunnel link?", options: ["Admin screens, private data, and anything client-facing", "Only the color palette", "Nothing, tunnel links are always private", "Only images"], correct: 0, explanation: "A tunnel can make a local app reachable. Share links only with the right people, protect admin screens, and never treat a temporary URL as automatically private." },
     ]
   },
   {
     section: 6,
     questions: [
-      { q: "Where do you find Nginx access logs?", options: ["/var/log/nginx/access.log", "/etc/nginx/logs", "/root/logs", "/var/www/logs"], correct: 0, explanation: "Ubuntu/Debian puts Nginx logs in /var/log/nginx/ by default — access.log for every request, error.log for crashes and misconfigurations. This is the first place to look when debugging." },
-      { q: "What does a 404 status code mean?", options: ["Server error", "Page not found", "Access denied", "Success"], correct: 1, explanation: "404 = Not Found. The URL doesn't exist on your server. 200 = success, 403 = forbidden (blocked), 500 = server error. Check your Nginx logs to see which URLs are returning 404s — it might mean a misconfigured proxy rule." },
-      { q: "Why should you check your server logs regularly?", options: ["To slow down your server", "To spot hacker attempts early", "To increase traffic", "Logs aren't important"], correct: 1, explanation: "Every hack attempt leaves a log entry. If you see thousands of requests for /wp-admin or /phpmyadmin from random IPs — those are bots scanning your server. Regular log checks catch intrusions before they succeed." },
+      { q: "What are logs in plain English?", options: ["Receipts for visits, blocked requests, missing pages, and errors", "A design gallery", "A payment method", "A model setting"], correct: 0, explanation: "Logs are the receipt book. They help Hermes or support see what happened instead of guessing." },
+      { q: "What should a student copy into Hermes when something looks wrong?", options: ["The exact warning or log lines, with private keys removed", "Their API key", "A screenshot of unrelated settings", "Nothing"], correct: 0, explanation: "The safest support habit is to copy the exact warning or log lines, remove secrets, and ask Hermes for a plain-English summary and next step." },
+      { q: "Why check logs regularly?", options: ["To spot repeated failed access, broken pages, or unusual traffic early", "To slow the server down", "To make the page prettier", "Logs are not useful"], correct: 0, explanation: "You do not need to understand every code. You need to notice patterns: repeated admin attempts, missing pages, or sudden error spikes." },
     ]
   },
   {
     section: 7,
     questions: [
-      { q: "What does Docker Compose let you do?", options: ["Send emails", "Run multiple containers as a single application", "Browse the web", "Edit photos"], correct: 1, explanation: "Docker Compose runs multiple Docker containers together as one application. Your AI stack might need: the AI model container, a database container, a web server container — Compose starts them all with one command." },
-      { q: "What is a Dockerfile?", options: ["A text message", "Instructions for building a Docker image", "A server config file", "A database"], correct: 1, explanation: "A Dockerfile is a recipe — it tells Docker exactly how to build your container image: which base OS, which dependencies to install, which files to copy in, which port to expose. Without it, Docker doesn't know what to run." },
-      { q: "When should you scale horizontally?", options: ["Never", "When one bot cannot keep up with the workload", "Only on Fridays", "When the server is slow"], correct: 1, explanation: "Horizontal scaling = adding more copies of your bot to handle more work. Scale when one instance is maxed out (CPU at 100%, requests queuing up). Vertical scaling = bigger machine. Horizontal = more machines." },
+      { q: "What does scaling mean for a non-coder?", options: ["Buying random tools", "Splitting a proven workflow into repeatable lanes with review gates", "Deleting logs", "Skipping approvals"], correct: 1, explanation: "Scaling means the workflow is clear enough to repeat: gather, summarize, quality-check, and deliver. Hermes can help divide lanes, but humans approve the client-facing result." },
+      { q: "When should you scale a workflow?", options: ["Before it works once", "After one simple version works and the workload is too big for one lane", "Only on Fridays", "When you are bored"], correct: 1, explanation: "Do one useful version first. Then split work into smaller repeatable lanes when volume or deadlines demand it." },
+      { q: "What is the biggest scaling mistake?", options: ["Reviewing outputs", "Automating public/client actions before rules and approval gates are clear", "Documenting the workflow", "Starting small"], correct: 1, explanation: "Never scale confusion. Write rules, test small, add review gates, and only then repeat the workflow." },
     ]
   },
   {
     section: 8,
     questions: [
-      { q: "What does UFW stand for?", options: ["Universal File Upload", "Uncomplicated Firewall", "Ultra Fast Network", "User Folder Access"], correct: 1, explanation: "UFW (Uncomplicated Firewall) is Ubuntu's default firewall. It's just iptables made simple — 'ufw allow 22', 'ufw deny 80' — without having to write complex iptables rules by hand." },
-      { q: "What does 'ufw default deny' do?", options: ["Opens all ports", "Blocks all incoming traffic by default", "Disables the firewall", "Restarts the server"], correct: 1, explanation: "ufw default deny incoming means your server starts with all doors locked. You then explicitly open only the ports you need (22 for SSH, 443 for HTTPS). Default-deny is the security paranoid approach — nothing意外 gets in." },
-      { q: "What port does SSH typically use?", options: ["80", "443", "22", "8080"], correct: 2, explanation: "SSH uses port 22 by default — this is how you connect to your server's terminal remotely. If you change this to a non-standard port (like 2222), it's harder for bots to find — though not a real security fix on its own." },
+      { q: "What is the firewall's plain-English job?", options: ["Lock every door except the ones your real service needs", "Design the website", "Write captions", "Replace HTTPS"], correct: 0, explanation: "The firewall is the door-lock layer. Allow only the traffic your setup truly needs and keep admin access limited." },
+      { q: "What is the safest default firewall mindset?", options: ["Start closed, then open only approved doors", "Open everything so testing is easy", "Turn it off after launch", "Let every app choose its own rules"], correct: 0, explanation: "Beginner-safe security starts closed. Then Hermes/support helps confirm which doors are required for HTTPS and approved admin access." },
+      { q: "When should a non-coder change firewall rules?", options: ["Only with a clear support-guided plan and rollback path", "Whenever a random tutorial says so", "After guessing port numbers", "Never document changes"], correct: 0, explanation: "Firewall mistakes can lock you out or expose private services. Change one rule at a time with guidance, notes, and a way back." },
     ]
   },
 ];
@@ -2634,13 +3568,97 @@ const CourseThreeContent = ({ onClose }) => {
     setFwOutput(`ufw ${fwType} ${fwPort}${protoStr}${commentStr}`);
   };
 
+  const c3PlainEnglishMap = [
+    { term: 'Domain', plain: 'The name people type, like app.yourbrand.com.', studentAction: 'Buy it or log in where it is already registered.' },
+    { term: 'DNS', plain: 'The address book that points the name to the right place.', studentAction: 'Create or check A, CNAME, and TXT records.' },
+    { term: 'Cloudflare Tunnel', plain: 'A secure bridge from the internet to your computer or server.', studentAction: 'Install cloudflared or use the dashboard connector flow.' },
+    { term: 'HTTPS', plain: 'The browser padlock that encrypts traffic.', studentAction: 'Use Cloudflare or Certbot so visitors do not see warnings.' },
+    { term: 'Firewall', plain: 'The lock that decides what traffic is allowed in.', studentAction: 'Allow only the ports you actually need.' },
+    { term: 'Logs', plain: 'The receipt book for every request.', studentAction: 'Ask Hermes to summarize suspicious patterns.' }
+  ];
+
+  const c3LinuxSurvivalTree = [
+    { branch: 'Where am I?', terms: 'pwd, ls, cd, path, home folder', plain: 'Use this when support needs to know which folder or machine you are looking at.' },
+    { branch: 'What is running?', terms: 'process, service, systemd, status, restart', plain: 'Use this when Hermes, Nginx, cloudflared, or another helper may be asleep or broken.' },
+    { branch: 'Can people reach it?', terms: 'port, firewall, DNS, tunnel, HTTPS', plain: 'Use this when a browser cannot open the app or visitors see a warning.' },
+    { branch: 'What changed?', terms: 'logs, config, backup, rollback, timestamp', plain: 'Use this when something worked yesterday and fails today.' },
+    { branch: 'Is it safe?', terms: 'private key, permission, sudo, public IP, admin route', plain: 'Use this before exposing anything outside the machine.' }
+  ];
+
+  const c3LinuxTermBlocks = [
+    { term: 'pwd', def: 'Print working directory. In plain English: show me what folder the terminal is currently inside.' },
+    { term: 'ls', def: 'List files. In plain English: show me what is inside this folder.' },
+    { term: 'cd', def: 'Change directory. In plain English: move the terminal into another folder.' },
+    { term: 'sudo', def: 'Run as administrator. Use only when support or Hermes explains why admin power is needed.' },
+    { term: 'apt', def: 'Ubuntu package installer. In plain English: install or update approved server software.' },
+    { term: 'systemd', def: 'Linux service manager. It starts, stops, and checks background services.' },
+    { term: 'SSH', def: 'Secure remote login for servers. Beginners should use it only with support guidance.' },
+    { term: 'public IP', def: 'The internet-facing address for a server. Treat it like a front-door address, not a password.' }
+  ];
+
+  const c3ResourceLinks = [
+    { label: 'Cloudflare Dashboard', href: 'https://dash.cloudflare.com/', note: 'Manage DNS, domains, tunnels, access rules, and analytics.' },
+    { label: 'Cloudflare Tunnel Docs', href: 'https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/', note: 'Official tunnel overview. Key idea: outbound connection, no inbound port opening.' },
+    { label: 'cloudflared Downloads', href: 'https://developers.cloudflare.com/tunnel/downloads/', note: 'Install the lightweight connector that keeps the tunnel alive.' },
+    { label: 'Cloudflare DNS Records', href: 'https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/', note: 'Official dashboard steps for creating A, CNAME, and TXT records.' },
+    { label: 'Certbot Instructions', href: 'https://certbot.eff.org/', note: 'Official SSL certificate instructions for Nginx, Apache, and common servers.' },
+    { label: 'Nginx Docs', href: 'https://nginx.org/en/docs/', note: 'Official reference for reverse proxy behavior and configuration.' },
+    { label: 'Ubuntu Firewall Docs', href: 'https://ubuntu.com/server/docs/how-to/security/firewalls/', note: 'Official Ubuntu explanation of UFW and server firewall basics.' },
+    { label: 'Ubuntu Command Line for Beginners', href: 'https://ubuntu.com/tutorials/command-line-for-beginners', note: 'Official beginner reference for terminal, folders, paths, and basic commands.' },
+    { label: 'Ubuntu OpenSSH Server Docs', href: 'https://ubuntu.com/server/docs/how-to/security/openssh-server/', note: 'Official SSH server reference for support-guided remote access.' },
+    { label: 'Ubuntu Server Docs', href: 'https://ubuntu.com/server/docs/', note: 'Official server docs for Linux concepts, services, networking, and security.' },
+    { label: 'Namecheap Domain Search', href: 'https://www.namecheap.com/domains/', note: 'Beginner-friendly domain purchase option.' }
+  ];
+
+  const c3TutorialLinks = [
+    { label: 'DNS Records Explained', href: 'https://www.youtube.com/watch?v=HnUDtycXSNE', note: 'Animated DNS record explainer for students who need visuals first.' },
+    { label: 'DNS in 100 Seconds', href: 'https://www.youtube.com/watch?v=UVR9lhUGAyU', note: 'Fast mental model before touching DNS settings.' },
+    { label: 'Cloudflare Tunnel Tutorial', href: 'https://www.youtube.com/watch?v=ZvIdFs3M5ic', note: 'Longer beginner walkthrough for Cloudflare Tunnel.' },
+    { label: 'Cloudflare Tunnel Homelab', href: 'https://www.youtube.com/watch?v=wyKkeb3w5lI', note: 'Shorter tunnel setup overview.' },
+    { label: 'Nginx + LetsEncrypt', href: 'https://www.youtube.com/watch?v=DyXl4c2XN-o', note: 'Reverse proxy plus certificate walkthrough.' },
+    { label: 'NGINX SSL Setup', href: 'https://www.youtube.com/watch?v=X3Pr5VATOyA', note: 'Official NGINX video for SSL basics.' },
+    { label: 'UFW Firewall Rules', href: 'https://www.youtube.com/watch?v=XtRXm4FFK7Q', note: 'Firewall rule concepts for Ubuntu servers.' },
+    { label: 'UFW Quick Server Security', href: 'https://www.youtube.com/watch?v=68GTL7djIMI', note: 'Short practical UFW setup reference.' }
+  ];
+
+  const c3HermesPrompts = [
+    'Hermes, explain my infrastructure in plain English: domain, DNS, tunnel, HTTPS, firewall, and logs. Then tell me the one safest next step.',
+    'Hermes, audit this DNS setup. I will paste records below. Tell me what each record does, what looks risky, and what to verify before changing anything.',
+    'Hermes, create a Cloudflare Tunnel setup checklist for a non-coder. Include what I should click, what I should copy, and what I should not expose publicly.',
+    'Hermes, review these firewall rules. Tell me which ports are necessary, which are risky, and what I should ask support before changing.',
+    'Hermes, translate this Linux error into plain English. Tell me what probably happened, what not to touch, and the safest next command or click.',
+    'Hermes, make a backup-and-rollback plan before I change this server setting. Explain how I can undo the change if it breaks.'
+  ];
+
+  const c3CompletionOutcomes = [
+    'Explain domain, DNS, tunnel, HTTPS, firewall, log, and port without pretending to be a network engineer.',
+    'Use a DNS record builder and understand A, CNAME, TXT, and destination values.',
+    'Recognize why Cloudflare Tunnel is safer than random port forwarding for many beginner setups.',
+    'Ask Hermes for backup, rollback, and risk checks before changing server settings.',
+    'Sort Linux terms into the right support bucket: folder, service, reachability, change, or safety.'
+  ];
+
+  const c3CompletionDrills = [
+    'Build one fake DNS record and explain what each field means.',
+    'Run the simulated port scan and identify which open ports deserve review.',
+    'Paste one infrastructure warning into Hermes and ask for a plain-English explanation.',
+    'Write a rollback plan before changing a tunnel, firewall, or DNS setting.'
+  ];
+
+  const c3CompletionProof = [
+    'A domain or planned domain is documented.',
+    'The current access path is written down: local address, tunnel, proxy, and public hostname.',
+    'Firewall intent is clear: which ports are allowed and why.',
+    'Hermes has an infrastructure memory note with safety rules.'
+  ];
+
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
           <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 03</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Own the Infrastructure</h2>
+          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Safe Remote Access</h2>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -2686,33 +3704,83 @@ const CourseThreeContent = ({ onClose }) => {
         <div id="c3-intro" className="mb-24">
           <NeedBox
             items={[
-              "A registered domain name (you can buy one today for ~$10/yr).",
-              "A server (Mini PC, VPS, or a computer you don't need).",
-              "Cloudflare account (free tier is fine).",
-              "Docker running from Class 01.",
-              "SSH access to your server (your terminal, again)."
+              "A domain name or a plan to buy one.",
+              "Cloudflare account access.",
+              "80M Agent Desktop open so Hermes can guide the setup.",
+              "A server, mini PC, or hosted machine you want to expose safely.",
+              "A hard rule: do not open random ports because a tutorial says so."
             ]}
           />
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
-            Total <br/><span className="italic text-[#22c55e]">Ownership.</span>
+            Safe <br/><span className="italic text-[#22c55e]">Access.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
-            No rent. No locks. Just a fortress you built.
+          <p className="font-serif text-xl md:text-2xl text-[#333] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+            Class 03 is how a private local app becomes reachable without turning your computer into an open door. The student goal is not to become a network engineer. The goal is to know what each layer does and what to ask Hermes before changing it.
           </p>
           <div className="text-center">
             <p className="font-serif text-sm text-[#555] mt-3">
               Keep it simple: lock in DNS, SSL, and firewall first. Scale only after the basics are stable.
             </p>
           </div>
-          <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Plain-English infrastructure map</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">What each layer means before you touch anything</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c3PlainEnglishMap.map((item) => (
+                <div key={item.term} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.term}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.plain}</p>
+                  <p className="font-mono text-[11px] text-[#555] mt-3 uppercase tracking-wider">Student action: {item.studentAction}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Linux support tree</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">When support says a Linux word, put it in one of these buckets</h3>
+            <div className="space-y-3">
+              {c3LinuxSurvivalTree.map((item) => (
+                <div key={item.branch} className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr_1.5fr] gap-3 border-[2px] border-[#111] bg-white p-4">
+                  <p className="font-sans font-black uppercase text-sm text-[#111]">{item.branch}</p>
+                  <p className="font-mono text-[11px] uppercase tracking-wider text-[#22c55e]">{item.terms}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.plain}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Commands are vocabulary first</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Do not memorize these. Recognize what they mean.</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c3LinuxTermBlocks.map((item) => (
+                <div key={item.term} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                  <p className="font-mono text-[#22c55e] font-black text-sm mb-2">{item.term}</p>
+                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.def}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e]">
+            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Ask Hermes before changing infra</p>
+            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Copy one prompt before you click scary buttons</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {c3HermesPrompts.map((prompt, idx) => (
+                <div key={prompt} className="border-[2px] border-[#333] bg-[#171717] p-4">
+                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">Prompt {idx + 1}</p>
+                  <CopyBlock text={prompt} label="Copy Infra Prompt" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
             <h3 className="font-sans font-black uppercase text-sm mb-3">Infrastructure Quick Checklist</h3>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 font-serif text-[#aaa] text-sm">
-              <li>✅ Domain points to your server IP.</li>
-              <li>✅ Nginx reverse proxy responds locally.</li>
-              <li>✅ SSL cert issues cleanly with Certbot.</li>
-              <li>✅ Cloudflare Tunnel routes to app.</li>
-              <li>✅ Firewall only exposes 22 + 443.</li>
-              <li>✅ Logs show legit traffic and blocked attacks.</li>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 font-serif text-[#333] text-sm">
+              <li>✓ Domain points to the correct destination.</li>
+              <li>✓ Cloudflare Tunnel or proxy path is documented.</li>
+              <li>✓ HTTPS works without browser warnings.</li>
+              <li>✓ Firewall exposes only required ports.</li>
+              <li>✓ Logs are easy to find and summarize.</li>
+              <li>✓ Hermes has an infrastructure note saved to memory.</li>
             </ul>
           </div>
           <CourseBoostPanel
@@ -2725,8 +3793,15 @@ const CourseThreeContent = ({ onClose }) => {
             ]}
             prompts={[
               "\"Review my Nginx and firewall setup and list top 5 security risks in priority order.\"",
-              "\"Generate a weekly infrastructure maintenance checklist with exact shell commands.\""
+              "\"Generate a weekly infrastructure maintenance checklist. Explain every command before I run it.\""
             ]}
+          />
+          <StudentCompletionKit
+            eyebrow="Class 03 final standard"
+            title="The student can ask safe infrastructure questions before touching settings"
+            outcomes={c3CompletionOutcomes}
+            drills={c3CompletionDrills}
+            proof={c3CompletionProof}
           />
           <ResourceList
             title="Jump Links"
@@ -2744,9 +3819,9 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A domain name purchased (Namecheap, Cloudflare, Google Domains).",
-              "The ability to click 'DNS Settings' in your registrar.",
-              "Your server's public IP address (your hosting provider will give you this)."
+              "A domain name purchased or ready to buy.",
+              "The ability to click DNS Settings in your domain dashboard.",
+	              "Either your server's public IP address or a Cloudflare Tunnel target, depending on your setup."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. DNS: Your AI's Home Address</h2>
@@ -2763,9 +3838,9 @@ const CourseThreeContent = ({ onClose }) => {
             <div className="mt-6 border-t border-[#333] pt-4">
               <p className="font-mono text-xs text-[#aaa] mb-2">// If DNS fails</p>
               <ul className="font-serif text-sm text-[#bbb] space-y-1">
-                <li>1) Confirm A record points to public IP (not 192.168.x.x).</li>
-                <li>2) Lower TTL to 120 during setup.</li>
-                <li>3) Test with `dig yourdomain.com` before blaming Nginx.</li>
+	                <li>1) Confirm the record points to the destination your provider or support gave you.</li>
+	                <li>2) Keep TTL low during setup so changes refresh faster.</li>
+	                <li>3) Ask Hermes to verify the DNS record before changing the front-door server settings.</li>
               </ul>
             </div>
           
@@ -2782,7 +3857,7 @@ const CourseThreeContent = ({ onClose }) => {
           <div className="mt-8 border-[3px] border-[#22c55e] bg-[#111] p-6 shadow-[6px_6px_0_0_#22c55e]">
             <h3 className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-4">// Live Port Scanner Simulator</h3>
             <p className="font-serif text-[#aaa] text-sm mb-4">Enter an IP address. Watch the scan find open ports. (This is a visual simulation using example IPs.)</p>
-            <div className="flex gap-4 mb-6">
+	            <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <input
                 type="text"
                 placeholder="35.186.240.50"
@@ -2790,7 +3865,7 @@ const CourseThreeContent = ({ onClose }) => {
                 onChange={(e) => setScanIP(e.target.value)}
                 className="flex-1 bg-[#1a1a1a] border-2 border-[#333] text-[#22c55e] font-mono px-4 py-3"
               />
-              <button onClick={runPortScan} className="font-sans font-black uppercase text-sm px-6 py-3 bg-[#22c55e] text-[#111] hover:bg-[#4ade80] transition-colors">Scan</button>
+	              <button onClick={runPortScan} className="font-sans font-black uppercase text-sm px-6 py-3 bg-[#22c55e] text-[#111] hover:bg-[#4ade80] transition-colors w-full sm:w-auto">Scan</button>
             </div>
             <div className="font-mono text-xs text-[#aaa] space-y-1">
               {scanResults.map((item, idx) => {
@@ -2848,14 +3923,14 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "SSH access to your server (terminal, again).",
+	              "A support-guided server login, or someone technical helping you.",
               "Your domain already pointed at your server IP.",
-              "The IP address of your running Docker container."
+	              "The local app address support gave you, usually something like http://localhost:3000."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Nginx: The Bouncer</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Nginx: The Front Desk</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            <GlossaryTooltip term="Nginx" definition="Reverse proxy handling and routing incoming web requests" href="#c3-dictionary" /> sits at the front door of your server. It checks every request before it reaches your AI. "Who are you? Are you allowed to be here?" It's what stops hackers and lets legitimate users through.
+	            <GlossaryTooltip term="Nginx" definition="A front-door routing service for web requests" href="#c3-dictionary" /> sits at the front door of your server. In plain English, it receives website traffic and forwards the right request to the right app. Students do not need to write config from scratch; they need to know what it does and ask Hermes/support to review any change before it goes live.
           </p>
           <div className="bg-[#111] p-8 text-[#eae7de] border-[3px] border-[#333] font-mono text-sm space-y-2">
             <p className="text-[#aaa]"># nginx.conf (simplified)</p>
@@ -2883,7 +3958,10 @@ const CourseThreeContent = ({ onClose }) => {
 
           {/* Nginx Config Builder */}
           <div className="mt-8 border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111]">
-            <h3 className="font-sans font-black uppercase text-sm mb-4">// Nginx Config Builder</h3>
+	            <h3 className="font-sans font-black uppercase text-sm mb-4">// Advanced Support Draft: Nginx Config Builder</h3>
+	            <p className="font-serif text-sm text-[#555] leading-relaxed mb-4">
+	              This creates a draft for Hermes or support to review. Do not paste generated server config into production until someone verifies the domain, app address, certificate path, and rollback plan.
+	            </p>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -2977,19 +4055,19 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Nginx installed (Section 2).",
-              "Your domain pointing at your server.",
-              "Certbot installed: `sudo apt install certbot python3-certbot-nginx`."
+	              "Your domain or tunnel route working.",
+	              "A browser showing the site you want protected.",
+	              "Hermes or support ready to confirm whether Cloudflare, Certbot, or your host manages HTTPS."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. The "Green Lock" (SSL/HTTPS)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            If your website address doesn't start with <code className="text-[#22c55e] font-mono">https://</code>, you are an easy target. We use **Certbot** to get a free certificate from Let's Encrypt.
+	            If your website address does not start with <code className="text-[#22c55e] font-mono">https://</code>, browsers may warn visitors and private data may travel unprotected. HTTPS is the padlock. Depending on your setup, Cloudflare, your host, or Certbot can manage it.
           </p>
           <div className="bg-white border-[3px] border-[#111] p-8">
             <h4 className="font-sans font-black uppercase text-sm mb-4">The HTTPS Handshake:</h4>
             <p className="font-serif text-lg leading-relaxed text-[#aaa]">
-              Normally, your password travels over the internet in plain text. Anyone at the Starbucks Wi-Fi can see it. SSL encrypts it into a mess of random gibberish that only your server can unlock. We automate this renewal so it never expires.
+	              HTTPS scrambles traffic between the visitor and the service so people on the same network cannot read it. The beginner action is simple: confirm the padlock appears, confirm there are no browser warnings, and ask Hermes to explain who renews the certificate.
             </p>
           </div>
         </div>
@@ -3009,19 +4087,20 @@ const CourseThreeContent = ({ onClose }) => {
             title="What you need before you start"
             items={[
               "Cloudflare account with your domain added (free).",
-              "Cloudflared installed on your server.",
-              "No router access needed. That's the point."
+	              "Cloudflare access for the domain.",
+	              "A local app address or server address support wants to expose safely.",
+	              "A rule: no router port forwarding unless support explicitly approves it."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. The Secret Tunnel (Cloudflare Tunnel)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Your server is behind a router at home. The world can't reach it. The Cloudflare Tunnel punches a hole through that router and says "connect this computer to the internet" — without opening any ports.
+	            A Cloudflare Tunnel is a safer bridge from the internet to your local app or server. Instead of opening your router to the world, the connector makes an outbound connection to Cloudflare and Cloudflare routes approved traffic back through it.
           </p>
           <div className="bg-[#111] text-[#eae7de] p-8 border-[3px] border-[#22c55e] shadow-[8px_8px_0_0_#22c55e]">
             <p className="font-mono text-xs text-[#aaa] mb-4"># One command. No router config. No port forwarding.</p>
             <p className="font-mono text-[#22c55e]">cloudflared tunnel --url http://localhost:3000</p>
             <p className="font-mono text-xs text-[#555] mt-4">// Output: Try cloudflared-tunnel.trycloudflare.com</p>
-            <p className="font-mono text-xs text-[#555]">// Share this URL. It routes straight to your local server.</p>
+	            <p className="font-mono text-xs text-[#555]">// Share only with people who should access the app. Protect admin screens.</p>
           </div>
         </div>
           <div className="mt-8 mb-4 text-center">
@@ -3039,13 +4118,14 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Nginx running from Section 2.",
-              "A browser open. That's it."
+	              "The access path working: domain, tunnel, or local address.",
+	              "A browser open.",
+	              "Hermes ready to summarize scary-looking log lines."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. Monitoring the Bouncer</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            How do you know if someone is trying to break in? You check the **Nginx Logs**. We've added a dashboard so you can see every knock at the door.
+	            Logs are the receipt book. They show visits, blocked requests, missing pages, and errors. Students do not need to memorize log codes; they need to know where logs live and how to ask Hermes for a summary.
           </p>
           <MacWindow title="access.log" contentClass="bg-[#111] p-6 h-64 overflow-y-auto font-mono text-[10px] text-[#22c55e]">
             <button onClick={() => setLogView(!logView)} className="mb-4 bg-[#22c55e] text-[#111] px-2 py-1 uppercase font-bold">Refresh Logs</button>
@@ -3078,19 +4158,19 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "Docker Compose running from Class 01.",
-              "Your Dockerfile ready.",
-              "A task that can be split into chunks (research, data entry, outreach)."
+	              "One workflow that already works for one user.",
+	              "A task that can be split into chunks: research, data entry, QA, outreach drafting, or reporting.",
+	              "A clear approval step before results go to clients or customers."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. Scaling: From Bot to Factory</h2>
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. Scaling: From One Helper to a Team</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            What happens when your one bot is so busy it can't keep up? You **Containerize**.
+	            What happens when one assistant lane cannot keep up? You split the work into lanes, run smaller batches, and review outputs before they become client-facing.
           </p>
           <div className="bg-[#22c55e] p-8 md:p-12 border-[4px] border-[#111] shadow-[12px_12px_0_0_#111]">
             <h3 className="font-sans font-black text-2xl uppercase mb-4 text-[#111]">The "Spin Up" Strategy:</h3>
             <p className="font-serif text-lg leading-relaxed mb-6 text-[#111]">
-              Because we use Docker, you can spin up 10 versions of your agent in seconds. If you're doing a massive research project for a client, you don't wait for one bot. You hire 10 digital interns, give them each a chunk of the work, and watch them finish it 10x faster. This is how small agencies outwork 100-person firms.
+	              Scaling is not magic. It means the workflow is clear enough to repeat: one lane gathers sources, one lane summarizes, one lane checks quality, and one lane prepares the final report. Hermes can help divide the work, but humans still set the rules and approve the result.
             </p>
           </div>
         </div>
@@ -3109,14 +4189,14 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "SSH access to your server.",
+	              "A support-guided server login, if this is a real server.",
               "Ubuntu or Debian (most common server OS).",
-              "Nothing else open. We're about to close everything."
+	              "A list of which services should be reachable: usually HTTPS, plus admin access for approved people only."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. The Firewall: Locking the Doors</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            UFW (Uncomplicated Firewall) is the lock on your server's doors. By default, everything is open. We lock it down so only the ports you need are accessible.
+	            UFW (Uncomplicated Firewall) is a common lock for Ubuntu servers. The goal is not to memorize commands. The goal is to know the safety rule: allow only the doors your real service needs, and keep admin access limited.
           </p>
           <MacWindow title="firewall.rules" contentClass="bg-[#111] p-6 font-mono text-sm text-[#eae7de]">
             <div className="space-y-3">
@@ -3184,9 +4264,9 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A server. Any server. Even an old laptop.",
+              "The plain-English map from the intro.",
               "Your domain name and login.",
-              "Coffee. This is the longest class."
+              "Patience. This is the most technical class."
             ]}
           />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. The Dumb‑Proof Dictionary</h2>
@@ -3197,16 +4277,22 @@ const CourseThreeContent = ({ onClose }) => {
             {[
               { term: "DNS", def: "The phone book of the internet. Maps names (ai.80m.ai) to numbers (35.186.240.50)." },
               { term: "SSL / HTTPS", def: "The padlock. Encrypts traffic so hackers can't read your data." },
-              { term: "Nginx", def: "The bouncer. Sits at the door and checks credentials before letting anyone in." },
+	              { term: "Nginx", def: "The front desk. Receives web traffic and forwards it to the right internal app." },
               { term: "Cloudflare Tunnel", def: "A secret tunnel through your router. No port forwarding required." },
-              { term: "Firewall (UFW)", def: "The locks on your doors. Default deny = paranoia mode." },
-              { term: "SSH", def: "How you talk to your server remotely. It's your server's intercom." },
-              { term: "Docker", def: "Already covered in Class 01. It's the shipping container for your AI." },
-              { term: "Certbot", def: "The thing that gets your SSL certificate for free. Auto-renews." }
+	              { term: "Firewall (UFW)", def: "The locks on your server doors. Allow only the doors your real service needs." },
+	              { term: "SSH", def: "A secure admin login for servers. Beginners should use it only with support guidance." },
+	              { term: "Docker", def: "Optional support vocabulary for sealed software boxes that keep helper services consistent." },
+	              { term: "Certbot", def: "A tool that can request and renew free HTTPS certificates when your setup needs it." },
+	              { term: "Port", def: "A numbered door for traffic. 443 usually means HTTPS web traffic. Random open ports are risk." },
+	              { term: "Service", def: "A background program that runs even when no window is open, such as Nginx or cloudflared." },
+	              { term: "systemd", def: "The common Linux service manager. It can show whether a service is running, failed, or restarting." },
+	              { term: "sudo", def: "Administrator power. Do not add it to commands unless Hermes or support explains why it is needed." },
+	              { term: "Root", def: "Can mean the top folder / or the administrator user. Ask which meaning applies before changing anything." },
+	              { term: "Rollback", def: "The undo plan. Before changing server settings, know how to restore the previous working version." }
             ].map((item, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111]">
                 <h4 className="font-sans font-black text-xl uppercase mb-2">{item.term}</h4>
-                <p className="font-serif text-[#aaa]">{item.def}</p>
+                <p className="font-serif text-[#333]">{item.def}</p>
               </div>
             ))}
           </div>
@@ -3218,58 +4304,62 @@ const CourseThreeContent = ({ onClose }) => {
           <NeedBox
             title="What you need before you start"
             items={[
-              "A server with SSH access.",
-              "Cloudflare account (free).",
-              "A domain name.",
-              "Docker running."
+              "Cloudflare account access.",
+              "Your domain registrar login.",
+              "Your server or mini PC reachable locally.",
+              "Hermes open so you can paste audit prompts before changing settings."
             ]}
           />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. Resource Locker</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. Resource Locker (Infrastructure)</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Class 03 is the most technical. Here are the exact tools, docs, and links you'll actually use.
+            Class 03 is the most technical, so the locker is split into official references, student tutorial videos, and copy/paste prompts for Hermes.
           </p>
           <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111]">
-            <ul className="space-y-4 font-serif text-lg">
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://www.cloudflare.com" target="_blank" rel="noreferrer">Cloudflare Dashboard</a>
-                <span className="text-[#555]"> — Where you manage DNS + tunnels. One dashboard to rule them all.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://certbot.eff.org" target="_blank" rel="noreferrer">Certbot Docs</a>
-                <span className="text-[#555]"> — Free SSL. Official instructions for every server OS.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://nginx.org/en/docs/" target="_blank" rel="noreferrer">Nginx Documentation</a>
-                <span className="text-[#555]"> — The actual docs. Dense, but complete.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank" rel="noreferrer">Cloudflare Tunnel Docs</a>
-                <span className="text-[#555]"> — The tunnel setup guide.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-22-04" target="_blank" rel="noreferrer">UFW Firewall Guide</a>
-                <span className="text-[#555]"> — Step‑by‑step firewall setup.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://www.namecheap.com" target="_blank" rel="noreferrer">Namecheap</a>
-                <span className="text-[#555]"> — Where to buy a domain for $10/yr.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://developers.cloudflare.com/dns/" target="_blank" rel="noreferrer">Cloudflare DNS Docs</a>
-                <span className="text-[#555]"> — Official DNS record reference + troubleshooting.</span>
-              </li>
-              <li>
-                <a className="underline underline-offset-4 font-black" href="https://docs.github.com/en/get-started/git-basics" target="_blank" rel="noreferrer">Git Basics</a>
-                <span className="text-[#555]"> — Version control fundamentals before server config edits.</span>
-              </li>
-            </ul>
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Official References + Tools</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {c3ResourceLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
+            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">YouTube Tutorials for Students</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {c3TutorialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                </a>
+              ))}
+            </div>
+
             <div className="mt-6 p-4 bg-[#f0fdf4] border-[2px] border-[#22c55e]">
               <p className="font-sans font-black text-sm uppercase mb-2">Copy/Paste Infra Prompts</p>
-              <ul className="font-mono text-xs text-[#1f2937] space-y-2">
-                <li>"Audit my Nginx config for security issues and return a corrected version."</li>
-                <li>"Generate Cloudflare DNS records for app, API, and www with recommended TTL."</li>
-                <li>"Review my UFW rules and tell me what is unnecessarily exposed."</li>
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {c3HermesPrompts.map((prompt) => (
+                  <CopyBlock key={prompt} text={prompt} label="Copy Infra Prompt" />
+                ))}
+              </div>
+            </div>
+            <div className="mt-6 p-4 bg-[#fdfaf6] border-[2px] border-[#111]">
+              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+              <p className="font-serif text-sm text-[#333] leading-relaxed">
+                Instructor production note: Course 03 infrastructure tutorials are now logged in the internal scrape queue for future original 80M motion explainers.
+              </p>
             </div>
           </div>
         </div>
@@ -3328,7 +4418,7 @@ const CourseThreeContent = ({ onClose }) => {
 
       </div>{/* close max-w-4xl */}
       </div>{/* close flex-1 overflow-y-auto */}
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -3412,7 +4502,7 @@ export const CourseFiveContent = ({ onClose }) => {
   // Quiz data
   const quizData = {
     2: [
-      { q: "What tool finds publicly accessible business contact data across the web?", options: ["Google Search", "Firecrawl web crawler", "Claude Code", "Postiz"], correct: 1, explanation: "Firecrawl and similar web crawlers can systematically extract publicly accessible contact data — emails, social handles, phone numbers — from across the web." },
+      { q: "What tool helps turn public web pages into research data Hermes can summarize?", options: ["Google Search only", "Firecrawl web crawler", "A private spreadsheet", "Postiz"], correct: 1, explanation: "Firecrawl and similar web crawlers can extract public page content into structured notes for research. Students should use it only on public, allowed sources." },
       { q: "Which outreach method typically has the highest reply rate for cold outreach?", options: ["Mass email blast", "Cold calling", "Personalized DM or email referencing specific details", "LinkedIn connection request"], correct: 2, explanation: "Personalized outreach that references something specific about the prospect (their business, a post they made, a problem they described) dramatically outperforms generic mass outreach." },
       { q: "What makes a lead qualified vs. just a name on a list?", options: ["They have a corporate email domain", "They responded to your first message", "They have a specific problem you can solve and the budget to pay for it", "They follow you on social media"], correct: 2, explanation: "A qualified lead has: (1) a specific pain point you can address, (2) the authority to make a purchasing decision, and (3) the budget to pay for a solution. Everything else is just a name." }
     ],
@@ -3422,9 +4512,9 @@ export const CourseFiveContent = ({ onClose }) => {
       { q: "What is the fastest way to validate if an automation idea has market demand?", options: ["Build it and post on Product Hunt", "Search social media for people complaining about the repetitive task, then DM them", "Run a paid survey campaign", "Look at what Zapier workflows are most popular"], correct: 1, explanation: "The fastest validation: find people already complaining about the exact problem online, DM them, show a rough demo video, and ask if they'd pay. Real pain + real people + real willingness = validated idea." }
     ],
     6: [
-      { q: "Why do traditional dev teams avoid building micro-SaaS?", options: ["It's technically too complex", "The market is too small to justify the development cost", "They prefer enterprise clients", "It's against SaaS industry regulations"], correct: 1, explanation: "Traditional dev teams need $50K-$200K to justify a build. A micro-SaaS serving 500 niche customers at $15/mo generates $90K/year — too small for a dev shop but perfectly viable for a solo vibe coder." },
+      { q: "Why do traditional dev teams avoid building micro-SaaS?", options: ["It's technically too complex", "The market is too small to justify the development cost", "They prefer enterprise clients", "It's against SaaS industry regulations"], correct: 1, explanation: "Traditional dev teams often need $50K-$200K to justify a build. A tiny paid tool serving 500 niche customers at $15/mo generates $90K/year — too small for a dev shop but viable for a solo AI-assisted operator." },
       { q: "What signal tells you a micro-SaaS idea has enough market demand to pursue?", options: ["It has been done before", "You have 3+ people sign up for your waitlist within a week of launching the landing page", "It solves your own personal problem", "It has AI in the name"], correct: 1, explanation: "A waitlist with real signups from your target audience within the first week is the strongest signal of demand. If nobody signs up, the idea isn't connecting. If they do, you have immediate user feedback to iterate on." },
-      { q: "What is the minimum viable feature set for a micro-SaaS MVP?", options: ["The core feature that solves the one specific problem, nothing more", "User accounts, billing, admin panel, email notifications, and API access", "At least 10 features to justify the price point", "A full desktop app and a mobile app"], correct: 0, explanation: "A micro-SaaS MVP should do ONE thing extremely well. The moment you add a second major feature, you've left the micro-SaaS category and entered the complexity of building a real product. One job, one screen, one outcome." }
+      { q: "What is the minimum viable feature set for a micro-SaaS MVP?", options: ["The core feature that solves the one specific problem, nothing more", "User accounts, billing, admin panel, notifications, and advanced integrations", "At least 10 features to justify the price point", "A full desktop app and a mobile app"], correct: 0, explanation: "A micro-SaaS MVP should do ONE thing extremely well. The moment you add a second major feature, you've left the micro-SaaS category and entered the complexity of building a real product. One job, one screen, one outcome." }
     ],
     8: [
       { q: "Why does pricing an agent as a fraction of the human salary it replaces work better than hourly billing?", options: ["It's legally required", "Clients think in ROI, not hours — replacing a $4K/month VA at $500/mo is an obvious yes", "Hourly billing is more expensive", "Fractional pricing is industry standard"], correct: 1, explanation: "Hourly billing means you're selling your time. Fractional pricing means you're selling outcomes. If a human costs $4K/month and your agent does their job for $500/month, the ROI is 8x — the client doesn't need to think twice." },
@@ -3438,8 +4528,8 @@ export const CourseFiveContent = ({ onClose }) => {
     ]
   };
 
-  const sections = [
-    { id: 's0', label: 'Intro' },
+	  const sections = [
+	    { id: 's0', label: 'Intro + Desktop Map' },
     { id: 's1', label: '1. Intelligence Pipeline' },
     { id: 's2', label: '2. Customer Acquisition' },
     { id: 's3', label: '3. Custom Tools' },
@@ -3450,26 +4540,133 @@ export const CourseFiveContent = ({ onClose }) => {
     { id: 's8', label: '8. Agent Products' },
     { id: 's9', label: '9. Consulting' },
     { id: 's10', label: '10. Second Brain' },
-    { id: 's11', label: '11. Completion' }
-  ];
+	    { id: 's11', label: '11. Completion' }
+	  ];
 
-  const toggleSection = (id) => {
+	  const c5SafetyRules = [
+	    { label: 'Public sources only', detail: 'Use websites, directories, posts, and pages that are publicly available. Do not bypass logins, paywalls, or private spaces.' },
+	    { label: 'Permission beats cleverness', detail: 'If a site says no crawling, stop. If a prospect asks not to be contacted, remove them from the list.' },
+	    { label: 'Personalize outreach', detail: 'No spam blasts. Hermes should reference one real observation and ask one simple question.' },
+	    { label: 'Track consent', detail: 'Keep a notes column for source, date, response, opt-out, and follow-up status.' },
+	    { label: 'Sell a result', detail: 'Every offer should say what changes for the client: fewer missed leads, faster reporting, cleaner intake, more booked calls.' },
+	    { label: 'Keep humans in control', detail: 'Agents can research, draft, and route work, but pricing, legal, refunds, and sensitive decisions need approval.' }
+	  ];
+
+	  const c5MoneyDecisionTree = [
+	    { branch: 'I have no audience and need cash soon', move: 'Find one local business pain, build a tiny demo, and sell setup plus maintenance.' },
+	    { branch: 'I know a niche very well', move: 'Research public sources, write a lead sheet, and build one specific offer for that niche.' },
+	    { branch: 'I already built something useful for myself', move: 'Package it as a template, prompt pack, checklist, or starter kit and sell the shortcut.' },
+	    { branch: 'I can see a repeated workflow in a business', move: 'Turn the before/after into an automation demo and price the saved hours.' },
+	    { branch: 'I found one repeated tiny software pain', move: 'Launch a waitlist or payment link before building the whole micro-SaaS.' },
+	    { branch: 'I am overwhelmed', move: 'Ask Hermes to pick one lane and give you a 7-day action plan with one measurable signal.' }
+	  ];
+
+	  const c5BeginnerBusinessTerms = [
+	    { term: 'Public data', def: 'Information available without logging in, bypassing gates, or entering private spaces.' },
+	    { term: 'Lead', def: 'A possible customer. A lead is not valuable until there is a real pain, contact path, and reason to talk.' },
+	    { term: 'Qualified lead', def: 'A possible customer with a visible problem, likely budget, and fit for your offer.' },
+	    { term: 'CRM', def: 'A customer tracking list. For beginners, a spreadsheet can be the CRM.' },
+	    { term: 'MVP', def: 'Minimum viable product: the smallest useful version that proves the idea is worth continuing.' },
+	    { term: 'Opt-out', def: 'A clear way for a person to say no more contact. Respect it immediately.' },
+	    { term: 'Builder handoff', def: 'The plain-English spec a developer, agent, or future you can use to build the tool correctly.' },
+	    { term: 'Recurring revenue', def: 'Money that repeats monthly because the client keeps getting value after setup.' }
+	  ];
+
+	  const c5ResourceLinks = [
+	    { label: 'Firecrawl', href: 'https://www.firecrawl.dev/', note: 'Web scraping and crawling platform for turning public pages into LLM-ready data.' },
+	    { label: 'Firecrawl Docs', href: 'https://docs.firecrawl.dev/', note: 'Official setup, scrape, crawl, map, and public research documentation.' },
+	    { label: 'Firecrawl Scrape Docs', href: 'https://docs.firecrawl.dev/features/scrape', note: 'Official page for scraping a URL into markdown, JSON, links, screenshots, and more.' },
+	    { label: 'Firecrawl Crawl Docs', href: 'https://docs.firecrawl.dev/features/crawl', note: 'Official page for crawling multiple pages from a site with limits and options.' },
+	    { label: 'n8n Workflows Docs', href: 'https://docs.n8n.io/workflows/', note: 'Official guide to workflows, nodes, executions, debugging, and templates.' },
+	    { label: 'n8n Credentials Docs', href: 'https://docs.n8n.io/integrations/builtin/credentials/', note: 'Official guide for safely connecting accounts and private access keys.' },
+	    { label: 'n8n Templates', href: 'https://n8n.io/workflows/', note: 'Searchable automation templates students can study before building from scratch.' },
+	    { label: 'n8n Level One Course', href: 'https://docs.n8n.io/courses/level-one/', note: 'Official beginner course for people new to visual automation.' },
+	    { label: 'Gumroad Features', href: 'https://gumroad.com/features', note: 'Digital product sales, files, memberships, analytics, and creator storefront features.' },
+	    { label: 'Gumroad Help Center', href: 'https://gumroad.com/help', note: 'Official setup help for products, payouts, checkout, files, memberships, and safety rules.' },
+	    { label: 'Stripe Docs', href: 'https://docs.stripe.com/', note: 'Official billing, checkout, payment links, subscriptions, invoices, and customer portal docs.' },
+	    { label: 'Stripe Payment Links', href: 'https://docs.stripe.com/payment-links', note: 'No-code payment links for deposits, validation tests, and simple offers.' },
+	    { label: 'Lemon Squeezy Docs', href: 'https://docs.lemonsqueezy.com/help', note: 'Digital product checkout, subscriptions, files, payouts, and merchant-of-record docs.' },
+	    { label: 'Make Help Center', href: 'https://help.make.com/', note: 'Beginner support docs for visual automation scenarios, triggers, and app connections.' },
+	    { label: 'Supabase Docs', href: 'https://supabase.com/docs', note: 'Advanced builder reference for auth, database, storage, and app data.' },
+	    { label: 'Vercel Docs', href: 'https://vercel.com/docs', note: 'Landing page and small app publishing reference.' }
+	  ];
+
+	  const c5TutorialLinks = [
+	    { label: 'Firecrawl public web research', href: 'https://www.youtube.com/watch?v=phuyYL0L7AA', note: 'Advanced builder walkthrough for extracting public website data with Firecrawl.' },
+	    { label: 'Firecrawl + n8n automation', href: 'https://www.youtube.com/watch?v=5nA14JLCWfU', note: 'Advanced automation example connecting Firecrawl with n8n-style workflows.' },
+	    { label: 'Firecrawl explained', href: 'https://www.youtube.com/watch?v=eH8JdttKIdA', note: 'High-level overview of AI web data extraction use cases.' },
+	    { label: 'n8n from scratch 2026', href: 'https://www.youtube.com/watch?v=Fqeo8q8-nJg', note: 'Beginner n8n automation tutorial.' },
+	    { label: 'n8n beginners guide', href: 'https://www.youtube.com/watch?v=Fy1UCBcgF2o', note: 'Non-coder-friendly overview of nodes and workflow logic.' },
+	    { label: 'n8n AI agents tutorial', href: 'https://www.youtube.com/watch?v=TKnaDGpN7Ns', note: 'Agent workflow reference for advanced students.' },
+	    { label: 'Validate a SaaS idea', href: 'https://www.youtube.com/watch?v=31U9X_XD63c', note: 'MicroConf / Rob Walling validation logic for paid demand.' },
+	    { label: 'Validate before you build', href: 'https://www.youtube.com/watch?v=4_MDP6TcHwU', note: 'Fireship-style quick framing for shipping small and testing demand.' }
+	  ];
+
+	  const c5HermesPrompts = [
+	    'Hermes, help me pick one public-data research target. I want a list of 20 businesses, the source URL for each lead, the likely pain, and one respectful outreach angle. Do not scrape private pages or bypass site rules.',
+	    'Hermes, turn this messy website research into a clean lead sheet with columns: business, website, source, observed pain, possible offer, contact path, follow-up status, opt-out notes.',
+	    'Hermes, build me a one-page client demo brief for this workflow. Explain the before state, the after state, the time saved, the setup fee, the monthly maintenance, and the exact first demo we should show.',
+	    'Hermes, validate this micro-SaaS idea. Tell me the target user, urgent pain, existing alternatives, cheapest MVP, landing-page headline, waitlist test, and what signal means stop.'
+	  ];
+
+	  const c5CompletionOutcomes = [
+	    'Collect public research without crossing privacy, login, or paywall boundaries.',
+	    'Turn messy public research into a clean lead/opportunity table.',
+	    'Write a beginner-readable builder handoff for one custom tool or automation.',
+	    'Validate a digital product or micro-SaaS idea with a real signal before overbuilding.',
+	    'Explain the difference between lead, qualified lead, MVP, CRM, opt-out, and recurring revenue.'
+	  ];
+
+	  const c5CompletionDrills = [
+	    'Research one public website and save source URLs next to every finding.',
+	    'Build a 20-row lead sheet with source, pain, offer, contact path, and opt-out notes.',
+	    'Generate one plain-English tool spec for a small business workflow.',
+	    'Create one payment-link or waitlist validation prompt before building the product.'
+	  ];
+
+	  const c5CompletionProof = [
+	    'One source-backed research brief exists.',
+	    'One clean lead sheet exists with consent/opt-out tracking columns.',
+	    'One offer or demo brief is ready to send to a real prospect.',
+	    'Hermes has a rule saved: public sources only, no private scraping, respectful outreach.'
+	  ];
+
+	  const toggleSection = (id) => {
     setCompletedSections(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   };
 
-  // Interactive generators
-  const generateCrawlConfig = () => {
-    const cmd = `npx firecrawl scrape ${crawlUrl} \\
-  --max-pages ${crawlPages} \\
-  --output-format ${crawlFormat} \\
-  --wait-for-selector .content`;
+	  // Interactive generators
+	  const generateCrawlConfig = () => {
+	    const target = crawlUrl || 'https://example.com';
+	    const safeName = target.replace(/[^a-z0-9]/gi,'_');
+	    const hermesBrief = `Hermes, research this public website for a client-opportunity brief:
+URL: ${target}
+Max pages: ${crawlPages}
+Preferred output: ${crawlFormat}
 
-    const apiCall = `curl -X POST https://api.firecrawl.dev/v0/scrape \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -d '{"url":"${crawlUrl}","pageOptions":{"onlyMainContent":true},"formats":["${crawlFormat}"]}'`;
+Rules:
+1. Use public pages only.
+2. Respect robots, login walls, and site terms.
+3. Save source URLs next to every finding.
+4. Extract business model, offers, repeated pain points, contact path, and possible automation opportunities.
+5. Return a beginner-readable summary plus a CSV-ready lead/opportunity table.`;
 
-    setCrawlOutput(`// Command Line:\n${cmd}\n\n// API Call:\n${apiCall}\n\n// Then ingest into Cortex:\n// 1. Save output to ~/openclaw/raw/${crawlUrl.replace(/[^a-z0-9]/gi,'_')}/\n// 2. Run: openclaw ingest ./raw/\n// 3. Ask: "What did you find at ${crawlUrl}?"`);
-  };
+	    const optionalApi = `// Optional builder handoff for Firecrawl
+	Tool: Firecrawl
+	Action: Crawl public pages only
+	URL: ${target}
+	Page limit: ${parseInt(crawlPages) || 10}
+	Format: ${crawlFormat}
+	Private keys stay inside approved setup screens. Do not paste them into public docs.`;
+
+	    setCrawlOutput(`${hermesBrief}
+
+Save research notes to:
+80m-research/${safeName}/raw-notes.md
+80m-research/${safeName}/lead-table.csv
+
+${optionalApi}`);
+	  };
 
   const generateLeadSheet = () => {
     if (!leadData.trim()) { setLeadOutput('// Paste your scraped data above, then click Generate.'); return; }
@@ -3514,12 +4711,13 @@ ${selected}
 **Before:** Owner does this manually every day. Takes X hours. Errors happen.
 **After:** Automated. Runs in background. Zero errors after setup.
 
-## Tech Stack
-- Frontend: Next.js (fastest vibe code delivery)
-- Backend: Supabase (auth + database + realtime)
-- Styling: Tailwind CSS
-- Deployment: Vercel (free tier works)
-- SMS/Notifications: Twilio or Telegram bot
+	## Builder Handoff
+	Use this section only if you or a builder are turning the idea into software. Students do not need to memorize these tool names.
+	- Customer screen: the page or app the customer uses
+	- Data storage: where customer records and settings live
+	- Visual styling: how the page looks
+	- Hosting: where the tool is published
+	- Notifications: SMS, email, Telegram, or another approved channel
 
 ## User Journey
 1. Customer visits tool → signs up (email or phone)
@@ -3533,12 +4731,12 @@ ${selected}
 - Total first-year value: ${bizBudget} + ($75 x 12) = ~$1,500
 
 ## Time to Build
-1-2 days (vibe coded with AI)
+1-2 days (AI-assisted prototype with a review checklist)
 `);
   };
 
   const generateProductSpec = () => {
-    const personas = { developer: 'Experienced developers who want to skip scaffolding and ship features', marketer: 'Growth-focused marketers who need templates to move fast', entrepreneur: 'First-time founders who need structure to think clearly', ops: 'Operations leads who want systems before chaos sets in' };
+    const personas = { developer: 'Technical operators and tool buyers who need a clean starting point', marketer: 'Growth-focused marketers who need templates to move fast', entrepreneur: 'First-time founders who need structure to think clearly', ops: 'Operations leads who want systems before chaos sets in' };
     const before = prodBefore || '2-3 days of setup work, figuring out structure from scratch';
     const after = prodAfter || 'Ship features immediately, no setup overhead';
     setProdOutput(`# Digital Product: ${prodType.charAt(0).toUpperCase() + prodType.slice(1)}
@@ -3579,7 +4777,7 @@ Time saved: 2-5 days per project
     const parts = [];
     parts.push(`// Manual Task: ${wfTask || 'Describe your repetitive task above'}`);
     if (wfAutomations.sheets) parts.push('1. Trigger: Google Sheet row added\n2. Action: Parse and validate data\n3. Action: Update secondary sheet / notify owner');
-    if (wfAutomations.email) parts.push('1. Trigger: Form submission or schedule\n2. Action: Draft email via AI\n3. Action: Send via Gmail/SMTP or queue in Mailchimp');
+    if (wfAutomations.email) parts.push('1. Trigger: Form submission or schedule\n2. Action: Draft email via AI\n3. Action: Send through Gmail, Mailchimp, or your approved email tool');
     if (wfAutomations.calendar) parts.push('1. Trigger: Calendar event created\n2. Action: Auto-create prep task\n3. Action: Send agenda to invitees 24h before');
     if (wfAutomations.slack) parts.push('1. Trigger: New lead in CRM\n2. Action: Post to Slack channel #sales\n3. Action: Tag specific team member');
     if (wfAutomations.csv) parts.push('1. Trigger: CSV uploaded to Dropbox/email\n2. Action: Parse, deduplicate, enrich\n3. Action: Export clean CSV + summary report');
@@ -3596,12 +4794,12 @@ Time saved: 2-5 days per project
 
 ## n8n Workflow Template
 Start with: https://n8n.io/workflows (search for your trigger type)
-Key n8n nodes: Webhook, Google Sheets, HTTP Request, Slack, Email
+Key n8n blocks: form trigger, Google Sheets, approved web request, Slack, Email
 `);
   };
 
   const generateMsaas = () => {
-    const userTypes = { freelancer: 'Freelancers and solo service providers', developer: 'Developers and technical creators', marketer: 'Marketers and content creators', business: 'Small business owners (5-50 employees)' };
+    const userTypes = { freelancer: 'Freelancers and solo service providers', developer: 'Technical operators and tool buyers', marketer: 'Marketers and content creators', business: 'Small business owners (5-50 employees)' };
     const problem = msaasProblem || 'Describe the specific problem your tool solves';
     const names = ['Desk', 'Flow', 'Prep', 'Core', 'Stack', 'Base', 'Path', 'Kit'];
     const name = names[Math.floor(Math.random() * names.length)];
@@ -3614,7 +4812,7 @@ Key n8n nodes: Webhook, Google Sheets, HTTP Request, Slack, Email
 
 ## MVP Feature List
 1. The ONE core feature that solves the problem
-2. User accounts (email auth via Supabase)
+2. User accounts (email sign-in; your builder can choose the tool)
 3. Payment (Stripe, ${msaasPrice})
 4. Dashboard showing the output/history
 That's it. Nothing else until a user asks for it.
@@ -3628,7 +4826,7 @@ That's it. Nothing else until a user asks for it.
 - [ ] 3+ real signups from target user
 - [ ] Problem confirmed by at least 1 person
 - [ ] Stripe account ready
-- [ ] Vibe coded MVP (1-2 days max)
+- [ ] AI-assisted MVP demo (1-2 days max)
 `);
   };
 
@@ -3688,7 +4886,7 @@ ${agentProcess || 'Describe step by step what the human currently does...'}
 Example: Reads inbound email → checks order in Shopify → approves/refuses → sends response
 
 ## Agent Workflow
-1. **Trigger:** Receives input (email / form / API call)
+1. **Trigger:** Receives input (email / form / connected app)
 2. **Parse:** Extracts relevant information from input
 3. **Decide:** Applies rules (e.g., refund under $50 = auto-approve)
 4. **Execute:** Takes action (sends email, updates spreadsheet, books calendar)
@@ -3697,7 +4895,7 @@ Example: Reads inbound email → checks order in Shopify → approves/refuses �
 ## System Prompt Snippet
 "You are a ${taskType} agent. For every inbound request:
 1. Extract the customer's name, account details, and the core request.
-2. Check the relevant database/API for context.
+2. Check the relevant customer record or approved tool for context.
 3. Apply the decision rules provided by your supervisor.
 4. If automated: execute the action and send a confirmation.
 5. If uncertain: escalate to supervisor with summary."
@@ -3710,10 +4908,10 @@ Example: Reads inbound email → checks order in Shopify → approves/refuses �
 - ROI for client: immediate
 
 ## Tools Needed
-- Email (Gmail API or SMTP)
-- Database (Supabase or Airtable)
-- Decision logic (Claude function calling)
-- Notification (Slack webhook or email)
+- Incoming message source (email, form, or chat inbox)
+- Customer records (spreadsheet, Airtable, CRM, or app database)
+- Decision rules written in plain English
+- Notification channel (Slack, email, or dashboard)
 `);
   };
 
@@ -3763,17 +4961,22 @@ ${priceMap[propBudget] || '$2,500'} fixed price
   const generateKnowledgeBase = () => {
     const project = kbProject || 'my-knowledge-base';
     const topics = kbTopics || 'AI tools, workflow optimization, business building';
-    const safe = project.toLowerCase().replace(/[^a-z0-9]/g, '-');
     setKbOutput(`# Create Your Second Brain
 
-## Folder Structure Commands
-\`\`\`
-mkdir -p ~/${safe}/{raw,wiki,outputs}
-cd ~/${safe}
-touch CLAUDE.md
-\`\`\`
+## Paste This To Hermes First
+Hermes, create a simple second-brain setup for "${project}".
+Topics: ${topics}
 
-## CLAUDE.md Schema File
+I am not using command-line tools for this lesson. Walk me through the folder setup in plain English, then help me create:
+1. Raw Sources
+2. Clean Notes
+3. Finished Outputs
+4. An Index note that lists what exists
+
+Ask before moving, deleting, or rewriting any existing files.
+
+## Optional Builder Note
+If support or a builder needs a plain text instruction file, use this:
 \`\`\`markdown
 # ${project} Knowledge Base
 
@@ -3782,16 +4985,16 @@ A personal knowledge base about ${topics}.
 Built to stop losing information and start compounding learning.
 
 ## How It's Organized
-- raw/ = unprocessed source material. Never edit these.
-- wiki/ = AI-organized summaries and topic pages.
-- outputs/ = generated reports and answers.
+- Raw Sources = unprocessed source material. Never edit these.
+- Clean Notes = AI-organized summaries and topic pages.
+- Finished Outputs = generated reports and answers.
 
 ## Wiki Rules
-- Every topic gets its own .md file in wiki/
-- Every wiki file starts with a 1-paragraph summary
+- Every topic gets its own note in Clean Notes
+- Every clean note starts with a 1-paragraph summary
 - Link related topics using [[topic-name]]
 - Maintain INDEX.md listing all topics
-- Never edit wiki/ by hand
+- Never rewrite original Raw Sources
 
 ## My Interests
 - ${topics.split(',')[0]?.trim() || 'Topic 1'}
@@ -3800,18 +5003,18 @@ Built to stop losing information and start compounding learning.
 \`\`\`
 
 ## Monthly Health Check Prompt
-"Review the entire wiki/ directory. Flag contradictions between articles.
+"Review the entire Clean Notes folder. Flag contradictions between articles.
 Find topics mentioned but never explained. List claims not backed by
-a source in raw/. Suggest 3 new articles to fill gaps."
+a source in Raw Sources. Suggest 3 new articles to fill gaps."
 
 ## Compounding Loop
-Every time you add raw files → ask AI to update wiki → save AI answers
+Every time you add raw sources → ask Hermes to update clean notes → save useful answers
 to outputs/ → next question builds on previous answers.
 `);
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
@@ -3848,20 +5051,69 @@ to outputs/ → next question builds on previous answers.
         </div>
 
         {/* INTRO */}
-        <div id="c5-intro" className="mb-24">
-          <NeedBox title="What you need before you start" items={[
-            "OpenClaw workspace with Cortex running.",
-            "Firecrawl or similar crawler tool installed.",
-            "A target niche or industry in mind for income generation.",
-            "One vibe coding tool (Cursor, Claude Code, or similar)."
-          ]} />
-          <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
-            Intelligence Pipeline <br/><span className="italic text-[#22c55e]">+ Agent Products.</span>
-          </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
-            Turn your AI skills into income machines. Web crawlers, micro-SaaS, automations, and agents that replace high-value employees.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+	        <div id="c5-intro" className="mb-24">
+	          <NeedBox title="What you need before you start" items={[
+	            "80M Agent Desktop open with Hermes ready.",
+	            "A Firecrawl account or another approved research tool.",
+	            "One public website, directory, or niche you are allowed to research.",
+	            "A spreadsheet or notes app for lead and opportunity tracking."
+	          ]} />
+	          <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
+	            Intelligence Pipeline <br/><span className="italic text-[#22c55e]">+ Agent Products.</span>
+	          </h1>
+	          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+	            Turn public research into paid offers: lead lists, client demos, automations, micro-SaaS tests, and agents that handle repetitive work with clear human approval.
+	          </p>
+	          <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Safe money workflow</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Research first. Respect people. Sell the result.</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c5SafetyRules.map((item) => (
+	                <div key={item.label} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+	                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.label}</p>
+	                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.detail}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Money lane decision tree</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Which path should a beginner take first?</h3>
+	            <div className="space-y-3">
+	              {c5MoneyDecisionTree.map((item, idx) => (
+	                <div key={item.branch} className="grid grid-cols-1 md:grid-cols-[2rem_1fr_1.5fr] gap-3 border-[2px] border-[#111] bg-white p-4">
+	                  <p className="font-mono font-black text-[#22c55e]">{idx + 1}</p>
+	                  <p className="font-sans font-black uppercase text-sm text-[#111]">{item.branch}</p>
+	                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.move}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e] mb-8">
+	            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Business words translated</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Terms that stop non-coders from freezing</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c5BeginnerBusinessTerms.map((item) => (
+	                <div key={item.term} className="border-[2px] border-[#333] bg-[#171717] p-4">
+	                  <p className="font-sans font-black uppercase text-[#22c55e] mb-1">{item.term}</p>
+	                  <p className="font-serif text-sm text-[#ddd] leading-relaxed">{item.def}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e] mb-8">
+	            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Copy these to Hermes</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Prompts that turn research into offers</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c5HermesPrompts.map((prompt, idx) => (
+	                <div key={prompt} className="border-[2px] border-[#333] bg-[#171717] p-4">
+	                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">Prompt {idx + 1}</p>
+	                  <CopyBlock text={prompt} label="Copy Hermes Prompt" />
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {[
               { num: '8', label: 'Income paths covered', icon: '$' },
               { num: '11', label: 'Hands-on sections', icon: '#' },
@@ -3883,27 +5135,34 @@ to outputs/ → next question builds on previous answers.
             </div>
           </div>
           <CourseBoostPanel title="Class 05 Income Prompts" checklist={["Identify your highest-value automation opportunity", "Draft first micro-SaaS landing page", "Write agent spec for one workflow"]} prompts={["\"Help me identify 3 automation opportunities in my current workflow that would save me the most time per week.\"", "\"Review my skill set and recommend the fastest income path given my current tools and experience.\""]} />
+          <StudentCompletionKit
+            eyebrow="Class 05 final standard"
+            title="The student can turn research into a respectful paid offer"
+            outcomes={c5CompletionOutcomes}
+            drills={c5CompletionDrills}
+            proof={c5CompletionProof}
+          />
         </div>
 
         {/* SECTION 1: Intelligence Pipeline */}
-        <div id="c5-s1" className="mb-24">
-          <SectionMeta minutes="10 min" focus="Cortex + Firecrawl" />
-          <NeedBox title="What you need" items={["OpenClaw workspace with Cortex running", "Firecrawl installed (npx firecrawl-cli)", "A target niche or industry in mind"]} />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. Intelligence Pipeline: From Chaos to Cash</h2>
-          <p className="font-serif text-xl mb-8 leading-relaxed">
-            Most people don't know what's publicly available about their market. The intelligence pipeline changes that — it takes raw web data and turns it into a searchable knowledge base your agent can query.
-          </p>
-          <MacWindow title="cortex-pipeline.sh" className="mb-8">
-            <div className="p-6 font-mono text-sm space-y-2">
-              <p className="text-[#aaa]">// Step 1: Crawl the target domain</p>
-              <p className="text-[#38bdf8]">$ npx firecrawl scrape https://example.com --max-pages 50 --format markdown</p>
-              <p className="text-[#aaa]">// Step 2: Ingest into Cortex</p>
-              <p className="text-[#38bdf8]">$ openclaw ingest ./raw/example-com/</p>
-              <p className="text-[#aaa]">// Step 3: Query your new brain</p>
-              <p className="text-[#38bdf8]">&gt; "What products does example.com sell and what are their main pain points?"</p>
-              <p className="text-[#aaa]">// Output: Structured analysis from 47 pages of crawled content</p>
-            </div>
-          </MacWindow>
+	        <div id="c5-s1" className="mb-24">
+	          <SectionMeta minutes="10 min" focus="Hermes + Firecrawl" />
+	          <NeedBox title="What you need" items={["80M Agent Desktop open to Hermes", "Firecrawl account or playground", "One public website you are allowed to research"]} />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">1. Intelligence Pipeline: From Chaos to Cash</h2>
+	          <p className="font-serif text-xl mb-8 leading-relaxed">
+	            Most people guess what their market wants. The intelligence pipeline turns public pages into notes Hermes can read: offers, complaints, pricing, contact paths, repeated questions, and places where a small automation could save real time.
+	          </p>
+	          <MacWindow title="hermes_research_brief.md" className="mb-8">
+	            <div className="p-6 font-mono text-sm space-y-2">
+	              <p className="text-[#aaa]">// Step 1: Name the public source</p>
+	              <p className="text-[#38bdf8]">Hermes, research https://example.com and save every source URL.</p>
+	              <p className="text-[#aaa]">// Step 2: Ask for business signals</p>
+	              <p className="text-[#38bdf8]">Find offers, pains, pricing clues, tools used, contact paths, and automation opportunities.</p>
+	              <p className="text-[#aaa]">// Step 3: Turn it into a table</p>
+	              <p className="text-[#38bdf8]">Return: source, observation, pain, possible offer, next question.</p>
+	              <p className="text-[#aaa]">// Output: a research brief a non-coder can read and act on</p>
+	            </div>
+	          </MacWindow>
           <div className="bg-[#111] p-6 border-[3px] border-[#333] mb-6">
             <p className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">// Key Insight</p>
             <p className="font-serif text-[#eae7de] text-lg leading-relaxed">
@@ -3923,28 +5182,28 @@ to outputs/ → next question builds on previous answers.
                 <option value="csv">CSV</option>
               </select>
             </div>
-            <button onClick={generateCrawlConfig} className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#111] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all">Generate Crawl Command</button>
+            <button onClick={generateCrawlConfig} className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#111] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all">Generate Research Brief</button>
             {crawlOutput && <CopyBlock code={crawlOutput} />}
           </div>
 
-          <CheckpointCard
-            title="Intelligence Pipeline Checkpoints"
-            items={[
-              { type: 'pass', text: 'You have a live crawl running against a target domain' },
-              { type: 'pass', text: 'Cortex has received and stored at least 5 pages from your crawl' },
-              { type: 'fail', text: 'Crawl is still running with no destination for the output' },
-              { type: 'fail', text: "You haven't asked Cortex a question about what it just ingested" }
-            ]}
-          />
+	          <CheckpointCard
+	            title="Intelligence Pipeline Checkpoints"
+	            items={[
+	              { type: 'pass', text: 'You researched a public source and saved source URLs next to the findings' },
+	              { type: 'pass', text: 'Hermes returned at least 5 useful observations tied to possible paid outcomes' },
+	              { type: 'fail', text: 'You collected data without knowing what offer it supports' },
+	              { type: 'fail', text: "You copied private or restricted information instead of staying with public sources" }
+	            ]}
+	          />
         </div>
 
         {/* SECTION 2: Customer Acquisition Machine */}
-        <div id="c5-s2" className="mb-24">
-          <SectionMeta minutes="12 min" focus="Lead gen pipeline" />
-          <NeedBox title="What you need" items={["Crawler output (emails + social handles of 20+ businesses)", "Bulk email service account", "DM automation tool configured"]} />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Customer Acquisition Machine</h2>
-          <p className="font-serif text-xl mb-8 leading-relaxed">
-            The 5-step pipeline: <span className="font-mono text-[#22c55e]">Firecrawl → email scrape → bulk email → DM automation → close the client.</span> Each step compounds on the last.
+	        <div id="c5-s2" className="mb-24">
+	          <SectionMeta minutes="12 min" focus="Lead gen pipeline" />
+	          <NeedBox title="What you need" items={["A lead list built from public sources", "A notes column for source and opt-out status", "One outreach message you would be comfortable receiving"]} />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. Customer Acquisition Machine</h2>
+	          <p className="font-serif text-xl mb-8 leading-relaxed">
+	            The 5-step pipeline: <span className="font-mono text-[#22c55e]">public research → qualify → personalize → ask one clear question → follow up respectfully.</span> This is not spam. It is useful research turned into a specific offer.
           </p>
           <MacWindow title="lead-pipeline.sh" className="mb-6">
             <div className="p-6 font-mono text-sm space-y-3">
@@ -3962,9 +5221,9 @@ to outputs/ → next question builds on previous answers.
             <p className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">// The 5-Step Acquisition Loop</p>
             {[
               ['1', 'Firecrawl', 'Crawl target niches for business data'],
-              ['2', 'Enrich', 'Extract emails, social handles, phone numbers'],
+	              ['2', 'Qualify', 'Keep only leads with a visible pain you can solve'],
               ['3', 'Segment', 'Filter by industry, size, tech stack'],
-              ['4', 'Outreach', 'Personalized email + DM campaigns'],
+	              ['4', 'Outreach', 'Personalized email or DM with a respectful opt-out'],
               ['5', 'Close', 'Deliver value, ask for testimonial']
             ].map(([n, tool, desc]) => (
               <div key={n} className="flex items-center gap-4 py-2 border-b border-[#333] last:border-0">
@@ -4006,19 +5265,19 @@ to outputs/ → next question builds on previous answers.
 
           <CheckpointCard
             title="Customer Acquisition Checkpoints"
-            items={[
-              { type: 'pass', text: 'You have 20+ qualified leads in a spreadsheet' },
-              { type: 'pass', text: 'Your outreach message is drafted and tested on yourself first' },
-              { type: 'fail', text: 'You scraped random data with no specific customer in mind' },
-              { type: 'fail', text: 'Your outreach message sounds like every other spammer' }
-            ]}
-          />
+	            items={[
+	              { type: 'pass', text: 'You have 20+ qualified leads in a spreadsheet' },
+	              { type: 'pass', text: 'Every row has a public source, likely pain, and opt-out status' },
+	              { type: 'fail', text: 'You scraped random data with no specific customer in mind' },
+	              { type: 'fail', text: 'Your outreach message sounds like a mass blast instead of a real note' }
+	            ]}
+	          />
         </div>
 
         {/* SECTION 3: Custom Tools for Small Businesses */}
         <div id="c5-s3" className="mb-24">
-          <SectionMeta minutes="10 min" focus="Vibe coding small biz tools" />
-          <NeedBox title="What you need" items={["Vibe coding tool (Cursor, Claude Code, or similar)", "Understanding of ONE small business's workflow pain", "Basic landing page template"]} />
+	          <SectionMeta minutes="10 min" focus="AI-assisted small business tools" />
+	          <NeedBox title="What you need" items={["80M Agent Desktop open", "Understanding of ONE small business's workflow pain", "A simple one-page offer or landing page template"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">3. Custom Tools for Small Businesses</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
             Small businesses need simple software but can't afford $10K+ dev shops. Build once, sell to an entire niche vertical. <span className="font-mono text-[#22c55e]">Appointment systems, inventory trackers, lead capture forms.</span>
@@ -4033,8 +5292,8 @@ to outputs/ → next question builds on previous answers.
               <p className="text-[#38bdf8]">  - SMS reminders via Twilio</p>
               <p className="text-[#38bdf8]">  - Promotion blast tool</p>
               <p className="text-[#38bdf8]">  - Client database</p>
-              <p className="text-[#aaa]">Stack: Next.js + Supabase</p>
-              <p className="text-[#aaa]">Time to build: 1-2 days</p>
+	              <p className="text-[#aaa]">Builder handoff: customer screen + data storage + notifications</p>
+	              <p className="text-[#aaa]">Prototype time: 1-2 days after the workflow is clear</p>
               <p className="text-[#aaa]">Price: $500 setup + $75/mo</p>
             </div>
           </MacWindow>
@@ -4072,7 +5331,7 @@ to outputs/ → next question builds on previous answers.
             title="Custom Tools Checkpoints"
             items={[
               { type: 'pass', text: 'You have talked to a real small business owner and documented their exact pain' },
-              { type: 'pass', text: 'You have a spec document ready to hand to your AI coding assistant' },
+	              { type: 'pass', text: 'You have a plain-English spec ready to hand to Hermes or a builder' },
               { type: 'fail', text: "You've been researching tools instead of talking to customers" },
               { type: 'fail', text: "You're building for a business type you've never interacted with" }
             ]}
@@ -4088,7 +5347,7 @@ to outputs/ → next question builds on previous answers.
             Build-once, sell-repeatedly. <span className="font-mono text-[#22c55e]">Near-zero marginal cost.</span> The best digital products solve a very specific starting-point problem — the buyer skips 2 days of setup.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {['SaaS Boilerplates', 'Notion Templates', 'Figma Kits', 'Prompt Libraries'].map((type, i) => (
+            {['App Starter Kits', 'Business Templates', 'Design Kits', 'Prompt Libraries'].map((type, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-4 text-center shadow-[4px_4px_0_0_#111]">
                 <span className="font-sans font-black text-lg uppercase">{type}</span>
               </div>
@@ -4100,13 +5359,13 @@ to outputs/ → next question builds on previous answers.
             <h3 className="font-sans font-black text-lg uppercase mb-4">Digital Product Spec Builder</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <select value={prodType} onChange={e => setProdType(e.target.value)} className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm">
-                <option value="boilerplate">SaaS Boilerplate</option>
+                <option value="boilerplate">App Starter Kit</option>
                 <option value="template">Notion Template</option>
                 <option value="starter-kit">Starter Kit</option>
                 <option value="prompt-pack">Prompt Pack</option>
               </select>
               <select value={prodPersona} onChange={e => setProdPersona(e.target.value)} className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm">
-                <option value="developer">Developer</option>
+                <option value="developer">Technical Operator</option>
                 <option value="marketer">Marketer</option>
                 <option value="entrepreneur">Entrepreneur</option>
                 <option value="ops">Ops</option>
@@ -4197,10 +5456,10 @@ to outputs/ → next question builds on previous answers.
         {/* SECTION 6: Micro-SaaS */}
         <div id="c5-s6" className="mb-24">
           <SectionMeta minutes="12 min" focus="One job, one screen, one outcome" />
-          <NeedBox title="What you need" items={["Vibe coding tool ready", "A very specific problem (not a broad category)", "Stripe account for payments"]} />
+          <NeedBox title="What you need" items={["80M Agent Desktop ready with Hermes", "A very specific problem (not a broad category)", "Stripe account for payments"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">6. Micro-SaaS: One Job, One Screen, One Outcome</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            Traditional dev teams can't justify building something this niche — that's why <span className="font-mono text-[#22c55e]">you can own the entire market.</span> Vibe coding cuts months to days. Test many ideas, find what connects.
+            Traditional dev teams can't justify building something this niche — that's why <span className="font-mono text-[#22c55e]">you can own the entire market.</span> AI-assisted building cuts months to days. Test many ideas, find what connects.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {[
@@ -4222,7 +5481,7 @@ to outputs/ → next question builds on previous answers.
               <textarea value={msaasProblem} onChange={e => setMsaasProblem(e.target.value)} placeholder="Describe the specific problem..." className="border-[2px] border-[#111] p-4 font-mono text-sm md:col-span-3 h-24" />
               <select value={msaasUser} onChange={e => setMsaasUser(e.target.value)} className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm">
                 <option value="freelancer">Freelancer</option>
-                <option value="developer">Developer</option>
+                <option value="developer">Technical Operator</option>
                 <option value="marketer">Marketer</option>
                 <option value="business">Small Business Owner</option>
               </select>
@@ -4309,7 +5568,7 @@ to outputs/ → next question builds on previous answers.
         {/* SECTION 8: AI Agents */}
         <div id="c5-s8" className="mb-24">
           <SectionMeta minutes="12 min" focus="Agent architecture" />
-          <NeedBox title="What you need" items={["OpenAI / Claude / MiniMax API access", "One repetitive task a business currently pays a human to do", "Understanding of agent architecture (tools + memory + instructions)"]} />
+	          <NeedBox title="What you need" items={["Provider access through 80M, OpenRouter, or an approved model service", "One repetitive task a business currently pays a human to do", "A plain-English task spec: tools, memory, rules, and instructions"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">8. AI Agents That Replace Labor</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
             "I'm not building a chatbot. <span className="font-mono text-[#22c55e]">I'm replacing a human workflow.</span>" If the human costs $4K/month, charge $500/month. ROI is obvious — clients say yes fast.
@@ -4320,7 +5579,7 @@ to outputs/ → next question builds on previous answers.
               <p className="text-[#aaa]">// The VA reads email → checks order → approves/denies → responds.</p>
               <p className="text-[#eae7de]">// Agent spec:</p>
               <p className="text-[#38bdf8]">1. Reads inbound refund email</p>
-              <p className="text-[#38bdf8]">2. Checks order via Shopify API</p>
+              <p className="text-[#38bdf8]">2. Checks order in Shopify</p>
               <p className="text-[#38bdf8]">3. Approves refunds under $50; escalates above</p>
               <p className="text-[#38bdf8]">4. Sends personalized response</p>
               <p className="text-[#aaa]">// Saves $2,500/mo. Charge: $500/mo. Build time: 1 week.</p>
@@ -4418,22 +5677,22 @@ to outputs/ → next question builds on previous answers.
         {/* SECTION 10: Second Brain */}
         <div id="c5-s10" className="mb-24">
           <SectionMeta minutes="8 min" focus="Personal knowledge base" />
-          <NeedBox title="What you need" items={["OpenClaw workspace", "15+ minutes to dump everything you already know into raw files", "Claude Code / Cursor / any AI tool that reads local files"]} />
+          <NeedBox title="What you need" items={["80M workspace or any folder you can find again", "15+ minutes to dump everything you already know into source notes", "80M Agent Desktop or any assistant that can read your saved files"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">10. The Second Brain: Personal Knowledge Base</h2>
           <p className="font-serif text-xl mb-8 leading-relaxed">
-            You already collect information, you just can't find it when you need it. <span className="font-mono text-[#22c55e]">Three folders + one schema file = searchable wiki maintained by AI.</span>
+            You already collect information, you just can't find it when you need it. <span className="font-mono text-[#22c55e]">Source notes + clean notes + finished outputs = a searchable second brain.</span>
           </p>
-          <MacWindow title="knowledge-base.sh" className="mb-6">
+          <MacWindow title="knowledge-base-map.txt" className="mb-6">
             <div className="p-6 font-mono text-sm space-y-2">
-              <p className="text-[#aaa]">// The architecture:</p>
-              <p className="text-[#38bdf8]">raw/       — unprocessed articles, notes, screenshots</p>
-              <p className="text-[#38bdf8]">wiki/      — AI-written summaries (never edit by hand)</p>
-              <p className="text-[#38bdf8]">outputs/   — AI answers and reports</p>
-              <p className="text-[#aaa]">// CLAUDE.md — schema file that teaches the AI</p>
+              <p className="text-[#aaa]">// The simple map:</p>
+              <p className="text-[#38bdf8]">Raw Sources — unprocessed articles, notes, screenshots</p>
+              <p className="text-[#38bdf8]">Clean Notes — AI-written summaries you can review</p>
+              <p className="text-[#38bdf8]">Finished Outputs — AI answers and reports</p>
+              <p className="text-[#aaa]">// Index Note — list what exists and where it lives</p>
               <p className="text-[#aaa]">// The loop:</p>
-              <p className="text-[#eae7de]">Add raw files → Ask AI to update wiki → Save answers to outputs</p>
+              <p className="text-[#eae7de]">Add source notes → Ask Hermes to update clean notes → Save useful outputs</p>
               <p className="text-[#aaa]">// Monthly health check:</p>
-              <p className="text-[#aaa]">"Review wiki/. Flag contradictions. Find gaps."</p>
+              <p className="text-[#aaa]">"Review Clean Notes. Flag contradictions. Find gaps."</p>
             </div>
           </MacWindow>
 
@@ -4444,7 +5703,7 @@ to outputs/ → next question builds on previous answers.
               <input value={kbProject} onChange={e => setKbProject(e.target.value)} placeholder="Project name (e.g. my-ai-knowledge)" className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm" />
               <input value={kbTopics} onChange={e => setKbTopics(e.target.value)} placeholder="Focus topics (comma-separated)" className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm" />
             </div>
-            <button onClick={generateKnowledgeBase} className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#111] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all">Generate Setup Commands</button>
+            <button onClick={generateKnowledgeBase} className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#111] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all">Generate Knowledge Plan</button>
             {kbOutput && <CopyBlock code={kbOutput} />}
           </div>
 
@@ -4457,7 +5716,7 @@ to outputs/ → next question builds on previous answers.
           <CheckpointCard
             title="Second Brain Checkpoints"
             items={[
-              { type: 'pass', text: "Three folders exist and raw/ has at least 5 source files in it" },
+              { type: 'pass', text: "Three easy-to-find folders exist and Raw Sources has at least 5 source files in it" },
               { type: 'pass', text: 'You can ask the AI "what do I know about [topic]" and get a real answer' },
               { type: 'fail', text: 'You spent more time configuring tools than actually dumping information' },
               { type: 'fail', text: "You created the folders and then never touched them again" }
@@ -4473,13 +5732,13 @@ to outputs/ → next question builds on previous answers.
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            {[
-              "You can ingest any website into Cortex and query it intelligently.",
-              "You have a concrete path from skills to income (8 options, ranked by difficulty).",
-              "You have a working micro-SaaS or automation idea with a waitlist.",
-              "You can build and sell an AI agent that replaces a human workflow.",
-              "Your personal knowledge base is running and compounding."
-            ].map((outcome, i) => (
+	            {[
+	              "You can turn public web research into a sourced opportunity brief.",
+	              "You have a concrete path from skills to income (8 options, ranked by difficulty).",
+	              "You have a working micro-SaaS or automation idea with a waitlist.",
+	              "You can build and sell an AI agent that handles a repetitive workflow with approval rules.",
+	              "Your personal knowledge base is running and compounding."
+	            ].map((outcome, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-5 shadow-[4px_4px_0_0_#111]">
                 <span className="font-mono text-[#22c55e] font-black text-lg">✓</span>
                 <p className="font-serif text-[#aaa] text-sm mt-2 leading-snug">{outcome}</p>
@@ -4487,20 +5746,60 @@ to outputs/ → next question builds on previous answers.
             ))}
           </div>
 
-          <ResourceList
-            title="Class 05 Resource Locker"
-            links={[
-              { label: "Cortex Knowledge Pipeline", url: "https://github.com/80m/knowledge-pipeline" },
-              { label: "Firecrawl Docs", url: "https://docs.firecrawl.dev" },
-              { label: "n8n Workflow Templates", url: "https://n8n.io/workflows" },
-              { label: "Gumroad Creator Guide", url: "https://gumroad.com/creator-guide" },
-              { label: "Micro-SaaS Validation (levels.io)", url: "https://levels.io/build-micro-saas" },
-              { label: "Claude Agent Building Docs", url: "https://anthropic.com/docs/agents" },
-              { label: "Personal Knowledge Base Template", url: "https://github.com/80m/second-brain" },
-              { label: "Karpathy Second Brain Post", url: "https://karpathy.ai" },
-              { label: "Productized Consulting Guide", url: "https://github.com/80m/consulting-playbook" }
-            ]}
-          />
+	          <div id="c5-resources" className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Class 05 Resource Locker</h3>
+	            <p className="font-serif text-[#333] leading-relaxed mb-6">
+	              Use the first grid to do the work. Use the second grid to learn the tools without assuming you already know automation vocabulary.
+	            </p>
+
+	            <h4 className="font-sans font-black text-lg uppercase tracking-tight mb-4">Official References + Tools</h4>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+	              {c5ResourceLinks.map((item) => (
+	                <a
+	                  key={item.label}
+	                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+	                  href={item.href}
+	                  target="_blank"
+	                  rel="noreferrer"
+	                >
+	                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+	                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+	                </a>
+	              ))}
+	            </div>
+
+	            <h4 className="font-sans font-black text-lg uppercase tracking-tight mb-4">YouTube Tutorials for Students</h4>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+	              {c5TutorialLinks.map((item) => (
+	                <a
+	                  key={item.label}
+	                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+	                  href={item.href}
+	                  target="_blank"
+	                  rel="noreferrer"
+	                >
+	                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+	                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+	                </a>
+	              ))}
+	            </div>
+
+	            <div className="mt-6 p-4 bg-[#fffbeb] border-[2px] border-[#f59e0b]">
+	              <p className="font-sans font-black text-sm uppercase mb-2">Hermes Prompts</p>
+	              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	                {c5HermesPrompts.map((prompt) => (
+	                  <CopyBlock key={prompt} text={prompt} label="Copy Money Prompt" />
+	                ))}
+	              </div>
+	            </div>
+
+	            <div className="mt-6 p-4 bg-[#fdfaf6] border-[2px] border-[#111]">
+	              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+	              <p className="font-serif text-sm text-[#333] leading-relaxed">
+	                Instructor production note: Course 05 Firecrawl, n8n, validation, digital-product, and agent-product tutorials are logged in the internal scrape queue for original 80M motion explainers.
+	              </p>
+	            </div>
+	          </div>
 
           <div className="text-center mt-12">
             <button onClick={onClose} className="font-sans font-black text-xl px-12 py-6 bg-[#22c55e] text-[#111] border-[3px] border-[#111] hover:bg-[#111] hover:text-[#22c55e] shadow-[8px_8px_0_0_#111] transition-colors">
@@ -4530,7 +5829,7 @@ to outputs/ → next question builds on previous answers.
 
       </div>{/* close max-w-4xl */}
       </div>{/* close flex-1 overflow-y-auto */}
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -4598,10 +5897,10 @@ export const CourseSixContent = ({ onClose }) => {
   const [postizApiKey, setPostizApiKey] = useState('');
   const [postizStep, setPostizStep] = useState(0);
 
-  const sections = [
-    { id: 's0', label: 'Intro' },
+	  const sections = [
+	    { id: 's0', label: 'Intro' },
     { id: 's1', label: '1. Revenue Models' },
-    { id: 's2', label: '2. Vibe-to-Money' },
+    { id: 's2', label: '2. Demo-to-Money' },
     { id: 's3', label: '3. Client Work' },
     { id: 's4', label: '4. Automations' },
     { id: 's5', label: '5. Micro-SaaS' },
@@ -4610,10 +5909,96 @@ export const CourseSixContent = ({ onClose }) => {
     { id: 's8', label: '8. Consulting' },
     { id: 's9', label: '9. Postiz Stack' },
     { id: 's10', label: '10. Dictionary' },
-    { id: 's11', label: '11. Complete' }
-  ];
+	    { id: 's11', label: '11. Complete' }
+	  ];
 
-  const toggleSection = (id) => {
+	  const c6OperatingRules = [
+	    { label: 'Pick one lane', detail: 'The course shows eight models so students can choose, not so they try all eight at once.' },
+	    { label: 'Validate before build', detail: 'A paid problem, a response, a waitlist, or a booked call matters more than a clever idea.' },
+	    { label: 'Use demos, not hype', detail: 'A two-minute working demo builds more trust than a giant pitch deck.' },
+	    { label: 'Keep scope fixed', detail: 'Every paid offer needs one result, one timeline, one price, and written boundaries.' },
+	    { label: 'Review automation', detail: 'Client work, payments, publishing, refunds, and sensitive messages need human approval until the workflow is proven.' },
+	    { label: 'Measure weekly', detail: 'Track outreach sent, replies, demos, close rate, time saved, revenue, churn, and next experiment.' }
+	  ];
+
+	  const c6RevenuePickerTree = [
+	    { condition: 'Need money this month and have no audience', lane: 'Small business websites or one simple automation', action: 'Talk to 10 local businesses, find one manual pain, and show a tiny demo.' },
+	    { condition: 'Have a warm network', lane: 'Productized consulting', action: 'Offer one fixed outcome with a clear timeline, price, and review gate.' },
+	    { condition: 'Have reusable prompts, templates, or internal systems', lane: 'Templates and prompt packs', action: 'Package one shortcut, sell it cheaply, and improve from buyer questions.' },
+	    { condition: 'Have one repeated workflow with visible ROI', lane: 'Paid automation', action: 'Calculate hours saved, build the demo, and charge setup plus maintenance.' },
+	    { condition: 'Have patience and a narrow software pain', lane: 'Micro-SaaS', action: 'Validate with a waitlist or payment link before building full features.' },
+	    { condition: 'Like documenting work publicly', lane: 'Build-in-public', action: 'Post progress, lessons, demos, numbers, and honest blockers for 30 days.' }
+	  ];
+
+	  const c6BusinessGlossary = [
+	    { term: 'MRR', def: 'Monthly recurring revenue. Money expected to repeat every month.' },
+	    { term: 'Churn', def: 'Customers canceling. Low churn means the product or service keeps mattering.' },
+	    { term: 'Scope', def: 'What is included and excluded in the job. Clear scope prevents endless extra work.' },
+	    { term: 'Deposit', def: 'Money paid upfront before work begins. It confirms the client is serious.' },
+	    { term: 'Deliverable', def: 'The finished thing the client receives: website, workflow, dashboard, report, or agent setup.' },
+	    { term: 'Case study', def: 'A short before/after story with proof, result, and lesson learned.' },
+	    { term: 'Validation', def: 'Evidence that real people care: replies, calls, waitlist signups, deposits, or purchases.' },
+	    { term: 'Review gate', def: 'A required human checkpoint before publishing, sending, charging, deleting, or changing client systems.' }
+	  ];
+
+	  const c6ResourceLinks = [
+	    { label: '80M Agent Desktop Releases', href: 'https://github.com/guapdad4000/80m-agent-desktop-v3/releases/', note: 'Install or update the customer desktop app before using Hermes for the business playbook.' },
+	    { label: 'Postiz', href: 'https://postiz.com/', note: 'Social scheduler, draft queue, analytics, approved publishing, and agent-friendly workflows.' },
+	    { label: 'Postiz Docs', href: 'https://docs.postiz.com/introduction', note: 'Official setup documentation for channels, drafts, scheduling, and integrations.' },
+	    { label: 'n8n Docs', href: 'https://docs.n8n.io/', note: 'Official visual automation docs for nodes, workflows, credentials, and executions.' },
+	    { label: 'n8n Credentials Docs', href: 'https://docs.n8n.io/integrations/builtin/credentials/', note: 'Official guide for connecting accounts and keeping private credentials controlled.' },
+	    { label: 'n8n Templates', href: 'https://n8n.io/workflows/', note: 'Workflow examples for lead routing, reporting, CRM updates, email, and internal ops.' },
+	    { label: 'Stripe Payment Links', href: 'https://docs.stripe.com/payment-links', note: 'No-code payment links for quick paid validation, deposits, and simple offers.' },
+	    { label: 'Stripe Billing', href: 'https://docs.stripe.com/billing', note: 'Subscriptions, invoices, customer portal, and recurring revenue setup.' },
+	    { label: 'Gumroad Features', href: 'https://gumroad.com/features', note: 'Sell templates, guides, packs, memberships, and files without building checkout.' },
+	    { label: 'Lemon Squeezy Docs', href: 'https://docs.lemonsqueezy.com/', note: 'Alternative merchant of record and software/product checkout docs.' },
+	    { label: 'Indie Hackers', href: 'https://www.indiehackers.com/', note: 'Community for solo founders, product ideas, revenue examples, and launch stories.' },
+	    { label: 'Product Hunt Launch Guide', href: 'https://www.producthunt.com/launch', note: 'Launch checklist and public product discovery channel.' },
+	    { label: 'Make Help Center', href: 'https://help.make.com/', note: 'Visual automation help center for scenario planning and app connections.' },
+	    { label: 'FTC Endorsement Guides', href: 'https://www.ftc.gov/business-guidance/advertising-marketing/endorsements-influencers-reviews', note: 'Disclosure and advertising guidance for creators, affiliates, and testimonial claims.' }
+	  ];
+
+	  const c6TutorialLinks = [
+	    { label: 'n8n from scratch 2026', href: 'https://www.youtube.com/watch?v=Fqeo8q8-nJg', note: 'Beginner automation workflow tutorial.' },
+	    { label: 'n8n beginners guide', href: 'https://www.youtube.com/watch?v=Fy1UCBcgF2o', note: 'Plain-English nodes, triggers, actions, and workflow flow.' },
+	    { label: 'n8n AI agents tutorial', href: 'https://www.youtube.com/watch?v=TKnaDGpN7Ns', note: 'Advanced agent automation reference.' },
+	    { label: 'Validate a SaaS idea', href: 'https://www.youtube.com/watch?v=31U9X_XD63c', note: 'Rob Walling validation logic for paid software ideas.' },
+	    { label: 'Micro-SaaS build story', href: 'https://www.youtube.com/watch?v=NvtsM8Nk72c', note: 'Starter Story reference for small, specific paid products.' },
+	    { label: 'Micro-SaaS ideas and validation', href: 'https://www.youtube.com/watch?v=ndqX4vbR7Rc', note: 'Greg Isenberg-style niche software opportunity framing.' },
+	    { label: 'Validate before you build', href: 'https://www.youtube.com/watch?v=4_MDP6TcHwU', note: 'Short builder validation framing.' },
+	    { label: 'Postiz + n8n automation', href: 'https://www.youtube.com/watch?v=c50u3K3xsCI', note: 'Scheduler automation reference; use through draft/review guardrails.' }
+	  ];
+
+	  const c6HermesPrompts = [
+	    'Hermes, interview me and choose one revenue model from this course. Consider my skills, network, cash needs, confidence, and available time. Return one recommendation and a 7-day action plan.',
+	    'Hermes, turn this vague business idea into a validation sprint. Give me the target customer, where to find them, 5 research DMs, a demo outline, price test, and stop/go criteria.',
+	    'Hermes, write a fixed-scope client offer. Include the problem, promised outcome, deliverables, timeline, price, what is excluded, review gates, and next step.',
+	    'Hermes, build my weekly business scoreboard. Track outreach, replies, demos, payments, revenue, hours saved, content posted, and the one experiment for next week.'
+	  ];
+
+	  const c6CompletionOutcomes = [
+	    'Choose one revenue lane based on cash need, network, skill comfort, and timeline.',
+	    'Write a fixed-scope offer with deliverables, price, timeline, exclusions, and review gates.',
+	    'Run a 72-hour demo-to-money sprint without hiding in planning mode.',
+	    'Use payment links, subscriptions, or simple checkout only after the offer is clear.',
+	    'Track weekly business numbers: outreach, replies, demos, revenue, churn, and next experiment.'
+	  ];
+
+	  const c6CompletionDrills = [
+	    'Use the revenue selector and ask Hermes to defend the recommended lane.',
+	    'Write one outreach DM for a real niche and one follow-up that is not pushy.',
+	    'Build one demo deck showing pain, solution, deliverable, price, and offer.',
+	    'Create a weekly scoreboard and schedule a Friday review.'
+	  ];
+
+	  const c6CompletionProof = [
+	    'One revenue lane is selected and written down.',
+	    'One fixed-scope offer exists.',
+	    'Five real research/outreach messages are drafted or sent.',
+	    'A weekly scoreboard prompt is saved to Hermes.'
+	  ];
+
+	  const toggleSection = (id) => {
     setCompletedSections(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   };
 
@@ -4632,7 +6017,7 @@ export const CourseSixContent = ({ onClose }) => {
     } else if ((bmComfort === 'MED' || bmComfort === 'HIGH') && bmNetwork === 'COLD' && (bmTimeline === 'SOON' || bmTimeline === 'BUILD')) {
       recommendation = 'Model 5 (Micro-SaaS) — Build it, validate with strangers online, iterate fast.';
     } else if (bmComfort === 'HIGH') {
-      recommendation = 'Model 7 (AI Agent Replacement) — Your technical skills command premium pricing.';
+      recommendation = 'Model 7 (AI Agent Replacement) — Your automation skills command premium pricing.';
     } else {
       recommendation = 'Model 3 (Templates/Prompt Packs) — Always works. Zero client dependency. Build once, sell forever.';
     }
@@ -4648,7 +6033,8 @@ export const CourseSixContent = ({ onClose }) => {
 // "Use Firecrawl to find all ${niche} businesses in [YOUR CITY]
 //  with no website or a terrible one. Return: name, address,
 //  what they do, website URL, and email if findable."
-// Command: npx firecrawl scrape [target_url] --max-pages ${clientCount}
+// Beginner action: paste public URLs into Firecrawl, or ask Hermes
+// to walk you through the Firecrawl screen one click at a time.
 
 // STEP 2: WARM UP THE LIST
 // "Pick the ${clientCount} most likely to pay for a website or custom tool.
@@ -4712,14 +6098,14 @@ If not, I'll dismantle it and you owe nothing."
   const generateMsaasLaunch = () => {
     if (!msaasProblem.trim()) { setMsaasOutput('// Describe the specific problem your micro-SaaS solves above.'); return; }
     const problem = msaasProblem.trim();
-    const userTypes = { freelancer: 'Freelancers and solo service providers', developer: 'Developers and technical creators', marketer: 'Marketers and content creators', business: 'Small business owners (5-50 employees)' };
+    const userTypes = { freelancer: 'Freelancers and solo service providers', developer: 'Technical operators and tool buyers', marketer: 'Marketers and content creators', business: 'Small business owners (5-50 employees)' };
     const names = ['Desk', 'Flow', 'Prep', 'Core', 'Stack', 'Base', 'Path', 'Kit', 'Dock', 'Beam'];
     const name = names[Math.floor(Math.random() * names.length)];
     setMsaasOutput(`# Micro-SaaS: ${problem.split(' ').slice(0, 4).join(' ')}...
 
 ## PHASE 1: VALIDATION (Week 1)
 1. Ask agent: "Build me a landing page for [tool idea]. MVP described below.
-   Include a 'Join Waitlist' button. Deploy to Vercel."
+   Include a 'Join Waitlist' button. Publish it on any simple landing page host."
 2. Share link in 3-5 communities:
    - r/SideProject, r/Entrepreneur, r/[your-niche]
    - Relevant Discord servers
@@ -4728,8 +6114,8 @@ If not, I'll dismantle it and you owe nothing."
 
 ## PHASE 2: MVP BUILD (Week 2-3)
 4. Once waitlist hits 10+ emails, build the actual tool
-5. Ask agent: "Vibe code [tool name]: [core feature list].
-   Use Next.js + Supabase + Stripe."
+5. Ask agent: "Build a tiny first version of [tool name]: [core feature list].
+   Include email sign-in, payment, and one customer screen. Explain every tool choice in plain English before using it."
 6. Set Stripe to ${msaasPrice} OR one-time $97-$297 lifetime
 
 ## PHASE 3: ITERATE (Week 4+)
@@ -4809,7 +6195,7 @@ $${salary}/mo human → $${yourPrice}/mo for your agent
  It handles [X]% of volume.
  Average response time: [Y seconds].
  Human escalations per week: [Z].
- Monthly cost to run: $[API costs + maintenance].
+	 Monthly cost to run: $[provider/tool costs + maintenance].
  My margin: $${yourPrice} - $[costs] = $${yourPrice - Math.round(yourPrice * 0.3)}/mo."
 
 // STEP 4: THE SALES APPROACH
@@ -4853,16 +6239,16 @@ Does NOT include: [scope creep, additional tools, ongoing management]
 `);
   };
 
-  const generatePostizSetup = () => {
-    return `// POSTIZ + 80M AGENT SOCIAL MEDIA SETUP
+	  const generatePostizSetup = () => {
+	    return `// POSTIZ + 80M AGENT SOCIAL MEDIA SETUP
 
-// STEP 1: STORE THE API KEY
-"Here's an API key for Postiz: ${postizApiKey || '[YOUR_API_KEY]'}
- Store it and use it for all post scheduling for [Project Name]."
+	// STEP 1: STORE THE PRIVATE ACCESS KEY
+	"Here's my private Postiz access key: ${postizApiKey || '[YOUR_PRIVATE_KEY]'}
+	 Store it for [Project Name]. Use it only according to the rules below."
 
 // STEP 2: IMAGE GENERATION SYSTEM
-"Using our Gemini API Key and Nano Banana 2, we're going to
- make sets of TikTok slideshow images for [Project Name].
+"Using Google AI Studio or Gemini image generation, we're going to
+ make draft TikTok slideshow image sets for [Project Name].
  3 images per post: HOOK, EXPAND, RESOLUTION.
 
  HOOK: What are we talking about and why should they care?
@@ -4870,28 +6256,27 @@ Does NOT include: [scope creep, additional tools, ongoing management]
  RESOLUTION: Emotional pull + potential CTA
 
  Start with [YOUR NICHE]. Create 3 variations of each slide.
- Once we approve the style, turn this into a skill file."
+ Return everything as drafts for review."
 
 // STEP 3: POSTING RULES
 "Every post we send via Postiz must follow these rules:
- 1. Send to DRAFTS ONLY. Never publish directly.
- 2. Audio: always set to 'none'. We pick manually later.
+ 1. Create drafts first. Do not publish without approval.
+ 2. Audio, music, and rights are checked during review.
  3. Max 5 hashtags per post. Must be trending + relevant.
  4. Captions: <1000 chars, natural tone, no spam.
  5. Posting schedule: [X times/day at X times]
  6. Each post = exactly 3 images. If not, flag and skip.
- 7. Title = relevant, created per post based on caption."
+ 7. Title = relevant, created per post based on caption.
+ 8. Verify claims, links, disclosures, and platform fit."
 
-// STEP 4: ANDROID HUMAN-TOUCH (AVOID SHADOWBAN)
-"For the Android phone step:
- 1. Connect Android to same Wi-Fi as this agent
- 2. Turn on ADB debugging in Android developer options
- 3. Use scrcpy to let this agent control the phone
- 4. Set up a cron: check Postiz drafts every [X mins]
-    If new draft exists, add audio + publish
- 5. NEVER post from API. Always route through Android."
-`;
-  };
+// STEP 4: REVIEW RHYTHM
+"Set reminders:
+ 1. Daily draft review before publishing windows
+ 2. Weekly analytics review every Monday
+ 3. Monthly stockpile refresh
+ 4. If a draft fails review, explain why and improve the next batch."
+	`;
+	  };
 
   const quizData = {
     0: [
@@ -4923,25 +6308,25 @@ Does NOT include: [scope creep, additional tools, ongoing management]
       { q: "Why does authentic practitioner content outperform 'AI guru' content?", options: ["Gurus are too expensive", "Authentic content is more relatable and trustworthy", "Gurus use the wrong tools", "Algorithms favor beginners"], correct: 1, explanation: "Authentic practitioner content is relatable and trustworthy because it's real experience, not performance. People can tell the difference between someone who actually does this and someone who talks about it." }
     ],
     7: [
-      { q: "Why should you test an agent for 2 weeks with real data before selling it?", options: ["To impress the client", "To discover every edge case before a paying client does", "It's required by law", "To lower your API costs"], correct: 1, explanation: "Edge cases are where agents fail. Bad addresses, missing fields, ambiguous inputs — you need to discover every failure mode before your client's reputation is on the line." },
+      { q: "Why should you test an agent for 2 weeks with real data before selling it?", options: ["To impress the client", "To discover every edge case before a paying client does", "It's required by law", "To lower your provider costs"], correct: 1, explanation: "Edge cases are where agents fail. Bad addresses, missing fields, ambiguous inputs — you need to discover every failure mode before your client's reputation is on the line." },
       { q: "If a business pays $5,000/mo for a customer support rep, what is a fair price for an AI agent replacement?", options: ["$5,000/mo", "$500-$1,000/mo", "$100/mo", "Free with ads"], correct: 1, explanation: "At 1/5 to 1/8 of the salary replaced, $500-$1,000/mo is the sweet spot. The ROI is obvious to the client (8-10x savings) and profitable for you (low cost to run)." }
     ],
     8: [
       { q: "What is the biggest differentiator in productized consulting vs. hourly consulting?", options: ["Lower price", "Fixed outcome, fixed price, fixed timeline — no scope creep", "Faster delivery", "More features"], correct: 1, explanation: "Productized consulting eliminates scope creep by fixing the deliverable, price, and timeline upfront. The client knows exactly what they get. You know exactly what you're building." },
       { q: "Why does speed create trust in consulting?", options: ["Clients are impatient", "Underpromising on timeline and overdelivering on speed creates delighted clients who weren't expecting it", "Speed is irrelevant", "Fast delivery means lower quality"], correct: 1, explanation: "When a client expects 4 weeks and you deliver in 3 days, their trust explodes. You've not only met expectations — you've shattered them. That client becomes your evangelist." }
-    ],
-    9: [
-      { q: "Why should you use a cheap Android phone instead of posting directly from the Postiz API?", options: ["Android is cooler", "Direct API posting shadowbans your account — Android mimics human posting", "Postiz doesn't support API posting", "It's free"], correct: 1, explanation: "Direct API posting looks like a bot to TikTok/Instagram and gets you shadowbanned. A cheap Android controlled via scrcpy mimics human posting behavior, preserving reach and account health." },
-      { q: "What is the purpose of warming up a TikTok account for 3 days before posting?", options: ["It's not necessary", "TikTok shadowbans accounts that look like bots — warming up makes it look human", "To build followers first", "To test your content"], correct: 1, explanation: "TikTok's algorithm flags accounts that immediately post at high volume as bots. Warming up with 3 days of organic activity (likes, comments, follows) makes the account look human before you start posting." }
-    ],
-    10: [
-      { q: "PMF stands for:", options: ["Profit Margin Formula", "Product-Market Fit", "Paid Marketing Funnel", "Personal Monthly Fee"], correct: 1, explanation: "PMF = Product-Market Fit. It's the point where your product actually solves a real problem that real customers will pay for. Without PMF, you have a solution looking for a problem." },
-      { q: "What is the shadowban risk in social media automation?", options: ["Posting too much", "Posting from API instead of mimicking human behavior", "Using too many hashtags", "Posting at night"], correct: 1, explanation: "Shadowbans happen when platforms detect bot-like behavior. Direct API posting is the most common trigger. The human-touch Android layer avoids this by mimicking real human posting behavior." }
-    ]
+	    ],
+	    9: [
+	      { q: "What is the safest first Postiz workflow in this course?", options: ["Publish everything immediately", "Create drafts, review them, then approve only what is accurate and on-brand", "Skip captions", "Give everyone the login"], correct: 1, explanation: "Draft-first gives you a review gate. Hermes can prepare posts, but a person should approve claims, links, disclosures, timing, and brand fit before anything goes public." },
+	      { q: "What is the purpose of a 3-day account learning period before scaling content?", options: ["It's not necessary", "It helps you learn the niche, save references, understand platform norms, and build a review rhythm", "To build followers first", "To test your phone battery"], correct: 1, explanation: "The point is not magic. It is operational discipline: learn what fits, save examples, draft carefully, and avoid rushing into volume before you understand the account." }
+	    ],
+	    10: [
+	      { q: "PMF stands for:", options: ["Profit Margin Formula", "Product-Market Fit", "Paid Marketing Funnel", "Personal Monthly Fee"], correct: 1, explanation: "PMF = Product-Market Fit. It's the point where your product actually solves a real problem that real customers will pay for. Without PMF, you have a solution looking for a problem." },
+	      { q: "What is the main account risk in social media automation?", options: ["Posting too much without review", "Using a scheduler responsibly", "Writing short captions", "Posting in the morning"], correct: 0, explanation: "The main risk is rushing volume without review: weak claims, poor disclosures, off-brand content, platform-rule issues, and bad quality control." }
+	    ]
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col">
+    <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
@@ -4978,19 +6363,69 @@ Does NOT include: [scope creep, additional tools, ongoing management]
         </div>
 
         {/* INTRO */}
-        <div id="c6-intro" className="mb-24">
-          <NeedBox title="What you need before you start" items={[
-            "Your 80m stack up and running (C01-C03 complete)",
-            "Basic understanding of what vibe coding can produce",
-            "At least one thing you've built (even if it embarrasses you)",
-            "The willingness to treat this like a business, not a hobby"
-          ]} />
+	        <div id="c6-intro" className="mb-24">
+	          <NeedBox title="What you need before you start" items={[
+	            "80M Agent Desktop open with Hermes ready",
+	            "One small demo, skill, prompt pack, website, automation, or idea from the earlier classes",
+	            "A spreadsheet or notes app for tracking leads, tests, and revenue",
+	            "The willingness to treat this like a business, not a hobby"
+	          ]} />
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter mb-8 uppercase text-center">
             The Full System <br/><span className="italic text-[#22c55e]">+ AI Business Playbook.</span>
           </h1>
-          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
-            The capstone. You built the stack. Now make it print. Eight proven revenue models for vibe coders, from small business websites to micro-SaaS to productized consulting.
-          </p>
+	          <p className="font-serif text-xl md:text-2xl text-[#aaa] leading-relaxed text-center max-w-2xl mx-auto border-b-4 border-[#111] pb-12 mb-12">
+	            The capstone. You built the stack. Now make it print. Eight proven revenue models for AI-assisted builders, from small business websites to micro-SaaS to productized consulting.
+	          </p>
+	          <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// How to not get lost</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">This is a business operating system, not a buffet</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c6OperatingRules.map((item) => (
+	                <div key={item.label} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+	                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.label}</p>
+	                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.detail}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Revenue picker tree</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Start with the lane that matches your situation</h3>
+	            <div className="space-y-3">
+	              {c6RevenuePickerTree.map((item, idx) => (
+	                <div key={item.condition} className="grid grid-cols-1 md:grid-cols-[2rem_1.2fr_1fr_1.4fr] gap-3 border-[2px] border-[#111] bg-white p-4">
+	                  <p className="font-mono font-black text-[#22c55e]">{idx + 1}</p>
+	                  <p className="font-sans font-black uppercase text-sm text-[#111]">{item.condition}</p>
+	                  <p className="font-mono text-[11px] uppercase tracking-wider text-[#22c55e]">{item.lane}</p>
+	                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.action}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Business dictionary</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Money words in plain English</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c6BusinessGlossary.map((item) => (
+	                <div key={item.term} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+	                  <p className="font-sans font-black uppercase text-[#111] mb-1">{item.term}</p>
+	                  <p className="font-serif text-sm text-[#333] leading-relaxed">{item.def}</p>
+	                </div>
+	              ))}
+	            </div>
+	          </div>
+	          <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e] mb-8">
+	            <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Start here with Hermes</p>
+	            <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Copy the prompt that matches your next move</h3>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	              {c6HermesPrompts.map((prompt, idx) => (
+	                <div key={prompt} className="border-[2px] border-[#333] bg-[#171717] p-4">
+	                  <p className="font-sans font-black uppercase text-[#22c55e] mb-2">Prompt {idx + 1}</p>
+	                  <CopyBlock text={prompt} label="Copy Business Prompt" />
+	                </div>
+	              ))}
+	            </div>
+	          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {[
               { num: '8', label: 'Revenue models', icon: '$' },
@@ -5029,6 +6464,13 @@ Does NOT include: [scope creep, additional tools, ongoing management]
             </p>
           </div>
           <CourseBoostPanel title="Class 06 Money Prompts" checklist={["Identify one specific revenue model from Section 1", "Draft your first outreach DM using the 72-hour pipeline", "Set up Postiz with your agent"]} prompts={["\"Help me identify the one revenue model that fits my current skills, network, and capital situation best.\"", "\"Review what I've built so far and tell me which of the 8 revenue models I could start monetizing in the next 7 days.\""]} />
+          <StudentCompletionKit
+            eyebrow="Class 06 final standard"
+            title="The student leaves with one lane, one offer, and one weekly scoreboard"
+            outcomes={c6CompletionOutcomes}
+            drills={c6CompletionDrills}
+            proof={c6CompletionProof}
+          />
         </div>
 
         {/* SECTION 1: The 8 Revenue Models */}
@@ -5047,7 +6489,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               { num: 2, name: 'Custom Tools', diff: 'EASY', desc: 'Appointment systems, inventory trackers, lead forms. $50-100/mo recurring.' },
               { num: 3, name: 'Templates/Prompt Packs', diff: 'EASY', desc: 'Build-once, sell-repeatedly. Near-zero marginal cost. Gumroad or Stripe.' },
               { num: 4, name: 'Paid Automations', diff: 'MEDIUM', desc: 'B2B annoyance work. Zapier/Make/n8n. Setup fee + monthly maintenance.' },
-              { num: 5, name: 'Micro-SaaS', diff: 'MEDIUM', desc: 'One job, one screen, one outcome. $5-25/mo. Vibe coded in days.' },
+              { num: 5, name: 'Micro-SaaS', diff: 'MEDIUM', desc: 'One job, one screen, one outcome. $5-25/mo. AI-assisted prototype in days.' },
               { num: 6, name: 'Build-in-Public', diff: 'MEDIUM', desc: 'Document the build. X, YouTube, blog. Audience = distribution = revenue.' },
               { num: 7, name: 'AI Agent Replacement', diff: 'MEDIUM', desc: 'One task, done well. Price at a fraction of the salary replaced.' },
               { num: 8, name: 'Productized Consulting', diff: 'HARD', desc: 'Sell the outcome, not the hours. Fixed deliverable. Fixed price.' }
@@ -5123,11 +6565,11 @@ Does NOT include: [scope creep, additional tools, ongoing management]
           </div>
         </div>
 
-        {/* SECTION 2: Vibe-to-Money Pipeline */}
+        {/* SECTION 2: Demo-to-Money Pipeline */}
         <div id="c6-s2" className="mb-24">
           <SectionMeta minutes="10 min" focus="Execution Velocity" />
           <NeedBox title="What you need" items={["Access to X, Reddit, or LinkedIn (for finding complaints)", "Your 80m agent ready to build on demand", "3 hours of focused work time"]} />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Vibe-to-Money Pipeline — 72-Hour Sprint</h2>
+          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">2. The Demo-to-Money Pipeline — 72-Hour Sprint</h2>
           <div className="border-[3px] border-[#22c55e] bg-[#111] p-6 mb-6 shadow-[6px_6px_0_0_#22c55e]">
             <p className="font-serif text-[#eae7de] text-xl leading-relaxed font-bold mb-2">
               Speed beats perfection.
@@ -5257,7 +6699,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
         {/* SECTION 4: Paid Workflow Automations */}
         <div id="c6-s4" className="mb-24">
           <SectionMeta minutes="12 min" focus="Recurring Revenue" />
-          <NeedBox title="What you need" items={["n8n, Make, or Zapier access", "Your agent with API access to relevant tools", "At least one identified repetitive workflow from research"]} />
+	          <NeedBox title="What you need" items={["n8n, Make, or Zapier access", "Your agent with approved access to relevant tools", "At least one identified repetitive workflow from research"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">4. Paid Workflow Automations — The Compound Machine</h2>
           <div className="border-[3px] border-[#22c55e] bg-[#111] p-6 mb-6 shadow-[6px_6px_0_0_#22c55e]">
             <p className="font-serif text-[#eae7de] text-xl leading-relaxed font-bold mb-2">
@@ -5267,7 +6709,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               You're selling hours back. B2B annoyance work is a goldmine: cleaning spreadsheets, generating reports, nudging follow-ups.
             </p>
           </div>
-          <MacWindow title="automation_template.sh" className="mb-8">
+	          <MacWindow title="automation_template.txt" className="mb-8">
             <div className="p-6 font-mono text-sm space-y-2">
               <p className="text-[#aaa]">// SLIDE 1: THE PAIN</p>
               <p className="text-[#eae7de]">"[Company Name] spends [X hours] per [week/month] on [task]."</p>
@@ -5315,7 +6757,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
         {/* SECTION 5: Micro-SaaS */}
         <div id="c6-s5" className="mb-24">
           <SectionMeta minutes="15 min" focus="Ship Fast" />
-          <NeedBox title="What you need" items={["Stripe account set up", "Landing page hosting (Vercel, Netlify, or your own infra from C03)", "Your agent ready to build fast"]} />
+	          <NeedBox title="What you need" items={["Stripe account set up", "Simple landing page hosting", "Your agent ready to build fast"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">5. Micro-SaaS — One Job, One Screen, One Outcome</h2>
           <div className="border-[3px] border-[#22c55e] bg-[#111] p-6 mb-6 shadow-[6px_6px_0_0_#22c55e]">
             <p className="font-serif text-[#eae7de] text-xl leading-relaxed font-bold">
@@ -5350,7 +6792,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               <div className="grid grid-cols-2 gap-4">
                 <select value={msaasUser} onChange={e => setMsaasUser(e.target.value)} className="border-[2px] border-[#111] px-4 py-2 font-mono text-sm">
                   <option value="freelancer">Freelancers</option>
-                  <option value="developer">Developers</option>
+	                  <option value="developer">Technical Operators</option>
                   <option value="marketer">Marketers</option>
                   <option value="business">Small Businesses</option>
                 </select>
@@ -5440,7 +6882,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
         {/* SECTION 7: AI Agents Replacing Labor */}
         <div id="c6-s7" className="mb-24">
           <SectionMeta minutes="10 min" focus="High-Value Selling" />
-          <NeedBox title="What you need" items={["Deep understanding of one specific repetitive business task", "Access to LLM APIs (OpenAI, Anthropic, or similar)", "At least 2 weeks of testing with real data before selling"]} />
+	          <NeedBox title="What you need" items={["Deep understanding of one specific repetitive business task", "Provider access through 80M, OpenRouter, or an approved model service", "At least 2 weeks of testing with real data before selling"]} />
           <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">7. AI Agents Replacing Labor — The Salary Cutter</h2>
           <div className="border-[3px] border-[#22c55e] bg-[#111] p-6 mb-6 shadow-[6px_6px_0_0_#22c55e]">
             <p className="font-serif text-[#eae7de] text-xl leading-relaxed font-bold">
@@ -5548,23 +6990,23 @@ Does NOT include: [scope creep, additional tools, ongoing management]
           </div>
         </div>
 
-        {/* SECTION 9: Postiz + Agent Stack */}
-        <div id="c6-s9" className="mb-24">
-          <SectionMeta minutes="15 min" focus="System Integration" />
-          <NeedBox title="What you need" items={["Postiz account ($29/mo)", "Gemini API key + Nano Banana 2 for image generation", "A $50 Android phone (for human-touch posting)", "A warmed-up TikTok account (3 days organic first)"]} />
-          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. Postiz + Agent Stack — The Automated Marketing Engine</h2>
-          <p className="font-serif text-xl mb-6 leading-relaxed">
-            This section integrates everything: your 80m agent becomes a 24/7 social media marketing machine for your own business or clients.
-          </p>
+	        {/* SECTION 9: Postiz + Agent Stack */}
+	        <div id="c6-s9" className="mb-24">
+	          <SectionMeta minutes="15 min" focus="System Integration" />
+	          <NeedBox title="What you need" items={["Postiz account or another approved scheduler", "Google AI Studio or Gemini image generation access", "A brand/content checklist", "A TikTok or social account you own and will review responsibly"]} />
+	          <h2 className="font-sans font-black text-3xl md:text-4xl uppercase tracking-tight mb-6">9. Postiz + Agent Stack — The Automated Marketing Engine</h2>
+	          <p className="font-serif text-xl mb-6 leading-relaxed">
+	            This section integrates everything: Hermes prepares the content system, Postiz organizes the drafts, and you approve what goes live. The business value is consistency with review, not blind volume.
+	          </p>
           <div className="border-[3px] border-[#111] bg-[#111] p-6 mb-6">
             <p className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-3">// The Stack Wiring</p>
             <div className="space-y-2">
-              {[
-                ['Hermes/OpenClaw', 'The brain — generates content, manages API calls'],
-                ['Gemini + Nano Banana 2', 'Creates 3-image sets per post (hook, expand, resolution)'],
-                ['Postiz API', 'Schedules posts to drafts — NOT directly to platform'],
-                ['$50 Android', 'Human-touch layer — picks up drafts and posts like a human']
-              ].map(([tool, role]) => (
+	              {[
+	                ['Hermes / 80M Desktop', 'The coordinator — research, prompts, captions, checklists, and draft briefs'],
+	                ['Gemini Image Generation', 'Creates draft 3-image sets per post: hook, expand, resolution'],
+		                ['Postiz Access', 'Creates and organizes drafts, schedules, previews, and analytics'],
+	                ['Human Review', 'Approves claims, disclosures, links, timing, audio, and final publish decision']
+	              ].map(([tool, role]) => (
                 <div key={tool} className="flex items-center gap-4 py-2 border-b border-[#333] last:border-0">
                   <span className="font-mono font-bold text-[#22c55e] w-48 shrink-0">{tool}</span>
                   <span className="font-serif text-[#aaa] text-sm">{role}</span>
@@ -5572,28 +7014,28 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               ))}
             </div>
           </div>
-          <div className="bg-[#ef4444] border-[3px] border-[#111] p-5 mb-6 shadow-[6px_6px_0_0_#111]">
-            <p className="font-mono text-white text-xs font-bold uppercase mb-2">// CRITICAL: Shadowban Warning</p>
-            <p className="font-serif text-white leading-relaxed">NEVER post directly from the Postiz API. You will get shadowbanned. Always route through the Android human-touch layer.</p>
-          </div>
+	          <div className="bg-[#fffbeb] border-[3px] border-[#111] p-5 mb-6 shadow-[6px_6px_0_0_#111]">
+	            <p className="font-mono text-[#92400e] text-xs font-bold uppercase mb-2">// Critical Review Boundary</p>
+	            <p className="font-serif text-[#92400e] leading-relaxed">Do not let automation publish business content without approval. Review claims, disclosures, links, captions, visuals, and timing before anything goes live.</p>
+	          </div>
 
           {/* Interactive: Postiz Setup */}
           <div className="border-[3px] border-[#22c55e] bg-white p-6 shadow-[6px_6px_0_0_#22c55e] mb-6">
             <h3 className="font-sans font-black text-lg uppercase mb-4">Postiz + Agent Setup</h3>
             <div className="flex flex-wrap gap-2 mb-4">
-              {[
-                { label: 'Step 1: Store API Key', done: postizStep >= 1 },
-                { label: 'Step 2: Image Generation', done: postizStep >= 2 },
-                { label: 'Step 3: Posting Rules', done: postizStep >= 3 },
-                { label: 'Step 4: Android Human-Touch', done: postizStep >= 4 }
-              ].map((item, i) => (
+	              {[
+		                { label: 'Step 1: Store Private Key', done: postizStep >= 1 },
+	                { label: 'Step 2: Image Generation', done: postizStep >= 2 },
+	                { label: 'Step 3: Posting Rules', done: postizStep >= 3 },
+	                { label: 'Step 4: Review Rhythm', done: postizStep >= 4 }
+	              ].map((item, i) => (
                 <button key={i} onClick={() => setPostizStep(i + 1)} className={`font-mono text-xs font-bold px-3 py-2 border-[2px] ${item.done ? 'bg-[#22c55e] text-[#111] border-[#111]' : 'bg-white text-[#555] border-[#ddd]'}`}>
                   {item.label}
                 </button>
               ))}
             </div>
             <div className="space-y-3 mb-4">
-              <input value={postizApiKey} onChange={e => setPostizApiKey(e.target.value)} placeholder="Postiz API key (paste to your agent)" className="w-full border-[2px] border-[#111] px-4 py-2 font-mono text-sm" />
+              <input value={postizApiKey} onChange={e => setPostizApiKey(e.target.value)} placeholder="Postiz private access key (paste to your agent)" className="w-full border-[2px] border-[#111] px-4 py-2 font-mono text-sm" />
             </div>
             <div className="border-[3px] border-[#111] bg-[#111] p-5">
               <p className="font-mono text-[#22c55e] text-xs font-bold uppercase mb-2">// Setup Script</p>
@@ -5603,19 +7045,19 @@ Does NOT include: [scope creep, additional tools, ongoing management]
 
           {/* Image Stockpile Method */}
           <div className="bg-[#111] border-[3px] border-[#333] p-6 mb-6">
-            <p className="font-mono text-[#38bdf8] text-xs font-bold uppercase mb-3">// Image Stockpile Method</p>
-            <p className="font-serif text-[#eae7de] leading-relaxed">
-              3 posts/day x 9 images/day = 1 week stockpile in one sitting. Tell your agent: "Create 3 variations of each slide (HOOK, EXPAND, RESOLUTION) for [YOUR NICHE]. Turn this into a skill file."
-            </p>
+	            <p className="font-mono text-[#38bdf8] text-xs font-bold uppercase mb-3">// Draft Stockpile Method</p>
+	            <p className="font-serif text-[#eae7de] leading-relaxed">
+	              3 posts/day x 9 images/day = 1 week of draft material in one sitting. Tell Hermes: "Create 3 variations of each slide (HOOK, EXPAND, RESOLUTION) for [YOUR NICHE]. Return a review checklist with every draft."
+	            </p>
           </div>
 
           <CheckpointCard
-            title="Section 9 Checkpoints"
-            items={[
-              { type: 'pass', text: 'Postiz connected to agent, first 3-image set generated and sent to drafts, Android step configured' },
-              { type: 'fail', text: 'Tried to post directly from API and got shadowbanned, then asked "why isn\'t this working?"' }
-            ]}
-          />
+	            title="Section 9 Checkpoints"
+	            items={[
+	              { type: 'pass', text: 'Postiz connected to Hermes, first 3-image set generated, and review rules attached to the draft' },
+	              { type: 'fail', text: 'Trying to scale publishing before you can review one draft correctly' }
+	            ]}
+	          />
           <div className="mt-6 text-center">
             <button onClick={() => { setQuizActive(true); setQuizSection(9); }} className="font-sans font-black text-sm uppercase px-8 py-4 bg-[#111] text-[#22c55e] border-[3px] border-[#22c55e] shadow-[4px_4px_0_0_#22c55e] hover:-translate-y-1 transition-all">
               Take Section 9 Quiz →
@@ -5632,16 +7074,16 @@ Does NOT include: [scope creep, additional tools, ongoing management]
           <div className="border-[3px] border-[#111] bg-white p-6 shadow-[6px_6px_0_0_#111] mb-8">
             <h3 className="font-sans font-black text-lg uppercase mb-4">Key Terms</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { term: 'Micro-SaaS', def: 'Very specific tool solving one niche problem. $5-25/mo. Traditional dev teams can\'t justify building these.' },
-                { term: 'Productized Consulting', def: 'Selling a fixed outcome at a fixed price. No hourly billing. No scope creep.' },
-                { term: 'PMF', def: 'Product-Market Fit. When real customers pay for a real problem. Nothing else matters before this.' },
-                { term: 'Agentic Social Media', def: 'Your AI agent manages posting via API. The Android layer adds human-touch to avoid shadowban.' },
-                { term: 'Shadowban', def: 'Platform hiding your content because you look like a bot. Fixed by human-touch posting layer.' },
-                { term: 'Recurring Revenue', def: 'Monthly payments that compound over time. The foundation of a real business.' },
-                { term: 'Lifetime Deal', def: 'One-time payment for lifetime access. Good for early momentum, bad for long-term revenue.' },
-                { term: 'scrcpy', def: 'Tool to control Android phone from your computer. The human-touch layer for automated posting.' }
-              ].map(item => (
+	              {[
+	                { term: 'Micro-SaaS', def: 'Very specific tool solving one niche problem. $5-25/mo. Traditional dev teams can\'t justify building these.' },
+	                { term: 'Productized Consulting', def: 'Selling a fixed outcome at a fixed price. No hourly billing. No scope creep.' },
+	                { term: 'PMF', def: 'Product-Market Fit. When real customers pay for a real problem. Nothing else matters before this.' },
+	                { term: 'Draft-First Social Media', def: 'Your AI agent prepares ideas, visuals, captions, and schedules, then a person reviews before publishing.' },
+	                { term: 'Account Risk', def: 'The risk that rushed volume, weak claims, missing disclosures, or poor review hurts the account or brand.' },
+	                { term: 'Recurring Revenue', def: 'Monthly payments that compound over time. The foundation of a real business.' },
+	                { term: 'Lifetime Deal', def: 'One-time payment for lifetime access. Good for early momentum, bad for long-term revenue.' },
+	                { term: 'Review Gate', def: 'A written approval checkpoint before sensitive actions like publishing, billing, refunds, client messages, or data changes.' }
+	              ].map(item => (
                 <div key={item.term} className="border border-[#ddd] p-4">
                   <h4 className="font-mono font-black text-[#22c55e] text-sm mb-1">{item.term}</h4>
                   <p className="font-serif text-[#555] text-sm leading-snug">{item.def}</p>
@@ -5650,28 +7092,60 @@ Does NOT include: [scope creep, additional tools, ongoing management]
             </div>
           </div>
 
-          <ResourceList
-            title="Class 06 Resource Locker"
-            links={[
-              { label: "Micro-SaaS Forum (IndieHackers)", url: "https://www.indiehackers.com" },
-              { label: "Levels.io — Micro-SaaS Inspiration", url: "https://levels.io" },
-              { label: "Postiz.com — Agentic Social Media", url: "https://postiz.pro/ashen" },
-              { label: "scrcpy — Phone Screen Mirroring", url: "https://github.com/Genymobile/scrcpy" },
-              { label: "Hunter.io — Email Finder", url: "https://hunter.io" },
-              { label: "Apollo.io — B2B Lead Database", url: "https://apollo.io" },
-              { label: "Gumroad — Sell Digital Products", url: "https://gumroad.com" },
-              { label: "Lemon Squeezy — Alt to Gumroad", url: "https://lemonsqueezy.com" },
-              { label: "Stripe Atlas — Company Formation", url: "https://stripe.com/atlas" },
-              { label: "Reel.Farm — AI UGC Video", url: "https://reelfarm.io" }
-            ]}
-          />
+	          <div id="c6-resources" className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Class 06 Resource Locker</h3>
+	            <p className="font-serif text-[#333] leading-relaxed mb-6">
+	              Keep these close while students pick a revenue model. The links are split into official tools/docs, tutorials, and copyable Hermes prompts.
+	            </p>
+
+	            <h4 className="font-sans font-black text-lg uppercase tracking-tight mb-4">Official References + Tools</h4>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+	              {c6ResourceLinks.map((item) => (
+	                <a
+	                  key={item.label}
+	                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+	                  href={item.href}
+	                  target="_blank"
+	                  rel="noreferrer"
+	                >
+	                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+	                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+	                </a>
+	              ))}
+	            </div>
+
+	            <h4 className="font-sans font-black text-lg uppercase tracking-tight mb-4">YouTube Tutorials for Students</h4>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+	              {c6TutorialLinks.map((item) => (
+	                <a
+	                  key={item.label}
+	                  className="block border-[2px] border-[#111] bg-white p-4 hover:bg-[#fffbeb] hover:border-[#f59e0b] transition-colors"
+	                  href={item.href}
+	                  target="_blank"
+	                  rel="noreferrer"
+	                >
+	                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+	                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+	                </a>
+	              ))}
+	            </div>
+
+	            <div className="mt-6 p-4 bg-[#fffbeb] border-[2px] border-[#f59e0b]">
+	              <p className="font-sans font-black text-sm uppercase mb-2">Hermes Prompts</p>
+	              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+	                {c6HermesPrompts.map((prompt) => (
+	                  <CopyBlock key={prompt} text={prompt} label="Copy Capstone Prompt" />
+	                ))}
+	              </div>
+	            </div>
+	          </div>
 
           <CheckpointCard
             title="Section 10 Checkpoints"
-            items={[
-              { type: 'pass', text: 'You can define PMF, Shadowban, Micro-SaaS, and Productized Consulting in your own words' },
-              { type: 'fail', text: 'You\'re still confused about the difference between recurring revenue and one-time fees' }
-            ]}
+	            items={[
+	              { type: 'pass', text: 'You can define PMF, Account Risk, Micro-SaaS, Review Gate, and Productized Consulting in your own words' },
+	              { type: 'fail', text: 'You\'re still confused about the difference between recurring revenue and one-time fees' }
+	            ]}
           />
           <div className="mt-6 text-center">
             <button onClick={() => { setQuizActive(true); setQuizSection(10); }} className="font-sans font-black text-sm uppercase px-8 py-4 bg-[#111] text-[#22c55e] border-[3px] border-[#22c55e] shadow-[4px_4px_0_0_#22c55e] hover:-translate-y-1 transition-all">
@@ -5688,20 +7162,20 @@ Does NOT include: [scope creep, additional tools, ongoing management]
           </div>
 
           <div className="border-[3px] border-[#111] bg-[#111] p-6 mb-8 shadow-[6px_6px_0_0_#22c55e]">
-            <pre className="font-mono text-[#22c55e] text-xs leading-relaxed whitespace-pre-wrap">{`
+	            <pre className="font-mono text-[#22c55e] text-xs leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] max-w-full overflow-x-auto">{`
 ╔══════════════════════════════════════════════════════════╗
 ║             CLASS 06 — MISSION COMPLETE                   ║
 ║                                                          ║
 ║  You have:                                               ║
-║  ✓ Learned 8 revenue models for vibe coders             ║
-║  ✓ Built a 72-hour vibe-to-money pipeline               ║
+║  ✓ Learned 8 revenue models for AI-assisted builders    ║
+║  ✓ Built a 72-hour demo-to-money pipeline               ║
 ║  ✓ Mastered small business client acquisition            ║
 ║  ✓ Understood paid automation and micro-SaaS           ║
 ║  ✓ Built a content flywheel with build-in-public        ║
 ║  ✓ Positioned AI agents as labor replacement            ║
 ║  ✓ Learned productized consulting sales                ║
-║  ✓ Wired your 80m stack into an automated marketing     ║
-║    engine via Postiz                                    ║
+	║  ✓ Wired your 80m stack into a reviewed marketing       ║
+	║    engine via Postiz                                    ║
 ║                                                          ║
 ║  THE MACHINE IS BUILT. NOW MAKE IT PRINT.              ║
 ║                                                          ║
@@ -5720,7 +7194,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
               "You have identified ONE revenue model and are executing on it.",
               "You've sent research DMs using the 72-hour pipeline.",
               "You have a concrete path from skills to income (8 options, ranked by difficulty).",
-              "Your 80m stack is wired into Postiz for automated marketing.",
+	              "Your 80m stack is wired into a draft-first, reviewed marketing workflow.",
               "You know exactly what to do next — because you've done the work."
             ].map((outcome, i) => (
               <div key={i} className="border-[3px] border-[#111] bg-white p-5 shadow-[4px_4px_0_0_#111]">
@@ -5738,7 +7212,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
                 { day: 'TODAY', task: 'Pick ONE revenue model from Section 1' },
                 { day: 'THIS WEEK', task: 'Send 5 research DMs using the 72-hour pipeline' },
                 { day: 'THIS WEEK', task: 'Build one demo and send it to at least one person' },
-                { day: 'THIS WEEK', task: 'Set up Postiz with your agent and generate your first image set' },
+	                { day: 'THIS WEEK', task: 'Set up Postiz with your agent and review your first image set' },
                 { day: 'TOMORROW', task: 'Start the build-in-public calendar — Day 1 post' }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 py-2 border-b border-[#ddd] last:border-0">
@@ -5756,21 +7230,32 @@ Does NOT include: [scope creep, additional tools, ongoing management]
             </p>
           </div>
 
-          <ResourceList
-            title="Class 06 Resource Locker"
-            links={[
-              { label: "Micro-SaaS Forum (IndieHackers)", url: "https://www.indiehackers.com" },
-              { label: "Levels.io — Micro-SaaS Inspiration", url: "https://levels.io" },
-              { label: "Postiz.com — Agentic Social Media", url: "https://postiz.pro/ashen" },
-              { label: "scrcpy — Phone Screen Mirroring", url: "https://github.com/Genymobile/scrcpy" },
-              { label: "Hunter.io — Email Finder", url: "https://hunter.io" },
-              { label: "Apollo.io — B2B Lead Database", url: "https://apollo.io" },
-              { label: "Gumroad — Sell Digital Products", url: "https://gumroad.com" },
-              { label: "Lemon Squeezy — Alt to Gumroad", url: "https://lemonsqueezy.com" },
-              { label: "Stripe Atlas — Company Formation", url: "https://stripe.com/atlas" },
-              { label: "Reel.Farm — AI UGC Video", url: "https://reelfarm.io" }
-            ]}
-          />
+	          <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+	            <h3 className="font-sans font-black text-xl uppercase tracking-tight mb-4">Final Resource Pack</h3>
+	            <p className="font-serif text-[#333] leading-relaxed mb-6">
+	              Same links as the Class 06 locker, repeated here so students do not have to scroll back after graduation.
+	            </p>
+	            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+	              {c6ResourceLinks.slice(0, 8).map((item) => (
+	                <a
+	                  key={item.label}
+	                  className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+	                  href={item.href}
+	                  target="_blank"
+	                  rel="noreferrer"
+	                >
+	                  <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+	                  <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+	                </a>
+	              ))}
+	            </div>
+	            <div className="p-4 bg-[#fdfaf6] border-[2px] border-[#111]">
+	              <p className="font-sans font-black text-sm uppercase mb-2">For future video production</p>
+	              <p className="font-serif text-sm text-[#333] leading-relaxed">
+	                Instructor production note: Course 06 n8n, validation, micro-SaaS, Postiz, payment, and business-model tutorials are logged in the internal scrape queue for original 80M motion explainers.
+	              </p>
+	            </div>
+	          </div>
 
           <div className="text-center mt-12">
             <button onClick={onClose} className="font-sans font-black text-xl px-12 py-6 bg-[#22c55e] text-[#111] border-[3px] border-[#111] hover:bg-[#111] hover:text-[#22c55e] shadow-[8px_8px_0_0_#111] transition-colors">
@@ -5800,7 +7285,7 @@ Does NOT include: [scope creep, additional tools, ongoing management]
 
       </div>{/* close max-w-4xl */}
       </div>{/* close flex-1 overflow-y-auto */}
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
     </motion.div>
   );
 };
@@ -5817,13 +7302,111 @@ export const CourseSevenContent = ({ onClose }) => {
     try { return JSON.parse(localStorage.getItem('80m-c7-quizzes') || '[]'); } catch { return []; }
   });
 
+  const desktopSourceFacts = [
+    "Current 80M Agent Desktop README describes the app as the native command center for chat, profiles, memory, tools, schedules, Kanban, and gateway automations.",
+    "First-run setup checks for the local runtime, installs missing dependencies, asks for provider/model setup, saves config locally, and launches the workspace.",
+    "Chat is powered by a local Hermes service behind the desktop app. Students do not need to edit it; they just need to know the app can show progress, markdown, token usage, and cost data.",
+    "The current app exposes Chat, Sessions, Agents, Skills, Models, Memory, Soul, Tools, Schedules, Kanban, Gateway, and Settings screens.",
+    "Supported provider paths include OpenRouter, Anthropic, OpenAI, Google Gemini, xAI, Qwen, MiniMax, Hugging Face, Groq, and local OpenAI-compatible endpoints.",
+    "Current Hermes v0.12 desktop work prefers Runs/event streaming when available, then falls back safely when older chat support is the only option."
+  ];
+
+  const desktopDownloads = [
+    { label: '80M Agent Desktop Releases', href: 'https://github.com/guapdad4000/80m-agent-desktop-v3/releases/', note: 'Download the customer app for Windows, macOS, or Linux.' },
+    { label: 'OpenRouter Keys', href: 'https://openrouter.ai/settings/keys', note: 'Recommended beginner provider. Use a small credit limit.' },
+    { label: 'OpenAI API Keys', href: 'https://platform.openai.com/api-keys', note: 'Direct OpenAI provider setup; treat keys like private paid access cards.' },
+    { label: 'Anthropic Console', href: 'https://console.anthropic.com/', note: 'Direct Claude provider setup.' },
+    { label: 'Docker Desktop', href: 'https://docs.docker.com/get-started/introduction/get-docker-desktop/', note: 'Optional support tool if a setup flow asks for containers.' },
+    { label: 'Ubuntu Command Line for Beginners', href: 'https://ubuntu.com/tutorials/command-line-for-beginners', note: 'Optional Linux command vocabulary for support-guided troubleshooting.' },
+    { label: 'Discord Download', href: 'https://discord.com/download', note: 'Support/community channel.' }
+  ];
+
+  const desktopTutorials = [
+    { label: 'AI agents clearly explained', href: 'https://www.youtube.com/watch?v=FwOTs4UxQS4', note: 'Use this to understand the difference between a chatbot and an agent before using Hermes.' },
+    { label: 'No-code AI agent overview', href: 'https://www.youtube.com/watch?v=EH5jx5qPabU', note: 'Market-context video. Students should map the ideas back to the 80M desktop app.' },
+    { label: 'OpenRouter API key setup', href: 'https://www.youtube.com/watch?v=VvJvJ0uXiVQ', note: 'Good beginner walkthrough for the recommended provider key.' },
+    { label: 'OpenAI API key quick tutorial', href: 'https://www.youtube.com/watch?v=Lj43aSwNpog', note: 'Short walkthrough if the student uses OpenAI directly.' },
+    { label: 'Claude API key quick tutorial', href: 'https://www.youtube.com/watch?v=vgncj7MJbVU', note: 'Short walkthrough if the student uses Anthropic/Claude directly.' }
+  ];
+
+  const desktopScreenTour = [
+    { screen: 'Chat', job: 'Talk to Hermes, see streaming answers, and watch tool progress.', action: 'Send a setup audit prompt and read the final PASS/FAIL summary.' },
+    { screen: 'Sessions', job: 'Search old conversations and resume unfinished work.', action: 'Search for your first setup chat and ask Hermes what decisions were made.' },
+    { screen: 'Agents', job: 'Switch or create separate Hermes profiles for different work contexts.', action: 'Keep one main profile until you understand what should be isolated.' },
+    { screen: 'Skills', job: 'Browse, install, and manage reusable workflows.', action: 'Install only one skill at a time, then test it with a small task.' },
+    { screen: 'Models', job: 'Choose saved model/provider configurations.', action: 'Start with OpenRouter or your chosen provider default before experimenting.' },
+    { screen: 'Memory', job: 'View and edit what Hermes remembers about you.', action: 'Save name, timezone, business, current goal, and hard rules.' },
+    { screen: 'Soul', job: 'Tune the assistant personality and boundaries.', action: 'Set concise, honest, approval-first behavior.' },
+    { screen: 'Tools', job: 'Enable or disable capabilities such as web, files, command-window rescue, memory, vision, image gen, skills, and delegation.', action: 'Leave defaults alone unless Hermes or support tells you what to change.' },
+    { screen: 'Schedules', job: 'Create recurring work with delivery targets.', action: 'Draft a weekday morning brief with approval gates.' },
+    { screen: 'Kanban', job: 'Track multi-agent work, blockers, comments, and run history.', action: 'Create one board task for your first workspace setup.' },
+    { screen: 'Gateway', job: 'Connect messaging platforms such as Discord, Telegram, Slack, email, SMS, webhooks, and Home Assistant.', action: 'Do this after memory and rules are clean, not before.' },
+    { screen: 'Settings', job: 'Manage provider config, credentials, backup/import, logs, network, and theme.', action: 'Know where it lives before something breaks.' }
+  ];
+
+  const desktopFirstWeekPlan = [
+    { day: 'Day 1', focus: 'Install + first chat', action: 'Download the app, add provider key, send setup audit, and save the first memory note.' },
+    { day: 'Day 2', focus: 'Memory + sessions', action: 'Teach Hermes your profile, then search yesterday\'s session and confirm it can summarize decisions.' },
+    { day: 'Day 3', focus: 'Skills', action: 'Pick one skill, ask what access it needs, install only if the permissions make sense, then test one small task.' },
+    { day: 'Day 4', focus: 'Schedules', action: 'Create a private morning brief schedule with no external messages or account changes.' },
+    { day: 'Day 5', focus: 'Tasks + Kanban', action: 'Turn one real project into tracked tasks with blockers, review rhythm, and owner notes.' },
+    { day: 'Day 6', focus: 'Gateway safety', action: 'Review rules for Discord, email, Slack, SMS, or webhooks. Test one harmless message only.' },
+    { day: 'Day 7', focus: 'Backup + review', action: 'Ask Hermes what is saved, what is connected, what is risky, and what to back up before scaling.' }
+  ];
+
+  const desktopHealthTerms = [
+    { term: 'Provider', def: 'The AI account Hermes calls for model answers, such as OpenRouter, OpenAI, Anthropic, or Gemini.' },
+    { term: 'Model', def: 'The specific brain selected under a provider. Beginners should start with the recommended default.' },
+    { term: 'Gateway', def: 'The bridge between Hermes and outside apps like Discord, email, Slack, SMS, or webhooks.' },
+    { term: 'Run', def: 'One tracked task Hermes performs. Newer Hermes paths can stream run events and progress.' },
+    { term: 'Session', def: 'One conversation thread. Sessions help you find old decisions instead of losing them in chat history.' },
+    { term: 'Skill', def: 'A reusable ability package, like YouTube summaries, Stripe billing, Notion sync, or Obsidian notes.' },
+    { term: 'Tool', def: 'A capability Hermes can use during a task, such as web, files, memory, vision, or schedules.' },
+    { term: 'Backup', def: 'A saved copy of settings, memory, or workspace data so you can recover if something changes.' },
+    { term: 'Log', def: 'A timestamped record of what happened. Logs are for support and troubleshooting, not for panic-reading.' },
+    { term: 'Credential', def: 'A private key or login token. Treat it like paid access and never post it in screenshots or public chats.' }
+  ];
+
+  const desktopConversationModes = [
+    { mode: 'Setup audit', prompt: 'Hermes, audit my 80M Agent Desktop setup. Explain every warning in plain English and give me the safest next click.' },
+    { mode: 'Memory dump', prompt: 'Hermes, save this to memory: my name is [name], my timezone is [timezone], my work is [work], my main goal is [goal], and my hard rule is [rule].' },
+    { mode: 'Daily brief', prompt: 'Hermes, give me a daily brief with top priorities, calendar risk, waiting-on items, and one recommended first action.' },
+    { mode: 'Follow-up manager', prompt: 'Hermes, build a follow-up tracker for my clients. Never send messages externally without my approval.' },
+    { mode: 'Skill install', prompt: 'Hermes, I want to install the [skill name] skill. Explain what it does, what access it needs, and how to test it safely.' },
+    { mode: 'Long task', prompt: 'Hermes, turn this outcome into a Kanban task. Break it into steps, assign the right agent lane, and flag blockers before work starts.' },
+    { mode: 'Session recall', prompt: 'Hermes, search my sessions for [topic]. Summarize what we decided and what still needs action.' },
+    { mode: 'Schedule builder', prompt: 'Hermes, create a safe weekday morning schedule that prepares my brief but does not message anyone externally.' }
+  ];
+
+  const c7CompletionOutcomes = [
+    'Open the 80M desktop app and explain what Chat, Sessions, Memory, Skills, Tools, Schedules, Kanban, Gateway, and Settings do.',
+    'Create a useful first memory profile and verify what Hermes saved.',
+    'Install or evaluate one skill safely by asking what access it needs and how to test it.',
+    'Create a private recurring schedule before connecting any outside messaging channel.',
+    'Use troubleshooting prompts instead of guessing settings when something looks broken.'
+  ];
+
+  const c7CompletionDrills = [
+    'Send the setup audit prompt and copy the PASS/FAIL summary.',
+    'Create a memory dump, then start a new session and ask Hermes what it remembers.',
+    'Use the schedule builder for a private daily brief with approval rules.',
+    'Pick one real-world app example and customize the prompt for the student\'s life.'
+  ];
+
+  const c7CompletionProof = [
+    'Memory profile saved and verified.',
+    'One session recall works.',
+    'One safe schedule is drafted or active.',
+    'One workspace template or real-world prompt has been copied into Hermes.'
+  ];
+
   // Interactive state: Orb Explorer
   const [selectedOrb, setSelectedOrb] = useState(null);
   const orbs = [
     { id: 'o1', name: 'Prawnius', role: 'Quick Tasks & One-Offs', desc: 'Fast, no-frills agent for quick commands. "Hey, convert this PDF to text." "What\'s 15% of 240?" Prawnius handles it without fanfare.', best: 'Quick lookups, math, one-liner tasks, when you just need an answer fast.', icon: '⚡' },
     { id: 'o2', name: 'Sir Clawthchilds', role: 'Finances & Budgets', desc: 'The money specialist. Tracks expenses, builds budgets, analyzes spending patterns, generates financial reports. Sir Clawthchilds thinks in spreadsheets.', best: 'Expense logging, budget breakdowns, financial summaries, invoice tracking, cash flow analysis.', icon: '💰' },
-    { id: 'o3', name: 'Claudnelius', role: 'Code & Tech', desc: 'Your development partner. Writes code, debugs errors, explains technical concepts, helps with system setup. Claudnelius speaks fluent Python, JavaScript, and everything in between.', best: 'Writing scripts, debugging code, explaining APIs, system architecture, dev tool setup.', icon: '🔧' },
-    { id: 'o4', name: 'Knowledge Knaight', role: 'Memory & Facts', desc: 'The keeper of your long-term memory. Handles knowledge bases, facts, research, and Cortex integration. Ask Knowledge Knaight anything about what you\'ve discussed before.', best: 'Research, fact-checking, knowledge base queries, session history, "we talked about this before" moments.', icon: '🧠' },
+    { id: 'o3', name: 'Claudnelius', role: 'App Repair & Technical Help', desc: 'The specialist for app repair, setup errors, and technical translation. Most clients use it by asking, "explain this error and tell me the safest next step."', best: 'Explaining errors, reviewing setup, fixing app/tool issues, and translating technical instructions into plain English.', icon: '🔧' },
+    { id: 'o4', name: 'Knowledge Knaight', role: 'Memory & Facts', desc: 'The keeper of your long-term memory. Handles knowledge bases, facts, research, and saved notes. Ask Knowledge Knaight anything about what you\'ve discussed before.', best: 'Research, fact-checking, knowledge base queries, session history, "we talked about this before" moments.', icon: '🧠' },
     { id: 'o5', name: 'Knaight of Affairs', role: 'Scheduling & Calendars', desc: 'The organizer. Tracks events, sets reminders, manages schedules, coordinates your calendar. Knaight of Affairs makes sure nothing falls through the cracks.', best: 'Calendar management, appointment reminders, schedule coordination, event planning, deadline tracking.', icon: '📅' },
     { id: 'o6', name: 'Labrina', role: 'Social Media & Content', desc: 'The creative engine. Generates captions, hashtags, content ideas, post schedules, social media strategy. Labrina thinks in engagement metrics and viral hooks.', best: 'Instagram captions, tweet threads, content calendars, hashtag research, social media strategy.', icon: '🎨' },
     { id: 'o7', name: 'Clawdette', role: 'Everyday Tasks & Delegation', desc: 'Your everyday assistant. Handles general tasks that don\'t fit neatly into one category. Clawdette is your fallback agent for miscellaneous life management.', best: 'General to-do lists, errands, miscellaneous reminders, life admin, delegation management.', icon: '✨' },
@@ -5852,15 +7435,15 @@ export const CourseSevenContent = ({ onClose }) => {
     { name: 'notion', desc: 'Notion sync — pull and push data to your Notion workspace. Tasks, databases, notes — all in sync with Hermes.', installPrompt: 'I want to install the notion skill. Walk me through connecting my Notion workspace.' },
     { name: 'obsidian', desc: 'Obsidian vault sync — connect your local Obsidian notes to Hermes. Query your second brain from any device.', installPrompt: 'I want to install the obsidian skill. Walk me through connecting my Obsidian vault.' },
     { name: 'youtube-content', desc: 'YouTube pipeline — paste a video URL, get a transcript, summary, tweet thread, and content repurposed for all platforms.', installPrompt: 'I want to install the youtube-content skill. Walk me through how to use it with any video.' },
-    { name: 'godot-liquid-toolbar', desc: 'Game dev toolkit — streamline Godot 4 workflows with asset management, scene organization, and export automation.', installPrompt: 'I want to install the godot-liquid-toolbar skill. Walk me through the Godot integration.' },
-    { name: 'github', desc: 'GitHub management — automate PR reviews, issue tracking, repo management, and code deployment through conversation.', installPrompt: 'I want to install the github skill. Walk me through connecting my repos.' },
+    { name: 'godot-liquid-toolbar', desc: 'Advanced game-project toolkit — skip unless you are actively making a game or support tells you to use it.', installPrompt: 'I want to install the godot-liquid-toolbar skill. Explain what it does in plain English and tell me whether I actually need it.' },
+    { name: 'github', desc: 'Advanced project-file management — useful only if you already use GitHub or support gives you a repo link.', installPrompt: 'I want to install the github skill. Explain what GitHub access means, what is safe to connect, and what actions require my approval.' },
     { name: 'email', desc: 'Email automation — draft emails, categorize inbox, set up rules, and manage correspondence through Hermes.', installPrompt: 'I want to install the email skill. Walk me through connecting my email and what automations are possible.' },
     { name: 'calendar', desc: 'Calendar integration — sync with Google Calendar, Apple Calendar, or Cal.com. Let Hermes manage your schedule.', installPrompt: 'I want to install the calendar skill. Walk me through connecting my calendar app.' },
     { name: 'custom', desc: 'Build your own skill — any workflow you do repeatedly can become a skill. Tell Hermes what you want and it helps you build it.', installPrompt: 'I want to build a custom skill for [describe your workflow]. How do we set this up?' },
   ];
 
   // Interactive state: Cron Builder
-  const [cronTrigger, setCronTrigger] = useState('daily-morning');
+  const [cronTrigger, setCronTrigger] = useState('daily-morning-brief');
   const [cronTask, setCronTask] = useState('brief');
   const [cronOutput, setCronOutput] = useState('');
   const cronTemplates = {
@@ -5881,7 +7464,7 @@ export const CourseSevenContent = ({ onClose }) => {
   const [selectedIntegration, setSelectedIntegration] = useState(null);
   const integrations = [
     { name: 'Discord', desc: 'When a Discord message matches a keyword, Hermes processes it and responds or logs it. Great for community management and alerts.', setup: 'Give Hermes your Discord webhook URL. Tell it which channels and keywords to watch. It\'ll DM you summaries or take action automatically.' },
-    { name: 'GitHub', desc: 'PR merged? Hermes notifies you. Issue opened? Hermes logs it. CI failing? Hermes alerts you with a fix. Your dev workflow on autopilot.', setup: 'Connect your GitHub account via OAuth. Tell Hermes which repos to watch and what actions to take on events.' },
+    { name: 'GitHub', desc: 'PR merged? Hermes notifies you. Issue opened? Hermes logs it. CI failing? Hermes drafts a fix plan for review. Your dev workflow gets a calmer control panel.', setup: 'Connect your GitHub account via OAuth. Tell Hermes which repos to watch and what actions require approval.' },
     { name: 'Gmail', desc: 'New email from a client? Hermes categorizes it, drafts a reply, and flags anything urgent. Your inbox managed like a executive assistant.', setup: 'Connect Gmail via IMAP or Google OAuth. Tell Hermes which senders are priority and what categories to apply.' },
     { name: 'Stripe', desc: 'Payment received? Hermes logs it to your finance tracker. Subscription canceled? Hermes flags it. Stripe events trigger Hermes actions.', setup: 'Connect Stripe via API key. Tell Hermes which events to watch and what to do with each one.' },
     { name: 'Notion', desc: 'New Notion database entry? Hermes reads it, extracts action items, and creates tasks. Your knowledge base becomes a living to-do list.', setup: 'Connect Notion via OAuth. Tell Hermes which databases to monitor and how to process new entries.' },
@@ -5906,13 +7489,13 @@ Reply with a summary of how you've set up my agent council.`,
     },
     {
       id: 'cron',
-      title: 'Cron Setup',
+	      title: 'Schedule Setup',
       desc: 'Set up recurring tasks that run automatically on a schedule.',
       prompt: `hermes: set up these recurring tasks:
 1. Every weekday at 8am: give me a morning brief — weather, my top 3 tasks today, anything urgent
-2. Every Friday at 4pm: generate my weekly wrap-up and save it to fabric
+	2. Every Friday at 4pm: generate my weekly wrap-up and save it to memory
 3. Every Monday at 9am: review my todo list and flag anything overdue
-Reply with the crontab entries when done.`,
+	Reply with the plain-English schedule plan, approval rules, and what I should verify before turning it on.`,
     },
     {
       id: 'tasks',
@@ -5950,25 +7533,25 @@ Current projects: [what you're working on]
 Reply: "Memory updated" when done.`,
     },
     {
-      id: 'webhook',
-      title: 'Webhook Setup',
-      desc: 'Connect an external app to Hermes via webhook.',
-      prompt: `hermes: I want to connect [app name] to my agent.
-What webhook endpoint should I use?
-Walk me through the setup step by step.`,
+	      id: 'webhook',
+	      title: 'Gateway Setup',
+	      desc: 'Connect an external app to Hermes through a reviewed gateway.',
+	      prompt: `hermes: I want to connect [app name] to my agent.
+	Walk me through the safest setup path step by step.
+	Tell me what access is needed, what actions require my approval, and how to test with one harmless message first.`,
     },
   ];
 
   // Interactive state: 15 Real-World Apps
   const [selectedApp, setSelectedApp] = useState(null);
   const realWorldApps = [
-    { id: 1, person: 'Mike the Plumber', problem: 'Bad website, misses follow-up calls', prompt: "Track my jobs: customer name, address, what I fixed, when I followed up. Remind me to call 3 days after every job.", output: 'Job log + automated follow-up cron', bonus: 'Build a customer portal where clients can see job history and request service.' },
+    { id: 1, person: 'Mike the Plumber', problem: 'Bad website, misses follow-up calls', prompt: "Track my jobs: customer name, address, what I fixed, when I followed up. Remind me to call 3 days after every job.", output: 'Job log + automated follow-up schedule', bonus: 'Build a customer portal where clients can see job history and request service.' },
     { id: 2, person: 'Sarah the Bookkeeper', problem: 'Solo shop, no accountant, receipts everywhere', prompt: "Every time I send you a photo of a receipt, categorize it and add to my expense log. Monthly summary on the 1st.", output: 'Receipt → categorized expense log + monthly report', bonus: 'Connect to Stripe to auto-log all transactions.' },
     { id: 3, person: 'Carlos the Electrician', problem: 'Forgets to invoice, cash flow suffer', prompt: "After every job, add it to my invoice tracker with hours and materials. Generate a draft invoice every Friday.", output: 'Job → invoice draft every Friday', bonus: 'Send invoices via email automatically with Stripe payment links.' },
     { id: 4, person: 'Streamer Dave', problem: 'Lives on Discord, loses good moments', prompt: "When I send you a clip URL, summarize it and crosspost a tweet thread.", output: 'Clip URL → Twitter thread', bonus: 'Auto-clip highlights from VOD timestamps.' },
     { id: 5, person: 'Producer Marcus', problem: 'Forgets which beat went to which client', prompt: "Log every beat I make: name, key, bpm, client if sold. Show me my catalog on demand.", output: 'Beat catalog with search', bonus: 'Add sample clearance tracking and licensing reminders.' },
-    { id: 6, person: 'Office Manager Jennifer', problem: 'Meeting notes go nowhere', prompt: "Forward meeting notes to me. Extract action items and assign owners and due dates.", output: 'Notes → tasks with owners and deadlines', bonus: 'Sync to Notion with a weekly review cron.' },
-    { id: 7, person: 'Ice Cream Shop Gina', problem: 'Just wants to post, not think', prompt: "Every time I send you a photo of an ice cream, give me an Instagram caption and 5 hashtags.", output: 'Photo → caption + hashtags', bonus: 'Set up a daily content cron that pre-generates 7 days of captions.' },
+    { id: 6, person: 'Office Manager Jennifer', problem: 'Meeting notes go nowhere', prompt: "Forward meeting notes to me. Extract action items and assign owners and due dates.", output: 'Notes → tasks with owners and deadlines', bonus: 'Sync to Notion with a weekly review schedule.' },
+    { id: 7, person: 'Ice Cream Shop Gina', problem: 'Just wants to post, not think', prompt: "Every time I send you a photo of an ice cream, give me an Instagram caption and 5 hashtags.", output: 'Photo → caption + hashtags', bonus: 'Set up a daily content schedule that pre-generates 7 days of captions.' },
     { id: 8, person: 'Grower Jake', problem: '200 plants, hard to track feeds', prompt: "Log every feeding: plant ID, nutrients used, pH, date. Alert me 3 days before scheduled feed.", output: 'Plant health tracker + feed reminders', bonus: 'Add watering schedules and harvest date tracking.' },
     { id: 9, person: 'Flipper Tyler (PS5)', problem: 'Buys low, forgets what he paid', prompt: "Log every marketplace find: item, price, source, listing URL. Calculate profit vs estimated resale.", output: 'Hustle tracker with profit calc', bonus: 'Set price alerts for items you\'re tracking.' },
     { id: 10, person: 'Coach Marcus', problem: 'Forgets client progress between sessions', prompt: "Log every client session: name, exercises done, weight/reps, client feedback. Monthly progress report.", output: 'Client progress notes + monthly report', bonus: 'Generate workout plans based on progress history.' },
@@ -5988,11 +7571,11 @@ Walk me through the setup step by step.`,
     { id: 's1', label: '2. 15 Real-World Apps' },
     { id: 's2', label: '3. What 80m Is' },
     { id: 's3', label: '4. Talking to Hermes' },
-    { id: 's4', label: '5. Memory & Fabric' },
+	    { id: 's4', label: '5. Memory' },
     { id: 's5', label: '6. Skills' },
-    { id: 's6', label: '7. Crons' },
+	    { id: 's6', label: '7. Schedules' },
     { id: 's7', label: '8. Sessions & Tasks' },
-    { id: 's8', label: '9. Webhooks' },
+	    { id: 's8', label: '9. Gateways' },
     { id: 's9', label: '10. Workspace' },
     { id: 's10', label: '11. Troubleshooting' },
   ];
@@ -6015,7 +7598,7 @@ Walk me through the setup step by step.`,
 ${memoryInput}
 
 Please organize this into a memory profile. 
-Update my fabric with this information.
+	Save this to memory.
 Reply: "Memory updated — I know you now."`;
     setMemoryOutput(output);
   };
@@ -6023,11 +7606,12 @@ Reply: "Memory updated — I know you now."`;
   const handleCronBuild = () => {
     const tmpl = cronTemplates[cronTrigger];
     if (!tmpl) return;
-    const output = `hermes: set up this cron job for me:
-Schedule: ${tmpl.desc} (cron: ${tmpl.expr})
+	    const output = `hermes: set up this recurring schedule for me:
+Schedule: ${tmpl.desc}
 Task: Every ${tmpl.desc.toLowerCase()}, ${tmpl.task}
 What to do: ${cronTask === 'brief' ? 'Give me a structured brief with the key info I need.' : cronTask === 'content' ? 'Generate content ideas and copy relevant to my niche.' : cronTask === 'finance' ? 'Run a financial summary — income, expenses, and cash flow.' : 'Review my tasks, flag overdue items, and suggest priorities.'}
-Reply with the cron expression and confirmation.`;
+Approval rule: prepare the output privately first. Do not message customers, post publicly, or change accounts unless I approve.
+Reply with the plain-English schedule and include the advanced cron pattern (${tmpl.expr}) only as a reference.`;
     setCronOutput(output);
   };
 
@@ -6071,13 +7655,13 @@ Give me the exact prompts I should use to set this up with you.`;
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col"
+      className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate"
     >
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
         <div>
           <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 07</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">The 80m Chat App</h2>
+          <h2 className="font-serif text-[#eae7de] text-2xl font-black">80M Agent Desktop</h2>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -6111,30 +7695,143 @@ Give me the exact prompts I should use to set this up with you.`;
 
           {/* ===== S0: INTRO ===== */}
           <div id="s0" className="mb-24">
-            <SectionMeta title="S0: Intro — The App Already in Their Hands" sectionNum="00" />
+            <SectionMeta title="S0: Intro — Talk to Hermes from the Desktop App" sectionNum="00" />
 
             <MacWindow title="Welcome to Class 07" className="mb-8">
               <div className="space-y-6">
-                <h3 className="font-serif text-4xl font-black text-[#111] leading-tight">You downloaded the app. Now let's make it yours.</h3>
-                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
-                  This course is different. You didn't pay extra for it. You didn't upgrade to Pro. You already have the tool — the 80m Chat App — sitting on your phone right now.
+                <h3 className="font-serif text-4xl font-black text-[#111] leading-tight">You are not learning code. You are learning how to brief Hermes.</h3>
+                <p className="font-sans text-lg text-[#ddd] leading-relaxed">
+                  This class is built from the current 80M Agent Desktop repo. The app is the native command center for your local 80M workspace: chat, profiles, memory, tools, schedules, Kanban, and gateway automations.
                 </p>
-                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
-                  Most people use it like a fancy Siri. You ask a question, you get an answer. Cool. But that's like buying a supercar and only driving it to the grocery store.
+                <p className="font-sans text-lg text-[#ddd] leading-relaxed">
+                  The whole promise is simple: open the desktop app, talk to Hermes in plain English, and make it remember your world before you automate anything risky.
                 </p>
-                <p className="font-sans text-lg text-[#aaa] leading-relaxed">
-                  This course shows you what the app actually is: <strong>a personal command center</strong>. An agent that remembers everything. Ghost workers that run while you sleep. A system you can build around your exact life.
+                <p className="font-sans text-lg text-[#ddd] leading-relaxed">
+                  If a student can text a smart assistant, they can use 80M. The course teaches what to say, what to check, when to use each screen, and how to stay safe with memory, schedules, tools, and external messaging.
                 </p>
               </div>
             </MacWindow>
 
+            <div id="c7-downloads" className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Download links</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Everything needed to start talking to Hermes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {desktopDownloads.map((item) => (
+                  <a
+                    key={item.label}
+                    className="block border-[2px] border-[#111] bg-[#fdfaf6] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                    <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Beginner video references</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Watch these before the first Hermes session</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {desktopTutorials.map((item) => (
+                  <a
+                    key={item.label}
+                    className="block border-[2px] border-[#111] bg-[#fffbeb] p-4 hover:bg-[#f0fdf4] hover:border-[#22c55e] transition-colors"
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="font-sans font-black uppercase text-[#111]">{item.label}</span>
+                    <span className="block font-serif text-sm text-[#555] leading-relaxed mt-1">{item.note}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Current desktop repo research</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">What the app actually includes right now</h3>
+              <ul className="font-serif text-[#333] space-y-3">
+                {desktopSourceFacts.map((fact) => (
+                  <li key={fact} className="flex items-start gap-3">
+                    <span className="text-[#22c55e] font-black mt-0.5">›</span>
+                    <span>{fact}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Screen map</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">The desktop app in plain English</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {desktopScreenTour.map((item) => (
+                  <div key={item.screen} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                    <p className="font-mono text-xs uppercase tracking-widest text-[#22c55e] mb-2">{item.screen}</p>
+                    <p className="font-serif text-sm text-[#333] leading-relaxed mb-3">{item.job}</p>
+                    <p className="font-sans text-sm font-black uppercase text-[#111]">First action: <span className="font-serif normal-case font-normal text-[#555]">{item.action}</span></p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-[#fdfaf6] p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// First week checklist</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Use the desktop app in this order</h3>
+              <div className="space-y-3">
+                {desktopFirstWeekPlan.map((item) => (
+                  <div key={item.day} className="grid grid-cols-1 md:grid-cols-[5rem_1fr_1.6fr] gap-3 border-[2px] border-[#111] bg-white p-4">
+                    <p className="font-mono font-black text-[#22c55e]">{item.day}</p>
+                    <p className="font-sans font-black uppercase text-sm text-[#111]">{item.focus}</p>
+                    <p className="font-serif text-sm text-[#333] leading-relaxed">{item.action}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-white p-6 md:p-8 shadow-[8px_8px_0_0_#111] mb-8">
+              <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// Hermes health translation</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">Words you may see in setup warnings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {desktopHealthTerms.map((item) => (
+                  <div key={item.term} className="border-[2px] border-[#111] bg-[#fdfaf6] p-4">
+                    <p className="font-sans font-black uppercase text-[#111] mb-1">{item.term}</p>
+                    <p className="font-serif text-sm text-[#333] leading-relaxed">{item.def}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-[3px] border-[#111] bg-[#111] text-[#eae7de] p-6 md:p-8 shadow-[8px_8px_0_0_#22c55e] mb-8">
+              <p className="font-mono text-[#22c55e] text-xs uppercase tracking-widest mb-2">// Conversation ladder</p>
+              <h3 className="font-sans font-black text-2xl md:text-3xl uppercase tracking-tight mb-5">The 8 ways beginners should talk to Hermes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {desktopConversationModes.map((item) => (
+                  <div key={item.mode} className="border-[2px] border-[#333] bg-[#171717] p-4">
+                    <h4 className="font-sans font-black uppercase text-[#22c55e] mb-2">{item.mode}</h4>
+                    <CopyBlock text={item.prompt} label="Copy Prompt" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <StudentCompletionKit
+              eyebrow="Class 07 final standard"
+              title="The student can run the desktop app without learning code"
+              outcomes={c7CompletionOutcomes}
+              drills={c7CompletionDrills}
+              proof={c7CompletionProof}
+            />
+
             {/* Stats panel */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {[
-                { label: 'Agents', value: '7', sub: 'Specialized orbs' },
+	                { label: 'Screens', value: '12', sub: 'Desktop controls' },
                 { label: 'Memory', value: 'Forever', sub: 'Persistent recall' },
-                { label: 'Skills', value: '10+', sub: 'Downloadable tools' },
-                { label: 'Crons', value: '∞', sub: 'Scheduled automation' },
+                { label: 'Toolsets', value: '14', sub: 'Usable abilities' },
+                { label: 'Gateways', value: '16', sub: 'External channels' },
               ].map(stat => (
                 <div key={stat.label} className="bg-[#111] border-[3px] border-[#111] p-4 text-center">
                   <div className="font-serif text-3xl font-black text-[#22c55e]">{stat.value}</div>
@@ -6147,13 +7844,13 @@ Give me the exact prompts I should use to set this up with you.`;
             <MacWindow title="What This Course Covers" className="mb-8">
               <div className="space-y-3">
                 {[
-                  ['The Agent Council', 'All 7 orbs — what they do and when to use which'],
-                  ['Memory & Fabric', 'Your second brain that never forgets'],
-                  ['Skills', 'Downloadable brain patches for new abilities'],
-                  ['Crons', 'Ghost workers running on autopilot'],
-                  ['Sessions & Tasks', 'Your searchable work history'],
-                  ['Webhooks', 'How other apps talk to your agent'],
-                  ['15 Real-World Apps', 'Copy-paste setups for 15 different jobs'],
+                  ['First launch', 'Download, choose a provider, paste a private key, and verify chat'],
+                  ['Chat with Hermes', 'Ask for outcomes, not tools, and read streaming/tool progress'],
+                  ['Memory', 'Teach Hermes who you are, then verify what it remembers'],
+                  ['Skills and tools', 'Add one capability at a time and test it safely'],
+                  ['Schedules and Kanban', 'Turn recurring work and long tasks into visible systems'],
+                  ['Gateway safety', 'Connect outside apps only after rules and approval gates are set'],
+                  ['Real-world templates', 'Copy-paste setups for 15 different jobs'],
                 ].map(([title, detail]) => (
                   <div key={title} className="flex items-start gap-3 border-b border-[#ddd] pb-3 last:border-0">
                     <span className="text-[#22c55e] font-black text-lg mt-[-2px]">✓</span>
@@ -6169,7 +7866,7 @@ Give me the exact prompts I should use to set this up with you.`;
             {/* Warmup */}
             <div className="bg-[#fffbeb] border-[3px] border-[#f59e0b] p-6 mb-6">
               <p className="font-sans font-black text-sm uppercase mb-3 text-[#92400e]">Warmup: Your First Message</p>
-              <p className="font-serif text-lg text-[#aaa] italic mb-4">Before we dig in — open the 80m app right now and send Hermes this:</p>
+              <p className="font-serif text-lg text-[#333] italic mb-4">Before we dig in, open 80M Agent Desktop and send Hermes this:</p>
               <div className="bg-[#111] p-4 font-mono text-sm text-[#22c55e] mb-4">
                 hey hermes, my name is [your name]. I'm taking a course on how to use you properly. Here's one thing I want to keep track of: [one thing you're always forgetting]. Save this to memory.
               </div>
@@ -6180,8 +7877,8 @@ Give me the exact prompts I should use to set this up with you.`;
               <button
                 onClick={() => { toggleSection('s0'); setQuizSection(1); setQuizActive(true); }}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all"
-              >
-                Quiz 1: Agent Council →
+	              >
+	                Quiz 1: Desktop Basics →
               </button>
             </div>
           </div>
@@ -6195,26 +7892,24 @@ Give me the exact prompts I should use to set this up with you.`;
                 <pre className="text-[#22c55e]">{`
   YOU
    ↕ talk
-  HERMES (main agent)
-   ↕ delegates
-  ┌──┬──┬──┬──┬──┬──┬──┐
-  │Pwn│Sir│Clu│Knn│Kof│Lab│Clw│  ← the 7 agents
-  └──┴──┴──┴──┴──┴──┴──┘
-   ↕ stores
-  FABRIC (memory)
-   ↕ runs
-  CRONS (scheduled tasks)
-   ↕ connects
-  SKILLS (downloadable abilities)
-                `}</pre>
-                <div className="mt-4 text-[#888] text-xs">
-                  YOU talk to HERMES → HERMES delegates to the right agent → Agent uses FABRIC (memory) → CRONS run on schedule → SKILLS extend capabilities
-                </div>
-              </div>
-            </MacWindow>
+  HERMES (your main assistant)
+   ↕ routes
+  SPECIALISTS (money, content, research, setup help)
+   ↕ remembers
+  MEMORY (your profile, rules, goals, decisions)
+   ↕ repeats
+  SCHEDULES (daily brief, follow-ups, weekly review)
+   ↕ extends
+  SKILLS (extra workflows you approve)
+	                `}</pre>
+	                <div className="mt-4 text-[#888] text-xs">
+	                  YOU talk to HERMES → HERMES routes work → memory keeps context → schedules repeat safe work → skills add approved abilities
+	                </div>
+	              </div>
+	            </MacWindow>
 
-            <h3 className="font-serif text-3xl font-black text-[#111] mb-4">Orb Explorer — Click Each Agent</h3>
-            <p className="font-sans text-[#555] mb-6">Each orb is a specialized agent. Click one to see what it does and when to use it.</p>
+	            <h3 className="font-serif text-3xl font-black text-[#111] mb-4">Specialist Explorer — Click Each Lane</h3>
+	            <p className="font-sans text-[#555] mb-6">Each lane is a specialist Hermes can route work to. Beginners can still talk only to Hermes; Hermes decides when a specialist helps.</p>
 
             {/* Orb grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -6269,7 +7964,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 onClick={() => { toggleSection('s1'); setQuizSection(1); setQuizActive(true); }}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all"
               >
-                Quiz 1: Agent Council →
+	                Quiz 1: Desktop Basics →
               </button>
             </div>
           </div>
@@ -6326,8 +8021,8 @@ Give me the exact prompts I should use to set this up with you.`;
               )}
             </div>
 
-            {/* Boss Mode vs Vague */}
-            <MacWindow title="Boss Mode vs Vague Prompting" className="mb-8">
+            {/* Firm Prompting vs Vague */}
+            <MacWindow title="Firm Prompting vs Vague Prompting" className="mb-8">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-red-50 border-[2px] border-red-300 p-4">
                   <p className="font-mono text-xs font-black uppercase text-red-600 mb-2">❌ Vague</p>
@@ -6335,36 +8030,36 @@ Give me the exact prompts I should use to set this up with you.`;
                   <p className="font-sans text-xs text-[#555] mt-2">Result: generic advice, no action taken</p>
                 </div>
                 <div className="bg-green-50 border-[2px] border-green-400 p-4">
-                  <p className="font-mono text-xs font-black uppercase text-green-700 mb-2">✓ Boss Mode</p>
+                  <p className="font-mono text-xs font-black uppercase text-green-700 mb-2">✓ Firm Prompt</p>
                   <p className="font-mono text-sm text-[#aaa]">"I earn $4,200/mo. My fixed expenses are $2,800. Give me a budget breakdown with categories, tell me what to cut, and save this to memory."</p>
-                  <p className="font-sans text-xs text-[#555] mt-2">Result: specific plan, saved to Fabric, actionable</p>
+	                  <p className="font-sans text-xs text-[#555] mt-2">Result: specific plan, saved to memory, actionable</p>
                 </div>
               </div>
             </MacWindow>
 
-            <div className="bg-[#fffbeb] border-[3px] border-[#f59e0b] p-6 mb-6">
-              <p className="font-sans font-black text-sm uppercase mb-2 text-[#92400e]">Pro tip: Chain-of-Thought</p>
-              <p className="font-sans text-[#aaa]">Add "think step by step before answering" to any complex question. It forces Hermes to show its reasoning, catches errors, and produces better results. Example: "Think step by step: should I hire a VA or do this myself? Consider: my hourly rate, the task complexity, and my time constraints."</p>
-            </div>
+	            <div className="bg-[#fffbeb] border-[3px] border-[#f59e0b] p-6 mb-6">
+	              <p className="font-sans font-black text-sm uppercase mb-2 text-[#92400e]">Pro tip: Plan, Answer, Check</p>
+	              <p className="font-sans text-[#aaa]">For complex questions, ask Hermes for a short visible plan, the answer, and a self-check against your rules. Example: "Should I hire a VA or do this myself? Give me: 1. short plan, 2. recommendation, 3. check against my hourly rate, task complexity, and time constraints."</p>
+	            </div>
 
             <div className="flex justify-end mb-8">
               <button
                 onClick={() => { toggleSection('s2'); setQuizSection(2); setQuizActive(true); }}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all"
               >
-                Quiz 2: Prompting →
+                Quiz 2: Real-World Apps →
               </button>
             </div>
           </div>
 
-          {/* ===== S4: MEMORY & FABRIC ===== */}
-          <div id="s4" className="mb-24">
-            <SectionMeta title="S5: Memory & Fabric — Your Second Brain" sectionNum="05" />
+	          {/* ===== S4: MEMORY ===== */}
+	          <div id="s4" className="mb-24">
+	            <SectionMeta title="S5: Memory — Your Second Brain" sectionNum="05" />
 
             <MacWindow title="Hermes doesn't forget. Ever. That's the whole point." className="mb-8">
               <div className="space-y-4">
                 <p className="font-sans text-[#aaa] leading-relaxed">
-                  Every conversation with Hermes feeds into <strong>Fabric</strong> — the long-term memory layer. This isn't session context that disappears. This is your life, stored in SQLite, recalled on demand.
+	                  Memory is the long-term context layer. This is not the temporary chat scroll that disappears from your attention. It is the useful context Hermes can recall later: your business, rules, preferences, decisions, and current goals.
                 </p>
                 <div className="bg-[#111] p-4">
                   <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-2">Memory Pipeline</p>
@@ -6373,15 +8068,11 @@ Give me the exact prompts I should use to set this up with you.`;
                     <span>→</span>
                     <span className="bg-[#333] px-2 py-0.5 rounded">HERMES</span>
                     <span>→</span>
-                    <span className="bg-[#333] px-2 py-0.5 rounded">FABRIC</span>
-                    <span>→</span>
-                    <span className="bg-[#333] px-2 py-0.5 rounded">SQLite</span>
-                    <span>→</span>
-                    <span className="bg-[#22c55e] text-[#111] px-2 py-0.5 rounded">Long-term recall</span>
+	                    <span className="bg-[#22c55e] text-[#111] px-2 py-0.5 rounded">Long-term recall</span>
                   </div>
                 </div>
                 <p className="font-sans text-[#aaa]">
-                  The <code className="bg-[#f0f0f0] px-1 font-mono text-sm">mcp_memory</code> tool is what makes this work. When you say "save this to memory," it goes through Fabric into SQLite. Next session, Hermes already knows you.
+	                  The memory tool is what makes this work. When you say "save this to memory," Hermes stores the important context and can use it in future sessions.
                 </p>
               </div>
             </MacWindow>
@@ -6417,7 +8108,7 @@ Give me the exact prompts I should use to set this up with you.`;
               <div className="bg-[#111] p-4 font-mono text-sm text-[#22c55e] mb-3">
                 hermes: did we talk about [topic]? what did I say?
               </div>
-              <p className="font-sans text-sm text-[#555]">Hermes will pull the relevant session from Fabric and give you the answer. No more losing important decisions to the scroll.</p>
+              <p className="font-sans text-sm text-[#555]">Hermes will pull the relevant session or memory and give you the answer. No more losing important decisions to the scroll.</p>
             </MacWindow>
 
             <div className="flex justify-end mb-8">
@@ -6432,7 +8123,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
           {/* ===== S5: SKILLS ===== */}
           <div id="s5" className="mb-24">
-            <SectionMeta title="S6: Skills — The Downloadable Brain Patches" sectionNum="06" />
+	            <SectionMeta title="S6: Skills — Reusable Workflows" sectionNum="06" />
 
             <MacWindow title="Skills are like browser extensions for your brain." className="mb-8">
               <div className="space-y-4">
@@ -6440,7 +8131,7 @@ Give me the exact prompts I should use to set this up with you.`;
                   Skills extend what Hermes can do. Think of them as downloadable ability packs. Install one, and Hermes gains a new tool.
                 </p>
                 <p className="font-sans text-[#aaa] leading-relaxed">
-                  Most skills just need an API key and a brief. No coding. No configuration files. You tell Hermes what you want, it sets it up.
+	                  Some skills need a private access key and a brief. No coding. No configuration files. You tell Hermes what you want, it sets it up.
                 </p>
               </div>
             </MacWindow>
@@ -6484,17 +8175,17 @@ Give me the exact prompts I should use to set this up with you.`;
             </div>
           </div>
 
-          {/* ===== S6: CRONS ===== */}
-          <div id="s6" className="mb-24">
-            <SectionMeta title="S7: Crons — The Ghost Workers" sectionNum="07" />
+	          {/* ===== S6: SCHEDULES ===== */}
+		          <div id="s6" className="mb-24">
+		            <SectionMeta title="S7: Schedules — Recurring Helpers" sectionNum="07" />
 
             <MacWindow title="Set it once. Let it run. Forget about it. Get results." className="mb-8">
               <div className="space-y-4">
                 <p className="font-sans text-[#aaa] leading-relaxed">
-                  A cron job is a thing that runs on a schedule, automatically, without you doing anything. Think of them as ghost workers — you hire them once, they work forever.
+		                  A schedule is a recurring helper. You tell Hermes what should happen and when it should happen, then the system prepares that task on repeat until you change it.
                 </p>
                 <div className="bg-[#111] p-4 font-mono text-sm overflow-x-auto">
-                  <div className="text-[#888] mb-2">Crontab examples:</div>
+	                  <div className="text-[#888] mb-2">Advanced schedule patterns:</div>
                   <div className="text-[#22c55e] space-y-1">
                     <div><span className="text-[#888]">0 8 * * 1-5</span>    → every weekday at 8am: morning brief</div>
                     <div><span className="text-[#888]">30 21 * * *</span>   → every day at 9:30pm: evening wrap-up</div>
@@ -6502,11 +8193,11 @@ Give me the exact prompts I should use to set this up with you.`;
                     <div><span className="text-[#888]">0 17 * * 5</span>    → every Friday at 5pm: weekly review</div>
                   </div>
                 </div>
-                <p className="font-mono text-xs text-[#555]">Cron syntax: minute | hour | day | month | weekday. 0-23 for hours, 1-7 for weekdays (Mon=1).</p>
+	                <p className="font-mono text-xs text-[#555]">Advanced note: cron syntax is minute | hour | day | month | weekday. Beginners can ask Hermes to translate it into normal language.</p>
               </div>
             </MacWindow>
 
-            <h3 className="font-serif text-3xl font-black text-[#111] mb-4">Cron Builder</h3>
+	            <h3 className="font-serif text-3xl font-black text-[#111] mb-4">Schedule Builder</h3>
             <p className="font-sans text-[#555] mb-6">Pick your trigger and task. We'll generate the exact prompt to paste to Hermes.</p>
 
             <div className="bg-[#f5f3ef] border-[3px] border-[#111] p-6 mb-6">
@@ -6541,7 +8232,7 @@ Give me the exact prompts I should use to set this up with you.`;
               </div>
               <button onClick={handleCronBuild}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all">
-                Build Cron Prompt
+	                Build Schedule Prompt
               </button>
               {cronOutput && (
                 <div className="relative mt-4">
@@ -6557,10 +8248,10 @@ Give me the exact prompts I should use to set this up with you.`;
             <MacWindow title="Real Examples from Real Life" className="mb-8">
               <div className="space-y-3">
                 {[
-                  { who: 'The Freelancer', cron: 'Every Monday 9am', what: 'Review my open projects, flag anything overdue, suggest this week\'s priorities' },
-                  { who: 'The Content Creator', cron: 'Every Friday 5pm', what: 'Generate my content stockpile — 7 post ideas for next week with captions' },
-                  { who: 'The Small Business Owner', cron: '1st of every month', what: 'Audit my finances — total income, expenses by category, profit margin' },
-                  { who: 'The Student', cron: 'Every Sunday 7pm', what: 'Review my assignments for the week, break down big projects into tasks' },
+	                  { who: 'The Freelancer', cron: 'Every Monday 9am', what: 'Review my open projects, flag anything overdue, suggest this week\'s priorities' },
+	                  { who: 'The Content Creator', cron: 'Every Friday 5pm', what: 'Generate my content stockpile — 7 post ideas for next week with captions' },
+	                  { who: 'The Small Business Owner', cron: '1st of every month', what: 'Audit my finances — total income, expenses by category, profit margin' },
+	                  { who: 'The Student', cron: 'Every Sunday 7pm', what: 'Review my assignments for the week, break down big projects into tasks' },
                 ].map(ex => (
                   <div key={ex.who} className="flex items-start gap-3 border-b border-[#ddd] pb-3 last:border-0">
                     <span className="font-mono text-xs font-black text-[#22c55e] whitespace-nowrap mt-0.5">{ex.cron}</span>
@@ -6578,7 +8269,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 onClick={() => { toggleSection('s5'); setQuizSection(5); setQuizActive(true); }}
                 className="font-sans font-black text-sm uppercase px-6 py-3 bg-[#22c55e] text-[#111] border-[2px] border-[#22c55e] hover:bg-[#111] hover:text-[#22c55e] transition-all"
               >
-                Quiz 5: Crons →
+	                Quiz 5: Schedules →
               </button>
             </div>
           </div>
@@ -6595,7 +8286,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 </div>
                 <div>
                   <p className="font-mono text-xs font-black uppercase text-[#22c55e] mb-2">Tasks</p>
-                  <p className="font-sans text-[#aaa]">Structured todos that Hermes tracks. The <code className="bg-[#f0f0f0] px-1 font-mono text-xs">mcp_todo</code> tool. You create them, Hermes nags you about them. Overdue items get flagged automatically.</p>
+	                  <p className="font-sans text-[#aaa]">Structured todos that Hermes tracks. You create them in plain English, Hermes reminds you, and overdue items get flagged automatically.</p>
                 </div>
               </div>
             </MacWindow>
@@ -6636,16 +8327,16 @@ Give me the exact prompts I should use to set this up with you.`;
             </MacWindow>
           </div>
 
-          {/* ===== S8: WEBHOOKS & INTEGRATIONS ===== */}
+	          {/* ===== S8: GATEWAYS & INTEGRATIONS ===== */}
           <div id="s8" className="mb-24">
-            <SectionMeta title="S9: Webhooks & Integrations" sectionNum="09" />
+	            <SectionMeta title="S9: Gateways & Integrations" sectionNum="09" />
 
-            <MacWindow title="Webhooks are how other apps talk to Hermes. Integrations are how Hermes talks to other apps." className="mb-8">
+	            <MacWindow title="Gateways are how outside apps talk to Hermes." className="mb-8">
               <div className="bg-[#111] p-4 font-mono text-sm mb-4">
                 <div className="flex items-center justify-center gap-3 text-[#eae7de] flex-wrap">
                   <span className="bg-[#333] px-2 py-1 rounded">Discord</span>
                   <span className="text-[#22c55e]">→</span>
-                  <span className="bg-[#333] px-2 py-1 rounded">webhook</span>
+	                  <span className="bg-[#333] px-2 py-1 rounded">gateway</span>
                   <span className="text-[#22c55e]">→</span>
                   <span className="bg-[#22c55e] text-[#111] px-2 py-1 rounded font-black">HERMES</span>
                   <span className="text-[#22c55e]">→</span>
@@ -6692,7 +8383,7 @@ Give me the exact prompts I should use to set this up with you.`;
                       <p className="font-sans text-sm text-[#555]">{int.setup}</p>
                     </div>
                     <div className="bg-[#111] p-3 font-mono text-xs text-[#22c55e]">
-                      hermes: I want to connect {int.name} to my agent. What webhook endpoint should I use?
+	                      hermes: I want to connect {int.name} to my agent. What is the safest setup path, and what should require my approval?
                     </div>
                   </div>
                 </MacWindow>
@@ -6788,7 +8479,7 @@ Give me the exact prompts I should use to set this up with you.`;
                 {
                   id: 1, person: 'Mike the Plumber', color: '#0ea5e9', problem: 'Bad website, misses follow-up calls',
                   icon: '🔧', prompt: "Track my jobs: customer name, address, what I fixed, when I followed up. Remind me to call 3 days after every job.",
-                  output: 'Job log + automated follow-up cron', bonus: 'Customer portal for job history.',
+	                  output: 'Job log + automated follow-up schedule', bonus: 'Customer portal for job history.',
                 },
                 {
                   id: 2, person: 'Sarah the Bookkeeper', color: '#22c55e', problem: 'Solo shop, no accountant, receipts everywhere',
@@ -6813,12 +8504,12 @@ Give me the exact prompts I should use to set this up with you.`;
                 {
                   id: 6, person: 'Office Manager Jennifer', color: '#06b6d4', problem: 'Meeting notes go nowhere',
                   icon: '📋', prompt: "Forward meeting notes to me. Extract action items and assign owners and due dates.",
-                  output: 'Notes → tasks with owners and deadlines', bonus: 'Sync to Notion with a weekly review cron.',
+	                  output: 'Notes → tasks with owners and deadlines', bonus: 'Sync to Notion with a weekly review schedule.',
                 },
                 {
                   id: 7, person: 'Ice Cream Shop Gina', color: '#f472b6', problem: 'Just wants to post, not think',
                   icon: '🍦', prompt: "Every time I send you a photo of an ice cream, give me an Instagram caption and 5 hashtags.",
-                  output: 'Photo → caption + hashtags', bonus: 'Set up a daily content cron that pre-generates 7 days of captions.',
+	                  output: 'Photo → caption + hashtags', bonus: 'Set up a daily content schedule that pre-generates 7 days of captions.',
                 },
                 {
                   id: 8, person: 'Grower Jake', color: '#84cc16', problem: '200 plants, hard to track feeds',
@@ -6868,7 +8559,7 @@ Give me the exact prompts I should use to set this up with you.`;
                     onClick={() => setSelectedApp(isSelected ? null : app.id)}
                     className={`text-left p-4 border-[2px] transition-all duration-200 relative overflow-hidden ${
                       isSelected
-                        ? 'border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.15)]'
+                      ? 'border-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.15)]'
                         : 'border-[#333] hover:border-[#22c55e]'
                     }`} style={{ backgroundColor: isSelected ? '#0a1a0a' : '#111', minHeight: '160px' }}
                   >
@@ -6973,13 +8664,13 @@ Give me the exact prompts I should use to set this up with you.`;
 
             <div className="space-y-3">
               {[
-                { problem: '"Hermes isn\'t responding"', likely: 'Server might be down or timed out', fix: 'Check if your Beelink is on. Try again in 5 minutes. If it persists, restart the container with docker-compose restart.' },
-                { problem: '"My memory isn\'t sticking"', likely: 'Memory isn\'t saved to long-term yet', fix: 'Use "save this to memory" explicitly in your message. The keywords matter — Fabric listens for that phrase.' },
-                { problem: '"The cron didn\'t run"', likely: 'Wrong time format or server was asleep', fix: 'Check your crontab with `crontab -l`. Verify the cron expression is correct. Make sure your server wasn\'t in sleep mode.' },
-                { problem: '"I broke something"', likely: 'You probably didn\'t break anything permanent', fix: 'Ctrl+C always exits. Restart the session. The worst case is you re-enter some context — nothing is permanently corrupted.' },
+	                { problem: '"Hermes isn\'t responding"', likely: 'The local service may be asleep, updating, or timed out', fix: 'Check that the desktop app is open and the machine is awake. Try again in 5 minutes. If it persists, ask Hermes or support for a setup audit step instead of guessing commands.' },
+                { problem: '"My memory isn\'t sticking"', likely: 'Memory was not saved clearly enough', fix: 'Use "save this to memory" explicitly and ask Hermes to repeat what it saved. Edit the memory if the summary is wrong.' },
+	                { problem: '"The schedule didn\'t run"', likely: 'Wrong time, machine asleep, or schedule disabled', fix: 'Open the Schedules screen, verify the time and timezone, make sure the machine is awake, and ask Hermes to explain the next safe check.' },
+	                { problem: '"I broke something"', likely: 'You probably didn\'t break anything permanent', fix: 'Stop changing settings, restart the app, copy the exact warning, and ask Hermes for the safest next check. Do not change five things at once.' },
                 { problem: '"I don\'t know what to say to Hermes"', likely: 'Start with anything. Seriously.', fix: 'Literally just say "hey" — it works. No prompt is too basic. Hermes is an assistant, not a judge.' },
                 { problem: '"The skills aren\'t loading"', likely: 'Skill might not be installed', fix: 'Ask Hermes: "what skills do I have installed?" If yours isn\'t there, reinstall it with the install prompt.' },
-                { problem: '"My agent is giving bad answers"', likely: 'Your prompt is too vague', fix: 'Add specifics: "be more detailed," "give me 3 options," "think step by step." Better prompts = better answers.' },
+	                { problem: '"My agent is giving bad answers"', likely: 'Your prompt is too vague', fix: 'Add specifics: "be more detailed," "give me 3 options," or "give me a short plan, answer, and self-check." Better prompts = better answers.' },
                 { problem: '"Everything is overwhelming"', likely: 'That\'s normal. Start with one thing.', fix: 'Pick just the Memory Dump section (S3) and do that first. Get Hermes to remember you. Everything else gets easier from there.' },
               ].map(item => (
                 <MacWindow key={item.problem} title={item.problem}>
@@ -7010,7 +8701,7 @@ Give me the exact prompts I should use to set this up with you.`;
                   {[
                     'How to talk to Hermes so it actually helps',
                     'How to make your agent remember what matters',
-                    'How to set up ghost workers that run on autopilot',
+	                    'How to set up scheduled helpers that run recurring work',
                     'How to build niche tools for your exact life',
                     '15 copy-paste templates to start today',
                   ].map(item => (
@@ -7038,7 +8729,7 @@ Give me the exact prompts I should use to set this up with you.`;
 
         </div>{/* close max-w-4xl */}
       </div>{/* close flex-1 overflow-y-auto */}
-      <AtmScrollbar scrollRef={lessonScrollRef} />
+      <AtmScrollbar scrollRef={lessonScrollRef} zIndexClass="z-[40]" />
 
       {/* Quiz Modal */}
       {quizActive && quizSection && (
@@ -7069,115 +8760,126 @@ Give me the exact prompts I should use to set this up with you.`;
 const classesData = [
   {
     id: "01",
-    title: "Install the Stack",
-    subtitle: "From Zero to 'Hey, Run This For Me'",
+    title: "Install the App",
+    subtitle: "From Zero to Your First Hermes Win",
     time: "75 Minutes",
-    description: "Installation Hell is where dreams go to die. We skip it entirely with our pre-built 80m container strategy.",
+    description: "Start with the real client path: download 80M Agent Desktop, add a provider key safely, tour the screens, and get one useful Hermes result.",
     image: "https://i.postimg.cc/BbsxmGcr/80mascot-Edited.png",
     topics: [
-      { name: "Hermes & OpenClaw", detail: "The brain and the muscle." },
-      { name: "The Lazy Install", detail: "Copy, paste, and walk away." },
+      { name: "80M Desktop + Hermes", detail: "The app and the assistant engine." },
+      { name: "Provider Key Safety", detail: "Paste once, protect it like a private meter." },
       { name: "Troubleshooting", detail: "What to do when the screen turns red." },
       { name: "The Council", detail: "Specialized agents checking each other's work." }
     ]
   },
   {
     id: "02",
-    title: "Talk to It Properly",
-    subtitle: "Stop Asking, Start Delegating",
+    title: "Brief Hermes Properly",
+    subtitle: "Stop Guessing, Start Delegating",
     time: "80 Minutes",
-    description: "Most people prompt like interns. You will learn to prompt like a dictator. High output, zero fluff.",
+    description: "Most people ask vague questions and get vague answers. You will learn to brief Hermes with role, context, task, rules, and output.",
     image: "https://i.postimg.cc/zv5nx1F1/80mascot-claw.png",
     topics: [
-      { name: "Boss Mode Prompting", detail: "Get results, not suggestions." },
-      { name: "Memory & Fabric", detail: "Making the machine remember your brand." },
-      { name: "Chain of Thought", detail: "Make it think before it answers." },
-      { name: "Voice Hacking", detail: "The actual 'command' part of voice control." }
+      { name: "Hermes Briefing", detail: "Role, context, task, rules, and output." },
+      { name: "Memory", detail: "Making Hermes remember your business." },
+      { name: "Reasoning Checks", detail: "Plan, answer, and self-check before action." },
+      { name: "Voice Dictation", detail: "Speak structured prompts instead of typing everything." }
     ]
   },
   {
     id: "03",
-    title: "Own the Infrastructure",
-    subtitle: "The Bouncer for Your Server",
+    title: "Safe Remote Access",
+    subtitle: "Domains, Tunnels, and Server Safety",
     time: "90 Minutes",
-    description: "Domains, DNS, and reverse proxies. This is the wall that keeps your data yours and the hackers out.",
+    description: "Plain-English infrastructure for non-coders: what domains, DNS, tunnels, HTTPS, logs, and firewalls do before you change anything.",
     image: "https://i.postimg.cc/x8YK6S32/80mascot-rich.png",
     topics: [
       { name: "DNS & Domains", detail: "Your AI's home address." },
-      { name: "Nginx & Tunnels", detail: "The bouncer at the door." },
+      { name: "Nginx & Tunnels", detail: "The front desk and secure bridge." },
       { name: "SSL & Security", detail: "The green lock of trust." },
-      { name: "Scaling", detail: "Turning one bot into an army." }
+      { name: "Scaling", detail: "Turning one helper lane into a reviewed team." }
     ]
   },
   {
     id: "04",
     title: "Content Forge",
-    subtitle: "The Ghost in the TikTok Machine",
+    subtitle: "Draft-First Social Content System",
     time: "90 Minutes",
-    description: "Full TikTok slideshow automation — AI image generation, Postiz scheduling, physical Android control, and the anti-shadowban protocol.",
+    description: "Build a compliant TikTok slideshow workflow: research, AI image prompts, Postiz draft scheduling, human review, and analytics.",
     image: "https://i.postimg.cc/yxg9m51C/80m-chat.png",
     topics: [
-      { name: "Postiz API", detail: "Agentic scheduling that actually works." },
+      { name: "Postiz Drafts", detail: "Scheduling and previewing before approval." },
       { name: "3-Slide Formula", detail: "Hook, Info, CTA. Every time." },
-      { name: "Android Control", detail: "The secret human-touch layer." },
-      { name: "Anti-Shadowban", detail: "How to warm up and stay alive." }
+      { name: "Human Review", detail: "Claims, captions, disclosures, and timing." },
+      { name: "Platform Safety", detail: "Rules, warmup, and analytics before scale." }
     ]
   },
-  {
-    id: "05",
-    title: "Intelligence Pipeline + Agent Products",
-    subtitle: "Build Once, Stack Income Forever",
-    time: "95 Minutes",
-    description: "Turn your AI skills into income machines. Web crawlers, micro-SaaS, workflow automations, and agents that replace labor — the 8-lane highway to compounding revenue.",
-    image: "https://i.postimg.cc/PJpZWcXj/business.png",
-    topics: [
-      { name: "Web Research Pipelines", detail: "Cortex knowledge ingestion + automated enrichment." },
-      { name: "Micro-SaaS Products", detail: "One job, one screen, one outcome — vibe coded in days." },
-      { name: "Workflow Automations", detail: "B2B annoyance work that pays monthly." },
-      { name: "Agent Products", detail: "AI agents that replace high-value employees." }
-    ]
-  },
+	  {
+	    id: "05",
+	    title: "Intelligence Pipeline + Agent Products",
+	    subtitle: "Build Once, Stack Income Forever",
+	    time: "95 Minutes",
+	    description: "Turn public research into paid offers: lead lists, client demos, workflow automations, micro-SaaS tests, and agents that handle repetitive work with review gates.",
+	    image: "https://i.postimg.cc/PJpZWcXj/business.png",
+	    topics: [
+	      { name: "Public Research Pipelines", detail: "Source-backed market notes and lead tables." },
+	      { name: "Micro-SaaS Products", detail: "One job, one screen, one outcome — AI-assisted prototype in days." },
+	      { name: "Workflow Automations", detail: "B2B annoyance work that pays monthly." },
+	      { name: "Agent Products", detail: "AI agents that handle repeated workflows with approval rules." }
+	    ]
+	  },
   {
     id: "06",
     title: "The Full System + AI Business Playbook",
     subtitle: "Turn the Machine Into Money",
     time: "120 Minutes",
-    description: "The capstone. You built the stack. Now make it print. Eight proven revenue models for vibe coders, from small business websites to micro-SaaS to productized consulting. This is where most courses end — and where 80m actually starts.",
+    description: "The capstone. You built the stack. Now make it print. Eight proven revenue models for AI-assisted builders, from small business websites to micro-SaaS to productized consulting. This is where most courses end — and where 80m actually starts.",
     image: "https://i.postimg.cc/4dFVhZgd/research.png",
     topics: [
       { name: "8 Revenue Models", detail: "Pick your lane and run it." },
-      { name: "Vibe-to-Money Pipeline", detail: "From skill to sale in 72 hours." },
-      { name: "Postiz + Agent Stack", detail: "The automated marketing engine." },
+      { name: "Demo-to-Money Pipeline", detail: "From skill to sale in 72 hours." },
+	      { name: "Postiz + Agent Stack", detail: "The draft-first reviewed marketing engine." },
       { name: "Build-in-Public Flywheel", detail: "Content = distribution = revenue." },
       { name: "Micro-SaaS Launch", detail: "Ship fast, validate, iterate." },
       { name: "Productized Consulting", detail: "Sell outcomes, not hours." }
     ]
   },
-  {
-    id: "07",
-    title: "The 80m Chat App",
-    subtitle: "Build Your Personal Command Center",
-    time: "90 Minutes",
-    description: "The app you got for free is actually a platform. This course teaches you how to use every feature, wire up your own agents, and build niche tools for your exact life situation — with 15 real-world examples for plumbers, artists, weed growers, PS5 flippers, and everyone in between.",
-    image: "https://i.postimg.cc/Hnc5wKYC/social.png",
-    topics: [
-      { name: "Agent Council", detail: "The 7 orbs explained — find your lane." },
-      { name: "Memory & Skills", detail: "Your agent that actually remembers you." },
-      { name: "Crons & Tasks", detail: "Ghost workers running while you sleep." },
-      { name: "Build Your Workspace", detail: "Templates for agents, crons, tasks, skills." }
-    ]
-  }
+	  {
+	    id: "07",
+	    title: "80M Agent Desktop",
+	    subtitle: "Use Hermes Without Learning Code",
+	    time: "90 Minutes",
+	    description: "A full beginner course on opening the 80M Agent Desktop, choosing a provider, talking to Hermes, saving memory, installing skills, using schedules, and building useful workflows in plain English.",
+	    image: "https://i.postimg.cc/Hnc5wKYC/social.png",
+	    topics: [
+	      { name: "Agent Council", detail: "The 7 orbs explained — find your lane." },
+	      { name: "Memory & Skills", detail: "Your agent that actually remembers you." },
+	      { name: "Schedules & Tasks", detail: "Recurring work without manual reminders." },
+	      { name: "Build Your Workspace", detail: "Templates for agents, schedules, tasks, skills." }
+	    ]
+	  }
 ];
 
 const walkAwayData = [
-  { title: "A Local God", desc: "A voice-controlled AI agent on your own server. Total privacy." },
+  { title: "Your Local Command Center", desc: "A voice-friendly AI agent setup on hardware you control." },
   { title: "Total Delegation", desc: "Hand off tasks and actually get results, not excuses." },
-  { title: "The Ghost", desc: "Cron jobs that run while you sleep. Your business moves 24/7." },
-  { title: "Zero Rent", desc: "No subscriptions. No vendor lock-in. You own the code." }
+  { title: "Scheduled Helpers", desc: "Recurring work that runs on a schedule. Your business keeps moving." },
+  { title: "More Control", desc: "Less vendor lock-in. Your setup, memory, and workflows stay closer to you." }
 ];
 
 export default function PortalPage() {
-  const [activeCourseId, setActiveCourseId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const routeCourseMatch = location.pathname.match(/^\/portal\/class-(0[1-7])$/);
+  const activeCourseId = routeCourseMatch?.[1] || null;
+
+  const openCourse = (id) => {
+    navigate(`/portal/class-${id}`);
+  };
+
+  const closeCourse = () => {
+    navigate('/portal');
+  };
 
   useEffect(() => {
     const html = document.documentElement;
@@ -7199,23 +8901,25 @@ export default function PortalPage() {
 
   return (
     <div className="min-h-screen text-[#111] font-sans selection:bg-[#111] selection:text-[#eae7de] overflow-x-hidden relative">
-      <NoiseOverlay />
-      <PaperBackground />
+      {!activeCourseId && (
+        <>
+          <NoiseOverlay />
+          <PaperBackground />
 
-      {/* Portal Nav */}
-      <nav className="p-6 md:p-8 flex justify-between items-center relative z-20">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="font-serif font-black text-3xl tracking-tighter uppercase text-[#111]">80m<span className="text-[#22c55e]">.</span></Link>
-          <span className="font-mono text-xs font-bold uppercase tracking-widest bg-[#111] text-[#22c55e] px-4 py-2 border-[2px] border-[#111] shadow-[4px_4px_0_0_#111]">
-            Portal
-          </span>
-        </div>
-        <div className="flex items-center gap-4 font-mono text-xs uppercase tracking-widest font-bold">
-          <Link to="/" className="px-4 py-2 hover:text-[#22c55e] transition-colors">← Landing</Link>
-        </div>
-      </nav>
+          {/* Portal Nav */}
+          <nav className="p-6 md:p-8 flex justify-between items-center relative z-20">
+            <div className="flex items-center gap-6">
+              <Link to="/" className="font-serif font-black text-3xl tracking-tighter uppercase text-[#111]">80m<span className="text-[#22c55e]">.</span></Link>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest bg-[#111] text-[#22c55e] px-4 py-2 border-[2px] border-[#111] shadow-[4px_4px_0_0_#111]">
+                Portal
+              </span>
+            </div>
+            <div className="flex items-center gap-4 font-mono text-xs uppercase tracking-widest font-bold">
+              <Link to="/" className="px-4 py-2 hover:text-[#22c55e] transition-colors">← Landing</Link>
+            </div>
+          </nav>
 
-      <main className="pb-32 px-4 md:px-8 max-w-[1200px] mx-auto relative z-10">
+          <main className="pb-32 px-4 md:px-8 max-w-[1200px] mx-auto relative z-10">
 
         {/* Hero */}
         <section className="pt-12 md:pt-24 pb-20 border-b-[4px] border-[#111] mb-20">
@@ -7280,7 +8984,7 @@ export default function PortalPage() {
                     </div>
                     <div className="flex flex-col gap-4 mt-8 w-fit">
                       <div className={`inline-block border-2 px-4 py-2 font-mono text-sm font-bold ${index === 1 ? 'border-[#111] bg-[#111] text-[#eae7de]' : 'border-[#eae7de] bg-transparent'}`}>Target: {cls.time}</div>
-                      <button onClick={() => setActiveCourseId(cls.id)} className={`font-sans font-black text-lg px-6 py-3 border-[3px] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all ${index === 1 ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'bg-[#22c55e] text-[#111] border-[#111]'}`}>Start Course →</button>
+                      <button onClick={() => openCourse(cls.id)} className={`font-sans font-black text-lg px-6 py-3 border-[3px] shadow-[4px_4px_0_0_#111] hover:-translate-y-1 transition-all ${index === 1 ? 'bg-[#111] text-[#eae7de] border-[#111]' : 'bg-[#22c55e] text-[#111] border-[#111]'}`}>Start Course →</button>
                     </div>
                   </div>
                   <div className="lg:w-2/3 p-8 md:p-12">
@@ -7328,26 +9032,28 @@ export default function PortalPage() {
           </motion.div>
         </section>
 
-      </main>
+          </main>
 
-      {/* Footer */}
-      <footer className="border-t-[4px] border-[#111] py-12 text-center relative z-10 bg-[#eae7de]">
-        <div className="flex flex-col items-center gap-4">
-          <Link to="/" className="font-serif font-black text-3xl tracking-tighter uppercase text-[#111]">80m<span className="text-[#22c55e]">.</span></Link>
-          <span className="font-mono text-xs uppercase tracking-widest font-bold text-[#555]">© 2026 80m SYSTEMS. All rights reserved.</span>
-          <a href="mailto:contact@80m.ai" className="font-mono text-xs uppercase tracking-widest hover:underline underline-offset-8 font-black">contact@80m.ai</a>
-        </div>
-      </footer>
+          {/* Footer */}
+          <footer className="border-t-[4px] border-[#111] py-12 text-center relative z-10 bg-[#eae7de]">
+            <div className="flex flex-col items-center gap-4">
+              <Link to="/" className="font-serif font-black text-3xl tracking-tighter uppercase text-[#111]">80m<span className="text-[#22c55e]">.</span></Link>
+              <span className="font-mono text-xs uppercase tracking-widest font-bold text-[#555]">© 2026 80m SYSTEMS. All rights reserved.</span>
+              <a href="mailto:contact@80m.ai" className="font-mono text-xs uppercase tracking-widest hover:underline underline-offset-8 font-black">contact@80m.ai</a>
+            </div>
+          </footer>
+        </>
+      )}
 
       {/* Course Overlays */}
       <AnimatePresence>
-        {activeCourseId === "01" && <CourseOneContent key="course-01" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "02" && <CourseTwoContent key="course-02" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "03" && <CourseThreeContent key="course-03" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "04" && <CourseFourContent key="course-04" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "05" && <CourseFiveContent key="course-05" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "06" && <CourseSixContent key="course-06" onClose={() => setActiveCourseId(null)} />}
-        {activeCourseId === "07" && <CourseSevenContent key="course-07" onClose={() => setActiveCourseId(null)} />}
+        {activeCourseId === "01" && <CourseOneContent key="course-01" onClose={closeCourse} />}
+        {activeCourseId === "02" && <CourseTwoContent key="course-02" onClose={closeCourse} />}
+        {activeCourseId === "03" && <CourseThreeContent key="course-03" onClose={closeCourse} />}
+        {activeCourseId === "04" && <CourseFourContent key="course-04" onClose={closeCourse} />}
+        {activeCourseId === "05" && <CourseFiveContent key="course-05" onClose={closeCourse} />}
+        {activeCourseId === "06" && <CourseSixContent key="course-06" onClose={closeCourse} />}
+        {activeCourseId === "07" && <CourseSevenContent key="course-07" onClose={closeCourse} />}
       </AnimatePresence>
     </div>
   );
