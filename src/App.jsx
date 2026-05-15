@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import * as THREE from 'three';
 import FuzzyText from './FuzzyText';
 import DecryptedText from './DecryptedText';
 import { NoiseOverlay, FloatingParticles } from './PortalShared';
+import HeroPortfolioExperience from './HeroPortfolioExperience';
 
 // --- Custom Components & Styles ---
 
@@ -15,11 +15,10 @@ const LANDING_BACKGROUND_SOURCE_VIDEO = "https://yyoxpcsspmjvolteknsn.supabase.c
 const LANDING_BACKGROUND_VIDEO = "/media/80m-background-h264.mp4";
 const LANDING_IDLE_SOURCE_VIDEO = "https://yyoxpcsspmjvolteknsn.supabase.co/storage/v1/object/public/akeems%20admin/Videos/0504(1).mp4";
 const LANDING_IDLE_VIDEO = "/media/80m-hero-idle-h264.mp4";
-const PORTFOLIO_INTRO_SOURCE_VIDEO = "https://yyoxpcsspmjvolteknsn.supabase.co/storage/v1/object/public/akeems%20admin/Videos/202605050146.mp4";
-const PORTFOLIO_INTRO_VIDEO = "/media/80m-portfolio-intro.mp4";
-const PORTFOLIO_IDLE_VIDEO = LANDING_IDLE_VIDEO;
-const PORTFOLIO_IDLE_SOURCE_VIDEO = LANDING_IDLE_SOURCE_VIDEO;
+const BRAND_MARK_WHITE = "/brand/80m-mark-white.svg";
+const BRAND_MARK_BLACK = "/brand/80m-mark-black.svg";
 const BACKGROUND_VIDEO_SMOOTHING = 0.16;
+const BACKGROUND_VIDEO_SEEK_EPSILON_SECONDS = 0.025;
 const LANDING_VIDEO_BEATS = [
   { scroll: 0, video: 0 },
   { scroll: 0.08, video: 0.16 },
@@ -104,6 +103,7 @@ const ScrubbablePaperBackground = ({ stageRef }) => {
   const targetProgress = useRef(0);
   const videoProgress = useRef(0);
   const durationRef = useRef(0);
+  const lastSeekTimeRef = useRef(-1);
   const prefersReducedMotion = useReducedMotion();
   const { scrollY: pageScrollY } = useScroll();
   const idleOpacity = useTransform(pageScrollY, [0, 160, 480], [1, 0.35, 0], { clamp: true });
@@ -138,6 +138,7 @@ const ScrubbablePaperBackground = ({ stageRef }) => {
 
     const onLoadedMetadata = () => {
       durationRef.current = Number.isFinite(video.duration) ? video.duration : 0;
+      lastSeekTimeRef.current = 0;
       try {
         video.currentTime = 0;
       } catch {
@@ -149,12 +150,13 @@ const ScrubbablePaperBackground = ({ stageRef }) => {
       updateTarget();
       videoProgress.current += (targetProgress.current - videoProgress.current) * BACKGROUND_VIDEO_SMOOTHING;
 
-      if (!prefersReducedMotion && durationRef.current > 0 && video.readyState >= 2) {
+      if (!prefersReducedMotion && durationRef.current > 0 && video.readyState >= 1) {
         if (!video.paused) video.pause();
         const nextTime = clamp(videoProgress.current) * Math.max(0, durationRef.current - 0.016);
-        if (Math.abs(video.currentTime - nextTime) > 0.025) {
+        if (Math.abs(lastSeekTimeRef.current - nextTime) > BACKGROUND_VIDEO_SEEK_EPSILON_SECONDS) {
           try {
             video.currentTime = nextTime;
+            lastSeekTimeRef.current = nextTime;
           } catch {
             // Keep the loop alive if the browser temporarily blocks seeking.
           }
@@ -773,8 +775,6 @@ const PillSelect = ({ options, value, onChange, multi = false, accent = '#22c55e
 // Input styling helpers
 const darkInput = "w-full bg-[#1a1a1a] border border-[#333] text-[#eae7de] font-sans text-base px-5 py-4 rounded-lg placeholder-[#555] focus:outline-none focus:border-[#22c55e] transition-colors";
 const creamInput = "w-full bg-white/70 border border-[#bbb] text-[#111] font-sans text-base px-5 py-4 rounded-lg placeholder-[#999] focus:outline-none focus:border-[#0ea5e9] transition-colors";
-
-const getPortfolioThumb = (src) => src?.replace('/portfolio/', '/portfolio/thumbs/').replace(/\.(png|jpe?g|webp)$/i, '.webp') || src;
 
 const FAQItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -1597,526 +1597,6 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
   );
 };
 
-const PortfolioThreeRibbon = ({ projects, scrollOffset, onSelect }) => {
-  const mountRef = useRef(null);
-  const scrollRef = useRef(scrollOffset);
-  const selectRef = useRef(onSelect);
-
-  useEffect(() => {
-    scrollRef.current = scrollOffset;
-  }, [scrollOffset]);
-
-  useEffect(() => {
-    selectRef.current = onSelect;
-  }, [onSelect]);
-
-  useEffect(() => {
-    const mount = mountRef.current;
-    if (!mount) return undefined;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-6, 6, 3.4, -3.4, 0.1, 100);
-    camera.position.set(0, 0, 10);
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
-    renderer.setClearColor(0x000000, 0);
-    mount.appendChild(renderer.domElement);
-
-    const buildCurve = (aspect) => {
-      const horizontal = 5.8 * aspect;
-      const left = -horizontal;
-      const right = horizontal;
-      const top = 3.4;
-      const bottom = -3.4;
-      const point = (x, y) => new THREE.Vector3(
-        THREE.MathUtils.lerp(left, right, x),
-        THREE.MathUtils.lerp(top, bottom, y),
-        0
-      );
-
-      return new THREE.CatmullRomCurve3([
-        point(-0.08, 1.18),
-        point(0.03, 1.04),
-        point(0.15, 0.88),
-        point(0.27, 0.72),
-        point(0.4, 0.34),
-        point(0.53, 0.48),
-        point(0.64, 0.33),
-        point(0.73, 0.49),
-        point(0.79, 0.54),
-        point(0.815, 0.545),
-      ]);
-    };
-
-    let curve = buildCurve(16 / 9);
-
-    const textureLoader = new THREE.TextureLoader();
-    const meshes = projects.map((project, index) => {
-      const geometry = new THREE.PlaneGeometry(2.25, 1.36, 12, 7);
-      const positions = geometry.attributes.position.array;
-      geometry.userData.original = Float32Array.from(positions);
-      const texture = textureLoader.load(getPortfolioThumb(project.img));
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = 1;
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.95,
-      });
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.userData.index = index;
-      mesh.userData.base = index / projects.length;
-      scene.add(mesh);
-      return mesh;
-    });
-
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-    const onPointerDown = (event) => {
-      const rect = renderer.domElement.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(pointer, camera);
-      const hits = raycaster.intersectObjects(meshes, false);
-      if (hits[0]) {
-        const project = projects[hits[0].object.userData.index];
-        selectRef.current?.(project);
-      }
-    };
-
-    const resize = () => {
-      const rect = mount.getBoundingClientRect();
-      const width = Math.max(1, rect.width);
-      const height = Math.max(1, rect.height);
-      renderer.setSize(width, height, false);
-      const aspect = width / height;
-      camera.left = -5.8 * aspect;
-      camera.right = 5.8 * aspect;
-      camera.top = 3.4;
-      camera.bottom = -3.4;
-      camera.updateProjectionMatrix();
-      curve = buildCurve(aspect);
-    };
-
-    let rafId = 0;
-    const clock = new THREE.Clock();
-    const animate = () => {
-      const elapsed = clock.getElapsedTime();
-
-      meshes.forEach((mesh, index) => {
-        const t = (mesh.userData.base + scrollRef.current + elapsed * 0.018) % 1;
-        const point = curve.getPointAt(t);
-        const tangent = curve.getTangentAt(t);
-        const pull = Math.pow(t, 1.8);
-        const scale = THREE.MathUtils.lerp(1.25, 0.18, pull);
-        const flutter = Math.sin(elapsed * 1.8 + index) * 0.1;
-
-        mesh.position.set(point.x, point.y + flutter, 1.2 - t);
-        mesh.scale.set(scale, scale, scale);
-        mesh.rotation.z = Math.atan2(tangent.y, tangent.x) + Math.sin(elapsed + index) * 0.12;
-        mesh.rotation.y = Math.sin(elapsed * 0.7 + index * 1.4) * 0.22;
-        mesh.material.opacity = t > 0.9 ? THREE.MathUtils.clamp((1 - t) / 0.1, 0.08, 0.9) : 0.92;
-
-        const position = mesh.geometry.attributes.position;
-        const original = mesh.geometry.userData.original;
-        for (let i = 0; i < position.array.length; i += 3) {
-          const x = original[i];
-          const y = original[i + 1];
-          position.array[i] = x + Math.sin(y * 6 + elapsed * 2 + index) * 0.055;
-          position.array[i + 1] = y + Math.sin(x * 4 + elapsed * 1.6 + index) * 0.045;
-          position.array[i + 2] = original[i + 2] + Math.sin((x + y) * 4 + elapsed * 2.2 + index) * 0.16 * (1 - pull);
-        }
-        position.needsUpdate = true;
-      });
-
-      renderer.render(scene, camera);
-      rafId = requestAnimationFrame(animate);
-    };
-
-    resize();
-    animate();
-    renderer.domElement.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('resize', resize);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('resize', resize);
-      meshes.forEach((mesh) => {
-        mesh.geometry.dispose();
-        mesh.material.map?.dispose();
-        mesh.material.dispose();
-      });
-      renderer.dispose();
-      renderer.domElement.remove();
-    };
-  }, [projects]);
-
-  return <div ref={mountRef} className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing" aria-hidden="true" />;
-};
-
-const PortfolioAtmScrollRail = () => (
-  <div className="pointer-events-none absolute right-4 top-14 z-40 hidden h-24 w-12 md:block" aria-hidden="true">
-    <style>{`
-      @keyframes portfolioAtmBlink {
-        0%, 92%, 100% { transform: scaleY(1); }
-        96% { transform: scaleY(0.12); }
-      }
-      @keyframes portfolioBillSuck {
-        0% { transform: translate3d(var(--bill-x), calc(100vh + 2rem), 0) rotate(var(--bill-rotate)) scale(0.82); opacity: 0; }
-        12% { opacity: 1; }
-        78% { opacity: 1; }
-        100% { transform: translate3d(0, 1.5rem, 0) rotate(4deg) scale(0.36); opacity: 0; }
-      }
-      .portfolio-atm-eye { transform-origin: center; animation: portfolioAtmBlink 4s infinite; }
-      .portfolio-bill-suck { animation: portfolioBillSuck 1.8s linear infinite; }
-    `}</style>
-    <div className="absolute right-0 top-0 h-24 w-12">
-      {[0, 1, 2, 3].map((bill) => (
-        <span
-          key={bill}
-          className="portfolio-bill-suck absolute bottom-1 right-3 h-2 w-6 rounded-sm border border-green-800 bg-green-500 shadow-[0_8px_16px_rgba(0,0,0,0.35)]"
-          style={{
-            animationDelay: `${bill * -0.42}s`,
-            '--bill-x': `${(bill - 1.5) * 1.15}rem`,
-            '--bill-rotate': `${bill % 2 ? -18 : 16}deg`,
-          }}
-        />
-      ))}
-      <div className="relative z-10 flex h-full w-full flex-col items-center rounded-[4px] border-b-4 border-r-[3px] border-[#b5b3a3] bg-[#dfddd0]/95 p-1 shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
-        <div className="mt-0.5 flex h-8 w-10 items-center justify-center rounded-[3px] border-[1.5px] border-[#1f1e1c] bg-[#2e2d2b] p-[2px] shadow-inner">
-          <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[2px] bg-[#facc15]">
-            <div className="absolute inset-0 rounded-[2px] bg-gradient-to-br from-white/25 to-transparent" />
-            <svg viewBox="0 0 24 24" className="h-5 w-5 drop-shadow-sm">
-              <circle className="portfolio-atm-eye" cx="7" cy="9" r="2" fill="#111" />
-              <circle className="portfolio-atm-eye" cx="17" cy="9" r="2" fill="#111" />
-              <path d="M6 13.5c2.5 3.5 7.5 3.5 12 0" stroke="#111" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-            </svg>
-          </div>
-        </div>
-        <div className="mt-1 flex w-10 items-center justify-between px-0.5">
-          <div className="flex gap-[1px]">
-            {[...Array(6)].map((_, index) => <span key={index} className="h-1.5 w-[1px] bg-black/20" />)}
-          </div>
-          <span className="h-1 w-1.5 rounded-[0.5px] bg-black" />
-        </div>
-        <div className="mt-1.5 w-8 rounded-[2px] border-l border-t border-black/10 bg-[#cbc9ba] p-1 shadow-inner">
-          <div className="grid grid-cols-3 gap-[1.5px]">
-            {[...Array(12)].map((_, index) => <span key={index} className="h-[2px] rounded-[0.5px] bg-[#444] shadow-sm" />)}
-          </div>
-        </div>
-        <div className="mt-2 flex w-full justify-end px-2">
-          <div className="flex flex-col items-center gap-[1px]">
-            <span className="h-[1.5px] w-3 rounded-full bg-zinc-800 shadow-inner" />
-            <span className="h-[2px] w-[2px] rounded-full bg-green-500 shadow-[0_0_3px_#22c55e]" />
-          </div>
-        </div>
-        <div className="mb-1 mt-auto flex h-2 w-9 items-center justify-center rounded-sm border-[1px] border-zinc-500 bg-zinc-400 shadow-inner">
-          <span className="h-[1.5px] w-6 rounded-full bg-zinc-900" />
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const HeroPortfolioExperience = ({ isOpen, onClose }) => {
-  const [phase, setPhase] = useState('intro');
-  const [introReady, setIntroReady] = useState(false);
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const [selectedProject, setSelectedProject] = useState(portfolioSlides[0]);
-  const [selectedShotIndex, setSelectedShotIndex] = useState(0);
-  const touchRef = useRef(null);
-
-  useEffect(() => {
-    if (!isOpen) return undefined;
-    setPhase('intro');
-    setIntroReady(false);
-    setSelectedProject(portfolioSlides[0]);
-    setSelectedShotIndex(0);
-    setScrollOffset(0);
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
-
-  const nudge = (delta) => {
-    setScrollOffset((value) => {
-      const next = (value + delta) % 1;
-      return next < 0 ? next + 1 : next;
-    });
-  };
-
-  const handleWheel = (event) => {
-    event.preventDefault();
-    nudge((event.deltaY + event.deltaX) * 0.0007);
-  };
-
-  const handleTouchStart = (event) => {
-    touchRef.current = event.touches[0]?.clientX ?? null;
-  };
-
-  const handleTouchMove = (event) => {
-    if (touchRef.current == null) return;
-    const nextX = event.touches[0]?.clientX ?? touchRef.current;
-    nudge((touchRef.current - nextX) * 0.002);
-    touchRef.current = nextX;
-  };
-
-  const selectedIndex = Math.max(0, portfolioSlides.findIndex((project) => project.title === selectedProject?.title));
-  const selectedProjectSafe = portfolioSlides[selectedIndex] || selectedProject || portfolioSlides[0];
-  const selectedShots = selectedProjectSafe.shots?.length ? selectedProjectSafe.shots : [selectedProjectSafe.img];
-  const selectedShot = selectedShots[selectedShotIndex % selectedShots.length] || selectedProjectSafe.img;
-  const selectedShotPreview = getPortfolioThumb(selectedShot);
-  const handleSelectProject = (project) => {
-    setSelectedProject(project);
-    setSelectedShotIndex(0);
-  };
-  const goToProject = (step) => {
-    const nextIndex = (selectedIndex + step + portfolioSlides.length) % portfolioSlides.length;
-    setSelectedProject(portfolioSlides[nextIndex]);
-    setSelectedShotIndex(step < 0 ? ((portfolioSlides[nextIndex].shots?.length || 1) - 1) : 0);
-    setScrollOffset((0.88 - nextIndex / portfolioSlides.length + 1) % 1);
-  };
-  const goToShot = (step) => {
-    const nextShot = selectedShotIndex + step;
-    if (nextShot < 0) {
-      goToProject(-1);
-      return;
-    }
-    if (nextShot >= selectedShots.length) {
-      goToProject(1);
-      return;
-    }
-    setSelectedShotIndex(nextShot);
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={false}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 1 }}
-          transition={{ duration: 0 }}
-          className="fixed inset-0 z-[240] overflow-hidden bg-transparent text-white"
-          onWheel={handleWheel}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-        >
-          <video
-            className="absolute inset-0 z-0 h-full w-full object-cover saturate-[1.18] contrast-[1.08]"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          >
-            <source src={PORTFOLIO_IDLE_VIDEO} type="video/mp4" />
-            <source src={PORTFOLIO_IDLE_SOURCE_VIDEO} type="video/mp4" />
-          </video>
-
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 z-[80] font-mono text-xs md:text-sm uppercase tracking-widest text-[#d9ff48] hover:text-white transition-colors"
-          >
-            Back Button
-          </button>
-
-          {phase === 'intro' && (
-            <motion.div
-              key="portfolio-intro"
-              className="absolute inset-0 z-50 bg-transparent"
-              initial={false}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 1 }}
-              transition={{ duration: 0 }}
-            >
-              <video
-                className={`h-full w-full object-cover ${introReady ? 'opacity-100' : 'opacity-0'}`}
-                autoPlay
-                playsInline
-                muted
-                preload="auto"
-                onLoadedData={() => setIntroReady(true)}
-                onCanPlay={() => setIntroReady(true)}
-                onPlaying={() => setIntroReady(true)}
-                onEnded={() => setPhase('gallery')}
-                onError={() => setPhase('gallery')}
-              >
-                <source src={PORTFOLIO_INTRO_VIDEO} type="video/mp4" />
-                <source src={PORTFOLIO_INTRO_SOURCE_VIDEO} type="video/mp4" />
-              </video>
-            </motion.div>
-          )}
-
-          <motion.div
-            className="absolute inset-0 z-10"
-            initial={false}
-            animate={{ opacity: phase === 'gallery' ? 1 : 0 }}
-            transition={{ duration: 0 }}
-          >
-            <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_82%_55%,transparent_0,rgba(0,0,0,0.04)_34%,rgba(0,0,0,0.34)_88%),linear-gradient(180deg,transparent_0%,rgba(2,6,23,0.2)_86%)]" />
-            <PortfolioThreeRibbon projects={portfolioSlides} scrollOffset={scrollOffset} onSelect={handleSelectProject} />
-            <PortfolioAtmScrollRail />
-
-            <div className="absolute left-4 top-[13.5rem] z-40 max-w-[330px] md:left-10 md:top-[15.5rem]">
-              <p className="font-serif text-2xl font-black leading-none text-white drop-shadow-[2px_2px_0_rgba(17,17,17,0.82)] md:text-4xl">80m Portfolio</p>
-              <p className="mt-5 font-mono text-[10px] font-black uppercase leading-relaxed tracking-[0.16em] text-[#d9ff48] md:text-xs">
-                Scroll sideways. Click a floating screen for project details. The papers ride the wave into the singularity.
-              </p>
-            </div>
-
-            <AnimatePresence mode="wait">
-              {selectedProjectSafe && (
-                <motion.div
-                  key={selectedProjectSafe.title}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 18 }}
-                  className="absolute bottom-4 left-1/2 z-50 flex w-[min(92vw,900px)] -translate-x-1/2 flex-col gap-3 md:bottom-5 md:flex-row md:items-stretch"
-                >
-                  <div className="relative min-h-[150px] flex-[1.16] overflow-hidden border-2 border-[#111]/75 bg-[#eae7de]/36 p-2 shadow-[5px_5px_0_0_rgba(17,17,17,0.48)] backdrop-blur-md md:min-h-[198px]">
-                    <img
-                      src={selectedShotPreview}
-                      data-fallback={selectedShot}
-                      alt=""
-                      className="h-full w-full bg-[#f5f1e8]/35 object-contain opacity-80"
-                      onError={(event) => {
-                        const fallback = event.currentTarget.dataset.fallback;
-                        if (!fallback) return;
-                        event.currentTarget.src = fallback;
-                        event.currentTarget.dataset.fallback = '';
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => goToShot(-1)}
-                      className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#22c55e] bg-[#04130a]/70 font-mono text-2xl font-black leading-none text-[#d9ff48] shadow-[0_0_18px_rgba(34,197,94,0.8)] transition-transform hover:scale-110"
-                      aria-label="Previous project"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => goToShot(1)}
-                      className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[#22c55e] bg-[#04130a]/70 font-mono text-2xl font-black leading-none text-[#d9ff48] shadow-[0_0_18px_rgba(34,197,94,0.8)] transition-transform hover:scale-110"
-                      aria-label="Next project"
-                    >
-                      ›
-                    </button>
-                  </div>
-                  <div className="flex flex-[0.54] flex-col justify-between border-2 border-[#111]/75 bg-[#eae7de]/34 p-3 text-[#111] shadow-[5px_5px_0_0_rgba(17,17,17,0.48)] backdrop-blur-md md:p-4">
-                    <div>
-                      <p className="font-mono text-[9px] font-black uppercase tracking-[0.23em] text-[#222]">{selectedProjectSafe.desc}</p>
-                      <h2 className="mt-2 font-serif text-2xl font-black leading-none md:text-3xl">{selectedProjectSafe.title}</h2>
-                      <p className="mt-3 font-sans text-xs font-bold leading-snug text-[#1d1d1d] md:text-sm">{selectedProjectSafe.subtitle}</p>
-                    </div>
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      {selectedProjectSafe.url && (
-                        <a href={selectedProjectSafe.url} target="_blank" rel="noreferrer" className="font-sans text-xs font-black uppercase tracking-wider underline underline-offset-4">
-                          Project Link
-                        </a>
-                      )}
-                      <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-[#333]">
-                        shot {selectedShotIndex + 1} / {selectedShots.length} / project {selectedIndex + 1} / {portfolioSlides.length}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-const portfolioSlides = [
-  {
-    img: "/portfolio/hyphyburger.png",
-    shots: ["/portfolio/hyphyburger.png", "/portfolio/hyphyburger-game.png", "/portfolio/hyphyburger-menu.png"],
-    title: "HyphyBurger.com",
-    desc: "RESTAURANT WEBSITE",
-    subtitle: "Menu-first site with appetite-heavy visuals, a mini-game moment, local conversion, and franchise-ready brand energy.",
-    url: "https://hyphyburger.com",
-  },
-  {
-    img: "/portfolio/highroller-home.png",
-    shots: ["/portfolio/highroller-home.png", "/portfolio/highroller-products.png", "/portfolio/highroller-minimal.png"],
-    title: "High Roller",
-    desc: "CANNABIS SHOP",
-    subtitle: "Cannabis retail concept with slot-machine energy, bold product storytelling, and a premium shop direction.",
-    url: "https://highrollershop.com",
-  },
-  {
-    img: "/portfolio/caviarbutter-home.png",
-    shots: ["/portfolio/caviarbutter-home.png", "/portfolio/caviarbutter-products.png", "/portfolio/caviarbutter-alt.png"],
-    title: "Caviar Butter LA",
-    desc: "BEAUTY STORE",
-    subtitle: "Body-butter storefront system with luxury product framing, education copy, and clean ecommerce sections.",
-    url: "https://caviarbutterla.com",
-  },
-  {
-    img: "/portfolio/gurag-product-32.png",
-    shots: ["/portfolio/gurag-product-32.png", "/portfolio/gurag-product-34.png", "/portfolio/gurag-packaging.png", "/portfolio/gurag-brand-sheet.png", "/portfolio/gurag-fabric-swatches.png", "/portfolio/gurag-durag-mockup.png"],
-    title: "GURAG",
-    desc: "DURAG BRAND",
-    subtitle: "Durag brand identity with product mockups, fabric systems, packaging, pattern language, and preorder-ready assets.",
-  },
-  {
-    img: "/portfolio/tagesplan.png",
-    shots: ["/portfolio/tagesplan.png", "/portfolio/tagesplan-planner.png", "/portfolio/tagesplan-editor.png"],
-    title: "Tagesplan Forma",
-    desc: "PROJECT WEBSITE",
-    subtitle: "Editorial planner world with clean storytelling, premium motion, and a polished daily-use interface.",
-  },
-  {
-    img: "/portfolio/hustlin-usa.png",
-    shots: ["/portfolio/hustlin-usa.png", "/portfolio/hustlin-usa-shop.png"],
-    title: "Hustlin USA",
-    desc: "BRAND + STORE SYSTEM",
-    subtitle: "Shopify-ready storefront/admin split, inventory language, and sharper retail identity.",
-    url: "https://hustlinusa.com",
-  },
-  {
-    img: "/portfolio/80m.png",
-    shots: ["/portfolio/80m.png", "/portfolio/80m-portal.png", "/portfolio/80m-pricing.png"],
-    title: "80M",
-    desc: "BRAND + COURSE SYSTEM",
-    subtitle: "A full-machine brand language built to feel like money moving through agents, software, courses, and onboarding.",
-    url: "https://80m.guru",
-  },
-  {
-    img: "/portfolio/80m-agent-desktop.png",
-    shots: ["/portfolio/80m-agent-desktop.png"],
-    title: "80M Agent Desktop",
-    desc: "DESKTOP AGENT HARNESS",
-    subtitle: "Packaged command center for local sessions, skills, tools, gateway controls, and live workspace preview.",
-    url: "https://github.com/guapdad4000/80m-agent-desktop-v3/releases/latest",
-  },
-  {
-    img: "/portfolio/life-os.png",
-    shots: ["/portfolio/life-os.png", "/portfolio/life-os-workspace.png"],
-    title: "Life OS Dashboard",
-    desc: "FULL DASHBOARD APP",
-    subtitle: "Dense product UI organized into a clean command center for tasks, memory, and local-first operations.",
-  },
-  {
-    img: "/portfolio/cortex-mobile.png",
-    shots: ["/portfolio/cortex-mobile.png", "/portfolio/cortex-mobile-lower.png"],
-    title: "Cortex Mobile",
-    desc: "MOBILE AGENT APP",
-    subtitle: "Mobile-first agent interface with local LifeOS data, glassy motion, and compact daily workflows.",
-  },
-];
-
 // Re-export AtmScrollbar so PortalPage can use the same component
 export { AtmScrollbar };
 
@@ -2232,9 +1712,11 @@ export default function App() {
         >
           <motion.img
             layout
-            src="https://i.postimg.cc/P5W3dKTx/logo.png"
+            src={isExpandedMenu ? BRAND_MARK_BLACK : BRAND_MARK_WHITE}
             alt="80m Logo"
-            className={`transition-all duration-500 w-auto filter brightness-0 ${
+            className={`transition-all duration-500 w-auto ${
+              isExpandedMenu ? '' : 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]'
+            } ${
               isFloating ? 'h-10 md:h-16' : 'h-8 md:h-12'
             }`}
           />
@@ -2355,7 +1837,7 @@ export default function App() {
             </motion.div>
 
             <motion.div
-              className="absolute right-0 top-[15vh] z-40 w-[42vw] max-w-[230px] text-right md:right-[4vw] md:top-[18vh] md:w-[280px]"
+              className="absolute right-0 top-[23vh] z-40 w-[42vw] max-w-[230px] text-right sm:top-[21vh] md:right-[4vw] md:top-[18vh] md:w-[280px]"
               variants={staggerContainer}
               initial="hidden"
               animate="visible"
@@ -2476,9 +1958,10 @@ export default function App() {
           <div className="h-[42vh] md:h-[58vh]" aria-hidden="true" />
 
           <div className="relative min-h-[250vh] md:min-h-[290vh]">
+            <span data-landing-video-beat="hands" className="pointer-events-none absolute left-0 top-[38vh] h-px w-px opacity-0" aria-hidden="true" />
             <div className="sticky top-0 min-h-screen flex items-center py-14 md:py-20">
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={staggerContainer} className="w-full">
-                <motion.h3 data-landing-video-beat="hands" variants={fadeUp} className="font-serif italic text-5xl md:text-7xl lg:text-[5.2vw] leading-[0.9] tracking-tighter mp4-ink max-w-4xl mx-auto mb-10 md:mb-14">
+                <motion.h3 variants={fadeUp} className="font-serif italic text-5xl md:text-7xl lg:text-[5.2vw] leading-[0.9] tracking-tighter mp4-ink max-w-4xl mx-auto mb-10 md:mb-14">
                   Are your hands tied with real life sh*t?
                 </motion.h3>
 
@@ -2517,11 +2000,12 @@ export default function App() {
         {/* Pricing / Investment */}
         {/* ── PRICING SECTION ── */}
         <section id="pricing" className="scroll-mt-0 mt-72 md:mt-[28rem] px-4 md:px-8 relative mx-auto" aria-labelledby="pricing-heading" style={{ maxWidth: '1200px' }}>
-          <div className="relative h-[580vh] md:h-[660vh]">
+          <span data-landing-video-beat="pricing" className="pointer-events-none absolute left-0 top-[42vh] h-px w-px opacity-0" aria-hidden="true" />
+          <div className="relative h-[660vh] md:h-[760vh]">
             <div className="sticky top-0 z-10 flex h-screen items-center justify-center text-center pointer-events-none">
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.65 }} variants={staggerContainer} className="max-w-5xl px-2">
               <motion.p variants={fadeUp} className="font-mono uppercase tracking-[0.25em] mb-6 text-xs md:text-sm font-bold mp4-muted">// ways in</motion.p>
-              <motion.h2 id="pricing-heading" data-landing-video-beat="pricing" variants={fadeUp} className="font-serif text-6xl md:text-8xl lg:text-[8vw] leading-[0.86] tracking-tight mb-6 mp4-ink">
+              <motion.h2 id="pricing-heading" variants={fadeUp} className="font-serif text-6xl md:text-8xl lg:text-[8vw] leading-[0.86] tracking-tight mb-6 mp4-ink">
                 We come to you.
               </motion.h2>
               <motion.p variants={fadeUp} className="font-sans text-lg md:text-2xl mp4-muted font-medium max-w-2xl mx-auto">
@@ -2532,14 +2016,15 @@ export default function App() {
           </div>
 
           <motion.div
+            data-landing-video-beat="pricing-release"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.18 }}
             variants={staggerContainer}
-            className="relative z-20 mt-[28vh] md:mt-[36vh] pb-40 md:pb-56"
+            className="relative z-20 mt-[20vh] md:mt-[28vh] pb-40 md:pb-56"
           >
             <div className="grid grid-cols-1 lg:grid-cols-[0.42fr_0.58fr] gap-12 lg:gap-16 xl:gap-20 items-start">
-              <motion.div variants={fadeUp} className="lg:sticky lg:top-24 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+              <motion.div variants={fadeUp} className="pt-14 lg:pt-0 lg:sticky lg:top-24 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
                 <p className="font-mono uppercase tracking-[0.25em] mb-4 text-xs font-bold mp4-muted">// offer stack</p>
                 <h3 className="font-serif text-5xl md:text-7xl lg:text-6xl leading-[0.9] tracking-tight mb-5 mp4-ink">
                   Choose the way in.
@@ -3050,7 +2535,7 @@ export default function App() {
         <footer className="mt-28 md:mt-40 px-4 md:px-8 pb-12 text-center relative z-20 mx-auto" style={{ maxWidth: '1100px' }}>
           <div className="grid gap-8 border-t-2 mp4-border pt-10 text-left md:grid-cols-[0.9fr_1.2fr_0.9fr] md:items-start">
             <div className="flex flex-col items-center gap-4 text-center md:items-start md:text-left">
-              <img src="https://i.postimg.cc/P5W3dKTx/logo.png" alt="80m Logo" className="h-10 md:h-12 w-auto" />
+              <img src={BRAND_MARK_BLACK} alt="80m Logo" className="h-10 md:h-12 w-auto" />
               <p className="font-serif text-3xl leading-none mp4-ink">80m Systems</p>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] font-black mp4-muted">Installed agents, hardware, web, and portal.</p>
             </div>
