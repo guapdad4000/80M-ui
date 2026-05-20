@@ -9,6 +9,10 @@ const PORTFOLIO_IDLE_VIDEO = "/media/80m-hero-idle-h264.mp4";
 const BRAND_MARK_WHITE = "/brand/80m-mark-white.svg";
 
 const PORTFOLIO_FLYAWAY_MS = 420;
+const PORTFOLIO_RIBBON_ITEM_SPACING = {
+  desktop: 0.16,
+  compact: 0.24,
+};
 const MotionDiv = motion.div;
 const MotionButton = motion.button;
 
@@ -113,13 +117,18 @@ function loadContainedTexture(src, fallbackSrc) {
 const PortfolioFallbackRibbon = ({ projects, scrollOffset, flyawayProjectTitle, onSelect, isCompact = false }) => (
   <div className="absolute inset-0 z-20 overflow-hidden">
     {projects.map((project, index) => {
-      const total = Math.max(projects.length, 1);
-      const t = (index / total + scrollOffset) % 1;
-      const pull = Math.pow(t, 1.4);
-      const left = isCompact ? 13 + t * 74 : -2 + t * 106;
-      const top = isCompact ? 66 - t * 34 + Math.sin(t * Math.PI * 2) * 5 : 16 + Math.sin(t * Math.PI * 2) * 10 + pull * 24;
+      const spacing = isCompact ? PORTFOLIO_RIBBON_ITEM_SPACING.compact : PORTFOLIO_RIBBON_ITEM_SPACING.desktop;
+      const loopLength = Math.max(1, projects.length * spacing);
+      const rawT = (index * spacing + scrollOffset * loopLength) % loopLength;
+      const t = rawT > 1 ? rawT - loopLength : rawT;
+      const isVisible = t >= -0.16 && t <= 1.06;
+      const displayT = clamp(t, 0, 1);
+      const pull = Math.pow(displayT, 1.4);
+      const left = isCompact ? 13 + displayT * 74 : -2 + displayT * 106;
+      const top = isCompact ? 66 - displayT * 34 + Math.sin(displayT * Math.PI * 2) * 5 : 16 + Math.sin(displayT * Math.PI * 2) * 10 + pull * 24;
       const scale = isCompact ? 0.86 - pull * 0.34 : 0.98 - pull * 0.42;
-      const opacity = t > 0.9 ? Math.max(0.12, (1 - t) / 0.1) : 0.9;
+      const edgeFade = Math.min(1, Math.max(0, (t + 0.08) / 0.14), Math.max(0, (1.04 - t) / 0.16));
+      const opacity = isVisible ? 0.9 * edgeFade : 0;
       const isExiting = project.title === flyawayProjectTitle;
 
       return (
@@ -134,6 +143,7 @@ const PortfolioFallbackRibbon = ({ projects, scrollOffset, flyawayProjectTitle, 
             left: isExiting ? '50%' : `${left}%`,
             top: isExiting ? '52%' : `${top}%`,
             opacity: isExiting ? 0 : opacity,
+            pointerEvents: isVisible ? 'auto' : 'none',
             transform: isExiting
               ? 'translate3d(-50%, -50%, 0) rotate(0deg) scale(0.38)'
               : `translate3d(-50%, -50%, 0) rotate(${Math.sin(index) * 7}deg) scale(${scale})`,
@@ -234,6 +244,8 @@ const PortfolioThreeRibbon = ({ projects, scrollOffset, flyawayProjectTitle, onS
       const textureLoader = new THREE.TextureLoader();
       const planeWidth = isCompact ? 1.62 : 2.12;
       const planeHeight = isCompact ? 0.98 : 1.28;
+      const itemSpacing = isCompact ? PORTFOLIO_RIBBON_ITEM_SPACING.compact : PORTFOLIO_RIBBON_ITEM_SPACING.desktop;
+      const loopLength = Math.max(1, projects.length * itemSpacing);
 
       meshes = projects.map((project, index) => {
         const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 12, 7);
@@ -253,7 +265,7 @@ const PortfolioThreeRibbon = ({ projects, scrollOffset, flyawayProjectTitle, onS
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData.index = index;
         mesh.userData.title = project.title;
-        mesh.userData.base = index / Math.max(projects.length, 1);
+        mesh.userData.base = index * itemSpacing;
         scene.add(mesh);
         return mesh;
       });
@@ -293,10 +305,17 @@ const PortfolioThreeRibbon = ({ projects, scrollOffset, flyawayProjectTitle, onS
         const elapsed = (now - startTime) / 1000;
 
         meshes.forEach((mesh, index) => {
-          const t = (mesh.userData.base + scrollRef.current + elapsed * 0.018) % 1;
-          const point = curve.getPointAt(t);
-          const tangent = curve.getTangentAt(t);
-          const pull = Math.pow(t, 1.8);
+          const rawT = (mesh.userData.base + scrollRef.current * loopLength + elapsed * 0.018) % loopLength;
+          const t = rawT > 1 ? rawT - loopLength : rawT;
+          const isInActiveBand = t >= -0.08 && t <= 1.05;
+          const isExiting = flyawayRef.current?.title === mesh.userData.title;
+          mesh.visible = isInActiveBand || isExiting;
+          if (!mesh.visible) return;
+
+          const curveT = clamp(t, 0, 1);
+          const point = curve.getPointAt(curveT);
+          const tangent = curve.getTangentAt(curveT);
+          const pull = Math.pow(curveT, 1.8);
           let scale = isCompact
             ? THREE.MathUtils.lerp(0.82, 0.2, pull)
             : THREE.MathUtils.lerp(1.0, 0.2, pull);
@@ -306,9 +325,14 @@ const PortfolioThreeRibbon = ({ projects, scrollOffset, flyawayProjectTitle, onS
           let z = 1.2 - t;
           let rotationZ = Math.atan2(tangent.y, tangent.x) + Math.sin(elapsed + index) * 0.12;
           let rotationY = Math.sin(elapsed * 0.7 + index * 1.4) * 0.22;
-          let opacity = t > 0.9 ? THREE.MathUtils.clamp((1 - t) / 0.1, 0.08, 0.9) : 0.92;
+          const edgeFade = Math.min(
+            1,
+            THREE.MathUtils.clamp((t + 0.06) / 0.12, 0, 1),
+            THREE.MathUtils.clamp((1.04 - t) / 0.14, 0, 1)
+          );
+          let opacity = 0.92 * edgeFade;
 
-          if (flyawayRef.current?.title === mesh.userData.title) {
+          if (isExiting) {
             const exitProgress = clamp((now - flyawayRef.current.startedAt) / PORTFOLIO_FLYAWAY_MS);
             const eased = 1 - Math.pow(1 - exitProgress, 3);
             x = THREE.MathUtils.lerp(x, 0, eased);
