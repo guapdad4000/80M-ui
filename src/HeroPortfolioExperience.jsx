@@ -875,6 +875,13 @@ const portfolioSlides = [
     url: "https://github.com/guapdad4000/80m-agent-desktop-v3/releases/latest",
   },
   {
+    img: "/portfolio/80m-dem-oh-16x9.png",
+    shots: ["/portfolio/80m-dem-oh-16x9.png", "/portfolio/80m-dem-oh-9x16.png", "/portfolio/80m-dem-oh-1x1.png"],
+    title: "80M DEM-OH",
+    desc: "DEVICE MOTION STUDIO",
+    subtitle: "Standalone WebGL demo-render tool for turning local videos into polished device mockups. It maps uploaded media onto laptop, mobile, and square hardware views, lets the operator tune chassis finish, lighting, gloss, backdrop, HUD overlays, aspect ratio, camera bookmarks, turntable loops, and cinematic spline exports, then saves browser-rendered motion files for social or product promos.",
+  },
+  {
     img: "/portfolio/life-os.png",
     shots: ["/portfolio/life-os.png", "/portfolio/life-os-workspace.png"],
     title: "Life OS Dashboard",
