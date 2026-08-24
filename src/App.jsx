@@ -1456,10 +1456,10 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                         <div className="py-4">
                           <h2 className="font-serif text-3xl md:text-5xl tracking-tight leading-[0.95] mb-8">Choose your lane.</h2>
                           <motion.div variants={listVariants} initial="hidden" animate="visible" className="grid grid-cols-1 gap-3 md:gap-4">
-                            <OptionBtn onClick={() => setAnswer('package', 'Personal 24/7 Agent - $2,000 setup')}>A. Personal 24/7 Agent <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">$2,000 setup when you already have the computer.</span></OptionBtn>
-                            <OptionBtn onClick={() => setAnswer('package', 'Sourced Mac mini / Mini PC build - $3,500-$4,500')}>B. Source the machine for me <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">$3,500-$4,500 depending on hardware.</span></OptionBtn>
-                            <OptionBtn onClick={() => setAnswer('package', 'Website + logo build - $2,000 plus $200/mo management')}>C. Website, logo, social, or webstore <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">$2,000 build, then $200/mo if we manage it.</span></OptionBtn>
-                            <OptionBtn onClick={() => setAnswer('package', '80m Portal Courses - $100 lifetime')}>D. Courses only <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">$100 one time. Lifetime access.</span></OptionBtn>
+                            <OptionBtn onClick={() => setAnswer('package', 'Personal 24/7 Agent')}>A. Personal 24/7 Agent <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">A private system built around the way you work.</span></OptionBtn>
+                            <OptionBtn onClick={() => setAnswer('package', 'Sourced Mac mini / Mini PC build')}>B. Source the machine for me <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">Hardware selected, configured, and ready to work.</span></OptionBtn>
+                            <OptionBtn onClick={() => setAnswer('package', 'Website, logo, social, or webstore build')}>C. Website, logo, social, or webstore <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">A complete digital presence built to move together.</span></OptionBtn>
+                            <OptionBtn onClick={() => setAnswer('package', '80m Portal Courses')}>D. Courses only <span className="block pt-1 font-mono text-xs uppercase tracking-widest text-[#555]">Learn the stack and build your own system.</span></OptionBtn>
                           </motion.div>
                         </div>
                       )}
@@ -1493,7 +1493,7 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                       {/* STEP 5 */}
                       {step === 5 && (
                         <div className="py-4">
-                          <h2 className="font-serif text-3xl md:text-5xl tracking-tight leading-[0.95] mb-6">What would make this feel worth it immediately?</h2>
+                          <h2 className="font-serif text-3xl md:text-5xl tracking-tight leading-[0.95] mb-6">What would make this useful immediately?</h2>
                           <motion.textarea
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                             value={answers.brief || ''}
@@ -1516,7 +1516,7 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                             </p>
                             <motion.ul variants={listVariants} initial="hidden" animate="visible" className="space-y-3 md:space-y-4 text-xs md:text-base mb-10">
                               {[
-                                answers.package || "Selected offer lane",
+                                answers.package || "Selected project lane",
                                 answers.hardware || "Marked hardware status",
                                 answers.workflow || "Chose first workflow",
                                 "Attached portal access",
@@ -1532,7 +1532,7 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                               {!isCompiling && (
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="border-t-2 border-[#333] pt-8">
                                   <h3 className="text-white font-sans font-black text-2xl md:text-4xl mb-3 tracking-tight">Install Brief Ready.</h3>
-                                  <p className="text-[#aaa] font-sans text-sm md:text-base mb-8 leading-relaxed">Next step is simple: send the brief, then we confirm whether this is a $2K personal build, a sourced hardware build, course access, or brand/web work.</p>
+                                  <p className="text-[#aaa] font-sans text-sm md:text-base mb-8 leading-relaxed">Next step is simple: send the brief, then we shape the right path for your agent, hardware, course access, or brand and web work.</p>
                                   <button onClick={nextStep} className="font-sans font-bold text-lg md:text-2xl px-16 py-6 bg-[#22c55e] text-[#111] rounded-full shadow-[0_10px_30px_rgba(34,197,94,0.3)] border-2 border-transparent hover:border-[#111] hover:-translate-y-1 hover:scale-105 transition-all w-full">Finalize Brief →</button>
                                 </motion.div>
                               )}
@@ -1545,7 +1545,7 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                       {step === 7 && (
                         <div className="text-center py-6">
                           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[0.9] tracking-tighter mb-6">Send the brief.</h2>
-                          <p className="font-sans text-lg md:text-xl text-[#555] mb-8 max-w-lg mx-auto">We will reply with the right next step: install call, hardware quote, course checkout, or website/social plan.</p>
+                          <p className="font-sans text-lg md:text-xl text-[#555] mb-8 max-w-lg mx-auto">We will reply with the right next step: an install call, hardware plan, course access, or a website and social roadmap.</p>
                           <div className="mb-6 max-w-md mx-auto text-left bg-white border-[3px] border-[#111] p-4 shadow-[5px_5px_0_0_#111] font-mono text-xs uppercase tracking-wider text-[#555] space-y-2">
                             {planLines.slice(0, 4).map((line) => <p key={line}>{line}</p>)}
                           </div>
@@ -1562,7 +1562,7 @@ const OnboardingPopup = ({ isVisible, onClose }) => {
                               Download Desktop Harness
                             </motion.a>
                           </div>
-                          <p className="font-mono text-[10px] md:text-xs mt-8 text-[#777] uppercase font-bold tracking-widest border-t border-black/10 pt-6 inline-block">$2K personal agent setup. $3.5K-$4.5K sourced hardware builds.</p>
+                          <p className="font-mono text-[10px] md:text-xs mt-8 text-[#777] uppercase font-bold tracking-widest border-t border-black/10 pt-6 inline-block">Built around your work. Handed off ready to use.</p>
                         </div>
                       )}
 
@@ -1739,7 +1739,7 @@ export default function App() {
             >
               <a href="#audit" className="hover:text-[#0ea5e9] transition-colors" onClick={() => setIsNavOpen(false)}>Audit</a>
               <a href="#poster" className="hover:text-[#0ea5e9] transition-colors" onClick={() => setIsNavOpen(false)}>Manifesto</a>
-              <a href="#pricing" className="hover:text-[#0ea5e9] transition-colors" onClick={() => setIsNavOpen(false)}>Pricing</a>
+              <a href="#ways-in" className="hover:text-[#0ea5e9] transition-colors" onClick={() => setIsNavOpen(false)}>Ways In</a>
               <a href="#services" className="hover:text-[#0ea5e9] transition-colors" onClick={() => setIsNavOpen(false)}>Services</a>
               <a href="#portfolio" className="hover:text-[#22c55e] transition-colors" onClick={openPortfolio}>Portfolio</a>
               <Link to="/portal" className="hover:text-[#22c55e] transition-colors" onClick={() => setIsNavOpen(false)}>Portal</Link>
@@ -1750,7 +1750,7 @@ export default function App() {
                   href="#"
                   className="font-sans font-black text-sm px-6 py-2.5 bg-[#111] text-[#eae7de] hover:scale-105 transition-transform whitespace-nowrap ml-0 md:ml-4 rounded-full inline-block text-center mt-2 md:mt-0"
                 >
-                  Apply for Access
+                  Start a Project
                 </a>
               )}
 
@@ -1810,9 +1810,9 @@ export default function App() {
               animate="visible"
             >
               <motion.h1 variants={fadeUp} className="font-serif text-[clamp(1.05rem,4vw,1.7rem)] md:text-3xl leading-[1.02] tracking-tight text-white mb-4 drop-shadow-[2px_2px_0_rgba(17,17,17,0.95)]">
-                We install your AI.<br/>
-                <span className="italic">We run your social.</span><br/>
-                Builds start at $2K.
+                We build your brand.<br/>
+                <span className="italic">We wire your AI.</span><br/>
+                We keep it moving.
               </motion.h1>
 
               <motion.a
@@ -1843,10 +1843,10 @@ export default function App() {
               animate="visible"
             >
               <motion.p variants={fadeUp} className="font-serif text-2xl md:text-4xl leading-[0.9] tracking-tight text-white drop-shadow-[2px_2px_0_rgba(17,17,17,0.8)]">
-                AI moves fast.
+                Your world moves fast.
               </motion.p>
               <motion.p variants={fadeUp} className="mt-2 font-sans text-xs md:text-sm font-semibold leading-tight text-white/90 drop-shadow-[1px_1px_0_rgba(17,17,17,0.8)]">
-                Can't keep up with the times?
+                Your systems should too.
               </motion.p>
             </motion.div>
 
@@ -1856,7 +1856,7 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.7 }}
             >
-              Let us do the work for you.
+              Let 80m build what keeps slowing you down.
             </motion.p>
           </div>
         </section>
@@ -1997,19 +1997,18 @@ export default function App() {
           </div>
         </section>
 
-        {/* Pricing / Investment */}
-        {/* ── PRICING SECTION ── */}
-        <section id="pricing" className="scroll-mt-0 mt-72 md:mt-[28rem] px-4 md:px-8 relative mx-auto" aria-labelledby="pricing-heading" style={{ maxWidth: '1200px' }}>
+        {/* ── WAYS IN SECTION ── */}
+        <section id="ways-in" className="scroll-mt-0 mt-72 md:mt-[28rem] px-4 md:px-8 relative mx-auto" aria-labelledby="ways-in-heading" style={{ maxWidth: '1200px' }}>
           <span data-landing-video-beat="pricing" className="pointer-events-none absolute left-0 top-[42vh] h-px w-px opacity-0" aria-hidden="true" />
           <div className="relative h-[660vh] md:h-[760vh]">
             <div className="sticky top-0 z-10 flex h-screen items-center justify-center text-center pointer-events-none">
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.65 }} variants={staggerContainer} className="max-w-5xl px-2">
               <motion.p variants={fadeUp} className="font-mono uppercase tracking-[0.25em] mb-6 text-xs md:text-sm font-bold mp4-muted">// ways in</motion.p>
-              <motion.h2 id="pricing-heading" variants={fadeUp} className="font-serif text-6xl md:text-8xl lg:text-[8vw] leading-[0.86] tracking-tight mb-6 mp4-ink">
-                We come to you.
+              <motion.h2 id="ways-in-heading" variants={fadeUp} className="font-serif text-6xl md:text-8xl lg:text-[8vw] leading-[0.86] tracking-tight mb-6 mp4-ink">
+                One studio.<br/><span className="italic">Four ways to move.</span>
               </motion.h2>
               <motion.p variants={fadeUp} className="font-sans text-lg md:text-2xl mp4-muted font-medium max-w-2xl mx-auto">
-                Personal agents, sourced machines, websites, logos, socials, webstores, and the course portal.
+                Bring us the bottleneck. We build the agent, machine, brand, website, or learning path that gets the work moving.
               </motion.p>
               </motion.div>
             </div>
@@ -2025,12 +2024,12 @@ export default function App() {
           >
             <div className="grid grid-cols-1 lg:grid-cols-[0.42fr_0.58fr] gap-12 lg:gap-16 xl:gap-20 items-start">
               <motion.div variants={fadeUp} className="pt-14 lg:pt-0 lg:sticky lg:top-24 max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-                <p className="font-mono uppercase tracking-[0.25em] mb-4 text-xs font-bold mp4-muted">// offer stack</p>
+                <p className="font-mono uppercase tracking-[0.25em] mb-4 text-xs font-bold mp4-muted">// creative systems studio</p>
                 <h3 className="font-serif text-5xl md:text-7xl lg:text-6xl leading-[0.9] tracking-tight mb-5 mp4-ink">
-                  Choose the way in.
+                  Start with what you need now.
                 </h3>
                 <p className="font-sans text-lg md:text-xl mp4-muted font-medium leading-snug">
-                  Start with the installed agent, add hardware if you need it, or split off into brand/web work. The portal comes free with any build.
+                  We can install the intelligence, source the hardware, shape the brand and web experience, or teach you how to build the system yourself.
                 </p>
                 <motion.a
                   variants={fadeUp}
@@ -2053,17 +2052,14 @@ export default function App() {
         <AsciiShadow size="lg" rotate="-0.5deg">
           <MacWindow title="01_In_Person_Install.exe" contentClass="bg-[#111] p-8 text-[#eae7de]">
             <div className="border-b-2 border-[#333] pb-6 mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#22c55e] mb-3">// the main offer</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#22c55e] mb-3">// private intelligence</p>
               <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">Personal 24/7 Agent</h3>
               <p className="font-sans text-sm text-[#888] italic">We install the desktop harness, wire the agent, and leave you with a working machine.</p>
             </div>
 
-            {/* Pricing block */}
             <div className="mb-6">
-              <div className="flex items-end gap-3">
-                <p className="font-serif text-5xl font-black tracking-tighter leading-none text-[#eae7de]">$2,000</p>
-              </div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">one-time setup fee</p>
+              <p className="font-serif text-4xl font-black tracking-tighter leading-none text-[#eae7de]">Built Around You</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#777] mt-2">your workflow · your memory · your machine</p>
             </div>
 
             {/* Spots remaining */}
@@ -2124,15 +2120,15 @@ export default function App() {
               <p className="font-sans text-sm text-[#555] italic">No computer yet? We source the Mac mini or Mini PC and ship it ready.</p>
             </div>
             <div className="mb-8">
-              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$3.5K-$4.5K</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">setup + hardware sourcing</p>
+              <p className="font-serif text-4xl font-black tracking-tighter leading-none">Ready on Day One</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-2">hardware · system · handoff</p>
             </div>
             <ul className="space-y-3 font-sans text-sm mb-8">
               {[
                 "Mac mini or Mini PC recommendation and sourcing",
                 "OS, desktop harness, and agent stack installed",
                 "Accounts, keys, and local folders connected",
-                "Portal courses included free",
+                "Portal learning path included",
                 "Shipping or in-person handoff coordinated",
                 "Best when you want the cleanest turnkey setup.",
               ].map((item, i) => (
@@ -2148,7 +2144,7 @@ export default function App() {
               onClick={(e) => { e.preventDefault(); setShowOnboarding(true); }}
               className="w-full font-sans font-black text-base py-4 bg-[#111] text-[#eae7de] rounded-full shadow-[0_6px_0_0_rgba(0,0,0,0.5)] hover:shadow-[0_10px_0_0_rgba(0,0,0,0.4)] hover:-translate-y-0.5 transition-all border-2 border-[#111]"
             >
-              Quote My Hardware →
+              Plan My Hardware →
             </motion.button>
           </MacWindow>
         </AsciiShadow>
@@ -2160,20 +2156,20 @@ export default function App() {
           <MacWindow title="03_Brand_Web.exe" contentClass="bg-[#eae7de] p-8 text-[#111]">
             <div className="border-b-2 border-[#111] pb-6 mb-6">
               <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#555] mb-3">// brand layer</p>
-              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">Website + Logo</h3>
-              <p className="font-sans text-sm text-[#555] italic">For brands that need the outside to match the machine inside.</p>
+              <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">Brand + Web System</h3>
+              <p className="font-sans text-sm text-[#555] italic">Make the outside match the vision.</p>
             </div>
             <div className="mb-8">
-              <p className="font-serif text-5xl font-black tracking-tighter leading-none">$2,000</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">one-time design/build</p>
+              <p className="font-serif text-4xl font-black tracking-tighter leading-none">Made to Be Remembered</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-2">identity · website · digital experience</p>
             </div>
             <ul className="space-y-3 font-sans text-sm mb-8">
               {[
                 "Logo direction and visual identity system",
                 "Landing page, website, or webstore build",
-                "Copy tuned to your offer and audience",
+                "Voice and launch copy",
                 "Optional webstore/social management",
-                "$200/mo to manage socials or a webstore",
+                "Ongoing creative support when needed",
                 "Pairs cleanly with the personal agent install.",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -2201,11 +2197,11 @@ export default function App() {
             <div className="border-b-2 border-[#333] pb-6 mb-6">
               <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#22c55e] mb-3">// learn it yourself</p>
               <h3 className="font-serif text-2xl md:text-3xl font-black leading-tight mb-1">80m Portal Courses</h3>
-              <p className="font-sans text-sm text-[#888] italic">Free with any build. Standalone if you want to learn first.</p>
+              <p className="font-sans text-sm text-[#888] italic">Practical lessons built for real work.</p>
             </div>
             <div className="mb-8">
-              <p className="font-serif text-5xl font-black tracking-tighter leading-none text-[#eae7de]">$100</p>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-[#777] mt-1">one-time lifetime access</p>
+              <p className="font-serif text-4xl font-black tracking-tighter leading-none text-[#eae7de]">Build It Yourself</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-[#777] mt-2">learn · apply · keep improving</p>
             </div>
             <ul className="space-y-3 font-sans text-sm mb-8">
               {[
@@ -2213,8 +2209,8 @@ export default function App() {
                 "Bi-weekly use cases and tutorials",
                 "Private monthly Zoom calls",
                 "Templates, prompts, and setup walkthroughs",
-                "Free with any personal, hardware, or brand build",
-                "Lifetime access after the one-time fee.",
+                "Works alone or alongside an 80m build",
+                "Return whenever your system needs a new move.",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span className="text-[#22c55e] leading-none mt-0.5 font-black">+</span>
@@ -2286,7 +2282,7 @@ export default function App() {
                   <motion.p variants={fadeUp} className="font-mono text-sm uppercase tracking-widest font-bold px-2 py-1 bg-[#111] text-[#eae7de] inline-block">By 80m Systems</motion.p>
                 </div>
                 <motion.div variants={fadeUp} className="font-serif text-xl md:text-2xl italic text-[#333] max-w-sm text-left md:text-right leading-snug border-l-4 md:border-l-0 md:border-r-4 border-[#111] pl-4 md:pl-0 md:pr-4">
-                  After years of manual labor, the machine takes over. Automated Transactions.
+                  The repetitive work gets handled. Your attention stays on the ideas, people, and decisions that need you.
                 </motion.div>
               </motion.header>
               </div>
@@ -2311,7 +2307,7 @@ export default function App() {
                   <TerminalNode
                     index={2}
                     title="Operations"
-                    desc="Emails, scheduling, reminders, payments, customer service. The boring stuff that eats your day — handled silently in the background. It keeps your calendar organized and follows up on payments."
+                    desc="Emails, scheduling, reminders, customer service. The repetitive work that eats your day — handled quietly in the background. It keeps your calendar organized and your follow-ups moving."
                   />
                   <TerminalNode
                     index={3}
@@ -2338,7 +2334,7 @@ export default function App() {
                 {/* Meta Row — boxed pills with hard shadows */}
                 <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4 font-mono text-xs md:text-sm font-bold uppercase tracking-widest text-[#111] mix-blend-multiply">
                   <span className="border-2 border-[#111] px-4 py-2 bg-[#eae7de] shadow-[4px_4px_0_0_#111]">7 Portal Courses</span>
-                  <span className="border-2 border-[#111] px-4 py-2 bg-[#eae7de] shadow-[4px_4px_0_0_#111]">$100 Lifetime</span>
+                  <span className="border-2 border-[#111] px-4 py-2 bg-[#eae7de] shadow-[4px_4px_0_0_#111]">Built for Real Work</span>
                   <span className="border-2 border-[#111] px-4 py-2 bg-[#eae7de] shadow-[4px_4px_0_0_#111]">Lifetime Access</span>
                   <span className="border-2 border-[#111] px-4 py-2 bg-[#eae7de] shadow-[4px_4px_0_0_#111]">Monthly Zoom Calls</span>
                 </motion.div>
@@ -2358,7 +2354,7 @@ export default function App() {
                   "Private, self-hosted infrastructure explained plainly.",
                   "Templates for skills, prompts, and repeatable workflows.",
                   "Monthly Zoom calls for questions and live walkthroughs.",
-                  "Free access when you buy any 80m build."
+                  "A learning path that can stand alone or pair with an 80m build."
                 ].map((outcome, idx) => (
                   <motion.div variants={fadeUp} key={idx} className="border-[3px] border-[#111] bg-[#eae7de] p-6 shadow-[6px_6px_0_0_#111] flex items-start gap-4 hover:-translate-y-1 transition-transform">
                     <span className="font-serif text-3xl font-black text-[#22c55e]">✓</span>
@@ -2443,7 +2439,7 @@ export default function App() {
                 <footer className="font-mono text-sm font-bold uppercase tracking-widest mp4-muted">— Early Access Member · Indie Maker</footer>
               </motion.blockquote>
               <motion.blockquote variants={fadeUp} className="border-l-8 mp4-border pl-8 py-4">
-                <p className="font-serif text-2xl md:text-3xl italic mp4-ink leading-snug mb-6">"The prompting section in Class 2 is worth the price alone. I went from getting useless responses to actually delegating my morning emails."</p>
+                <p className="font-serif text-2xl md:text-3xl italic mp4-ink leading-snug mb-6">"The prompting section in Class 2 changed how I use the whole system. I went from getting useless responses to actually delegating my morning emails."</p>
                 <footer className="font-mono text-sm font-bold uppercase tracking-widest mp4-muted">— Early Access Member · Founder, 2-person SaaS</footer>
               </motion.blockquote>
             </div>
@@ -2453,10 +2449,10 @@ export default function App() {
               <motion.h3 variants={fadeUp} className="font-serif text-4xl md:text-5xl mb-12 text-center mp4-ink tracking-tight">Inside the Portal</motion.h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-	                  { title: "7 Portal Courses", desc: "The complete agent, infrastructure, content, and income roadmap." },
+	                  { title: "7 Portal Courses", desc: "The complete agent, infrastructure, content, and operations roadmap." },
 	                  { title: "Bi-weekly Tutorials", desc: "Fresh use cases and walkthroughs twice a month." },
 	                  { title: "Monthly Zoom Calls", desc: "Private group calls for questions, demos, and debugging." },
-	                  { title: "Lifetime Access", desc: "$100 one time. No recurring course fee. Future updates included." }
+	                  { title: "Keep Building", desc: "Return anytime and use future lessons to keep improving your system." }
                 ].map((item, idx) => (
                   <motion.div variants={fadeUp} key={idx} className="bg-[#eae7de] border-2 border-[#111] p-6 shadow-[6px_6px_0_0_#111] text-center flex flex-col items-center">
                     <div className="w-12 h-12 rounded-full bg-[#111] text-white flex items-center justify-center font-serif text-2xl italic mb-6">{idx + 1}</div>
@@ -2473,27 +2469,27 @@ export default function App() {
               {[
                 { q: "Do I need to be a developer to take this?", a: "Basic terminal knowledge helps speed things up, but it is not strictly required. We walk through every step of the installation and configuration process on-screen." },
 	                { q: "How much time will this take?", a: "The portal is designed to be worked through in passes. Start with the core install and prompting classes, then use the bi-weekly tutorials as new use cases drop." },
-                { q: "What is the refund policy?", a: "We offer a 14-day money-back guarantee. If you go through the classes, do the work, and find the system doesn't deliver the infrastructure we promised, we'll refund you." },
+                { q: "Can I start with the course?", a: "Yes. The portal is the learn-it-yourself path, with practical lessons you can apply before deciding whether you want a done-for-you build." },
                 { q: "Do I need a powerful computer?", a: "To run the LLMs entirely locally, we recommend at least 16GB of Unified Memory/RAM (like an M-series Mac or equivalent PC). If your hardware is older, the course shows you how to hook the same infrastructure into cloud APIs (OpenAI/Anthropic) instead." },
-	                { q: "How does this differ from the installed build?", a: "The installed build is done-for-you: we configure the agent, hardware, desktop harness, and handoff. The portal is the learn-it-yourself path, and it comes free with any build." },
+	                { q: "How does this differ from the installed build?", a: "The installed build is done-for-you: we configure the agent, hardware, desktop harness, and handoff. The portal is the learn-it-yourself path for people who want to understand and shape the system themselves." },
 	                { q: "What kind of support is included?", a: "Standalone course access includes private monthly Zoom calls plus ongoing bi-weekly use cases and tutorials. Builds also include a direct handoff around your installed system." },
               ].map((faq, i) => <FAQItem key={i} question={faq.q} answer={faq.a} />)}
             </div>
 
-            {/* GUARANTEE + CTA — ATM exact version */}
+            {/* COURSE CTA */}
             <motion.div variants={fadeUp} className="max-w-4xl mx-auto bg-[#111] text-[#eae7de] p-12 md:p-20 text-center border-[4px] border-[#333] shadow-[20px_20px_0_0_#22c55e]">
-              <p className="font-mono text-sm md:text-base font-bold uppercase tracking-widest text-[#22c55e] mb-4">14-Day Money-Back Guarantee</p>
+              <p className="font-mono text-sm md:text-base font-bold uppercase tracking-widest text-[#22c55e] mb-4">Learn it. Build it. Own it.</p>
               <h3 className="font-serif text-5xl md:text-7xl font-black leading-[0.9] tracking-tighter mb-8">
-                Not sure yet? <br className="hidden md:block"/><span className="italic font-normal">Start the course.</span>
+                Start with one class. <br className="hidden md:block"/><span className="italic font-normal">Leave with a system.</span>
               </h3>
               <p className="font-serif text-xl md:text-2xl text-[#aaa] max-w-2xl mx-auto mb-12">
-                Get inside. Watch the first class. If you don't feel dramatically more capable of owning your AI infrastructure, email us within 14 days for a full refund.
+                Learn the stack in plain English, put each lesson to work, and keep control of the tools, workflows, and infrastructure you build.
               </p>
               <button
                 onClick={(e) => { e.preventDefault(); setShowOnboarding(true); }}
                 className="font-sans font-black text-xl md:text-2xl px-12 py-6 bg-[#22c55e] text-[#111] border-[3px] border-transparent hover:border-[#eae7de] shadow-[0_10px_30px_rgba(34,197,94,0.3)] hover:-translate-y-1 hover:scale-105 transition-all w-full md:w-auto"
               >
-                Request Course Access — $100
+                Request Course Access
               </button>
             </motion.div>
 
@@ -2510,8 +2506,8 @@ export default function App() {
 	            </motion.h2>
 
 	            <motion.p variants={fadeUp} className="font-sans text-xl md:text-2xl mp4-muted mb-12 font-medium">
-	              $2,000 personal agent setup.<br/>
-	              $3,500-$4,500 if we source the machine.
+	              Agents, hardware, websites, and creative systems<br/>
+	              shaped around the way you actually work.
 	            </motion.p>
 
             <motion.div variants={fadeUp} className="flex flex-col items-center gap-8">
@@ -2542,9 +2538,9 @@ export default function App() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {[
-                ["Personal Agent", "$2K setup"],
-                ["Sourced Machine", "$3.5K-$4.5K"],
-                ["Portal", "$100 lifetime"],
+                ["Personal Agent", "Built around you"],
+                ["Sourced Machine", "Ready on day one"],
+                ["Portal", "Learn the stack"],
               ].map(([label, value]) => (
                 <div key={label} className="border-2 mp4-border bg-[#eae7de]/75 p-4 text-center shadow-[4px_4px_0_0_rgba(17,17,17,0.75)]">
                   <p className="font-sans text-sm font-black uppercase leading-tight text-[#111]">{label}</p>
