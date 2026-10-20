@@ -2559,6 +2559,7 @@ export default function App() {
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] font-black mp4-ink md:justify-end">
                 <button onClick={openPortfolio} className="hover:underline underline-offset-4">Portfolio</button>
                 <Link to="/portal" className="hover:underline underline-offset-4">Portal</Link>
+                <Link to="/canairy" className="hover:underline underline-offset-4">Canairy</Link>
                 <a href="mailto:contact@80m.ai" className="hover:underline underline-offset-4">Contact</a>
               </div>
               <span className="font-mono text-[10px] uppercase tracking-[0.18em] font-bold mp4-muted">© 2026 80m SYSTEMS.</span>
