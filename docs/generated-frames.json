@@ -1,0 +1,34 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "encoding": "Lossless WebP; generated alpha preserved exactly",
+  "reference": "Grungy Tilted Halftone Browser Window-4.png (style reference for black/paper variants)",
+  "assets": [
+    {
+      "id": "flat-black",
+      "file": "frame-flat-black.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-0567df2a-91a0-4252-bcee-bb373d32f36d.png",
+      "width": 1672,
+      "height": 941,
+      "prompt": "Use case: stylized-concept. Asset type: reusable browser-window frame PNG for the 80M studio portfolio. Reference image role: style reference only, not an edit target. Create ONE standalone browser window frame matching the reference's distressed black ink, cream-paper scratches, fine halftone print, heavy rounded border, and red/yellow/green traffic-light buttons. IMPORTANT: this version is perfectly FLAT, straight-on, level, rectangular, all four corners square to the viewer. No perspective, tilt, skew or rotation. A wide landscape browser window, with a large perfectly rectangular 16:9 blank pure white screen suitable for placing real website screenshots in HTML. Keep a modest titlebar above the screen; no text or icons except the three colored circles. Minimal empty padding around the object, all outer edges fully visible. Genuinely transparent exterior/background, not black, not a checkerboard baked into the image. Keep the interior solid white. No scene, sky, characters, logos, websites, or watermark. Variation A: black distressed title bar, cream scuffed border highlights, a very thin blue ink offset shadow directly below the level bottom edge. Broad horizontal window.",
+      "url": "/brand/landing-art/frame-flat-black.webp"
+    },
+    {
+      "id": "flat-paper",
+      "file": "frame-flat-paper.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-6592afed-8d01-4b85-b158-f43e0d05b1bd.png",
+      "width": 1672,
+      "height": 941,
+      "prompt": "Use case: stylized-concept. Asset type: reusable browser-window frame PNG for the 80M studio portfolio. Reference image role: style reference only, not an edit target. Create ONE standalone browser window frame matching the reference's distressed black ink, cream-paper scratches, fine halftone print, heavy rounded border, and red/yellow/green traffic-light buttons. IMPORTANT: this version is perfectly FLAT, straight-on, level, rectangular, all four corners square to the viewer. No perspective, tilt, skew or rotation. A wide landscape browser window, with a large perfectly rectangular 16:9 blank pure white screen suitable for placing real website screenshots in HTML. Keep a modest titlebar above the screen; no text or icons except the three colored circles. Minimal empty padding around the object, all outer edges fully visible. Genuinely transparent exterior/background, not black, not a checkerboard baked into the image. Keep the interior solid white. No scene, sky, characters, logos, websites, or watermark. Variation B: cream-paper titlebar with black halftone wear and ink outlines, black outer border with rough cream scratches, red/yellow/green circles on the left. Same family as the reference but flatter and slightly lighter. Broad horizontal window.",
+      "url": "/brand/landing-art/frame-flat-paper.webp"
+    },
+    {
+      "id": "flat-tall",
+      "file": "frame-flat-tall.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-9ae782c3-8479-4fd1-8cc2-f9e97da1ce61.png",
+      "width": 1610,
+      "height": 977,
+      "prompt": "Use case: stylized-concept. Create a single reusable flat browser-window frame for a grungy print-collage creative studio website. Landscape composition on genuinely transparent background. The visible OUTER window rectangle has an aspect ratio of about 1.65:1, so it is noticeably taller than a banner. The EMPTY WHITE SCREEN inside must be a perfectly level 16:9 rectangle taking up most of the window, with a short titlebar above it. Thick distressed black ink border, cream paper scratches, fine photocopy halftone texture, rounded corners. Three bright red, yellow, green circular browser controls at the top left. A thin blue ink shadow immediately under the border. Camera is perfectly straight on: horizontal top and bottom, vertical sides, zero rotation, zero tilt, zero perspective. Please make the screen tall enough to hold an entire 16:9 game screenshot without cropping. Very little transparent padding around the frame, all edges visible. No text, no logo, no characters, no scene, no floating decoration, no watermark. Entire screen is plain solid white, no holes or translucent spots in the screen; only the exterior is transparent. This is one frame asset, not a collage or multiple windows.",
+      "url": "/brand/landing-art/frame-flat-tall.webp"
+    }
+  ]
+}

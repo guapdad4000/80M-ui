@@ -1,0 +1,880 @@
+{
+  "version": 1,
+  "encoding": {
+    "format": "WebP",
+    "lossless": true,
+    "exact": true,
+    "quality": 100,
+    "method": 6,
+    "libwebp": "1.6.0"
+  },
+  "verification": "Every decoded RGBA byte matches its source PNG, including RGB under fully transparent pixels. Original files remain unchanged. No resizing, cropping, or design edits.",
+  "assets": [
+    {
+      "id": "hero-ideas",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_02 PM-1.png",
+      "url": "/brand/landing-art/hero-ideas.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 2628825,
+      "output_bytes": 1540882,
+      "source_sha256": "785a57dc905e22cfb52d250da3e2e31d44257d76427df879a4727561dc44cd14",
+      "output_sha256": "6502a54c4c496d73f93b54bffb30f4d929f8fecde18d414c2f8ea52efedbc1f9",
+      "rgba_sha256": "a5a9ac9eb14206c670f073c08d3dd8b3bc188a233c4d629c24e9fa58baced2f6",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 643229,
+        "partially_transparent_pixels": 929221,
+        "fully_opaque_pixels": 78,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1448,
+          1086
+        ],
+        "bounds_gt_32": [
+          8,
+          156,
+          1446,
+          934
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.00552486,
+          0.14364641,
+          0.99861878,
+          0.86003683
+        ]
+      }
+    },
+    {
+      "id": "rough-drafts",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_02 PM-2.png",
+      "url": "/brand/landing-art/rough-drafts.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 2887270,
+      "output_bytes": 1687174,
+      "source_sha256": "f738e5c9edf4ea9a8ed4fcb42cc9272a8dbaba9540e16286f0e3a71b249a86d9",
+      "output_sha256": "fe409cb764f37f96bfa91e1f98b7258478984a9379b29494689d0874195c5195",
+      "rgba_sha256": "6ba24ad515d009bad74c272f786c854406d7829b21c338c68ce7db92a4c28b79",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 422875,
+        "partially_transparent_pixels": 1149630,
+        "fully_opaque_pixels": 23,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          9,
+          1434,
+          1086
+        ],
+        "bounds_gt_32": [
+          29,
+          66,
+          1422,
+          1024
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.00828729,
+          0.99033149,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.02002762,
+          0.06077348,
+          0.9820442,
+          0.94290976
+        ]
+      }
+    },
+    {
+      "id": "internet-hard",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_03 PM-3.png",
+      "url": "/brand/landing-art/internet-hard.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3169203,
+      "output_bytes": 1770446,
+      "source_sha256": "42411611000033c3d2c4ef8a2f5a2c2f9167fb2dbd42d412f2f510820bf6069d",
+      "output_sha256": "88d6cc07edf2625bec17c66dbe025c9b28f19a44c2922a0e72a0489e64d1162a",
+      "rgba_sha256": "c109dfdd84a4bd8c5f0d8caaea62d652a800d2e56cdf5332c3b096c6afa552a5",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 418857,
+        "partially_transparent_pixels": 1153418,
+        "fully_opaque_pixels": 253,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          33,
+          1422,
+          1069
+        ],
+        "bounds_gt_32": [
+          26,
+          44,
+          1419,
+          1061
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.03038674,
+          0.9820442,
+          0.98434622
+        ],
+        "bounds_gt_32_normalized": [
+          0.0179558,
+          0.04051565,
+          0.97997238,
+          0.97697974
+        ]
+      }
+    },
+    {
+      "id": "hands-tied",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_03 PM-4.png",
+      "url": "/brand/landing-art/hands-tied.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3184768,
+      "output_bytes": 1905742,
+      "source_sha256": "3d8c72f4dbad2d0e0b4597c2ed36f49e1ead5ef818f2b864f2e818c04186651c",
+      "output_sha256": "da606300da62d7d7174f58848cdfefa050c0d9b324eaf77a7267666ea0e61ab8",
+      "rgba_sha256": "1c6cc425ee09fe10f99598b52256f71f36a27d2fcf31fa8d937e74d67b361805",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 388251,
+        "partially_transparent_pixels": 1184185,
+        "fully_opaque_pixels": 92,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          7,
+          1447,
+          1070
+        ],
+        "bounds_gt_32": [
+          42,
+          36,
+          1423,
+          1060
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.00644567,
+          0.99930939,
+          0.98526703
+        ],
+        "bounds_gt_32_normalized": [
+          0.02900552,
+          0.03314917,
+          0.98273481,
+          0.97605893
+        ]
+      }
+    },
+    {
+      "id": "take-it-from-here",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_04 PM-5.png",
+      "url": "/brand/landing-art/take-it-from-here.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3189132,
+      "output_bytes": 1846216,
+      "source_sha256": "196a977ed44d2e3090a11dfc07eabe0c4a9619c4214e354814a9b90810219a40",
+      "output_sha256": "3b8adb51ba960fce61f9211f4e5f583d2e5ac7d310bef8b374acf333fa87d218",
+      "rgba_sha256": "4840a61cabda3284cdb2a915108b4109272ba576edae840ee0fb929f37d603ef",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 420093,
+        "partially_transparent_pixels": 1152300,
+        "fully_opaque_pixels": 135,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          7,
+          1442,
+          1086
+        ],
+        "bounds_gt_32": [
+          34,
+          66,
+          1418,
+          1038
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.00644567,
+          0.99585635,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.02348066,
+          0.06077348,
+          0.97928177,
+          0.9558011
+        ]
+      }
+    },
+    {
+      "id": "four-ways",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_05 PM-6.png",
+      "url": "/brand/landing-art/four-ways.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3299123,
+      "output_bytes": 1912922,
+      "source_sha256": "2e4c7156091563de93de27455b5fc555e1359d9cf142dadacd5126328e16fba6",
+      "output_sha256": "3febeeb139a72f63a35ccab29891db653af704b10e11555dd52162f507b302ca",
+      "rgba_sha256": "f59127df12e06530c5f65c5ec79107b999566da52b111c4798c800e1e19f7b0b",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 386551,
+        "partially_transparent_pixels": 1185813,
+        "fully_opaque_pixels": 164,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          30,
+          1444,
+          1086
+        ],
+        "bounds_gt_32": [
+          28,
+          32,
+          1427,
+          1048
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.02762431,
+          0.99723757,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.01933702,
+          0.02946593,
+          0.98549724,
+          0.96500921
+        ]
+      }
+    },
+    {
+      "id": "next-version",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_05 PM-7.png",
+      "url": "/brand/landing-art/next-version.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3172351,
+      "output_bytes": 1824862,
+      "source_sha256": "f78cdb52be64257d53073d6b046107ec364fcf3ea5cc12daca94c6912b0b7090",
+      "output_sha256": "950bdafa52adbe8ce13a4143bcf044a8deaf799736ab71b9f37d0ffb27b72f15",
+      "rgba_sha256": "25e35c99075891bcd4119837ba63703efaa72d1516cfb8ca37bb787b2cc365df",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 407312,
+        "partially_transparent_pixels": 1165082,
+        "fully_opaque_pixels": 134,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          33,
+          1418,
+          1086
+        ],
+        "bounds_gt_32": [
+          43,
+          71,
+          1408,
+          1040
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.03038674,
+          0.97928177,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.02969613,
+          0.06537753,
+          0.97237569,
+          0.95764273
+        ]
+      }
+    },
+    {
+      "id": "make-real",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_06 PM-8.png",
+      "url": "/brand/landing-art/make-real.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3124755,
+      "output_bytes": 1814974,
+      "source_sha256": "f2a8a2948f722e376230570a7b16d56dcddb8f1d92e1efc44fa1c5000b63fe0a",
+      "output_sha256": "e51d455202b20aba44098955a48811e42b192e1f9e56f0c6abf4a9546abce338",
+      "rgba_sha256": "1d8459b1b090c086370b808ff86c7d9d7838186e6c859a571773fa21d89da470",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 451855,
+        "partially_transparent_pixels": 1120509,
+        "fully_opaque_pixels": 164,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          9,
+          1436,
+          1072
+        ],
+        "bounds_gt_32": [
+          24,
+          72,
+          1429,
+          1063
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.00828729,
+          0.99171271,
+          0.98710866
+        ],
+        "bounds_gt_32_normalized": [
+          0.01657459,
+          0.06629834,
+          0.98687845,
+          0.97882136
+        ]
+      }
+    },
+    {
+      "id": "starting-point",
+      "role": "headline",
+      "source": "ChatGPT Image Oct 20, 2026, 06_45_06 PM-9.png",
+      "url": "/brand/landing-art/starting-point.webp",
+      "width": 1448,
+      "height": 1086,
+      "source_bytes": 3333060,
+      "output_bytes": 1937628,
+      "source_sha256": "83c8701f41b8041d17b86c29500b004cfcb2a012d4387d954d5dd6e06e313b06",
+      "output_sha256": "48d8390c3deae35a271aefb9426b2883241f73d969f8facb828299370c46d1eb",
+      "rgba_sha256": "825e695243ff4ae5112f09c5294fb0881a5640c3d7f2bf0dd68bda4acf43ce9d",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 373795,
+        "partially_transparent_pixels": 1198417,
+        "fully_opaque_pixels": 316,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1433,
+          1086
+        ],
+        "bounds_gt_32": [
+          28,
+          40,
+          1423,
+          1069
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          0.98964088,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.01933702,
+          0.03683241,
+          0.98273481,
+          0.98434622
+        ]
+      }
+    },
+    {
+      "id": "frame-1",
+      "role": "frame",
+      "source": "Tilted Retro Browser Window Frame-1.png",
+      "url": "/brand/landing-art/frame-1.webp",
+      "width": 1672,
+      "height": 941,
+      "source_bytes": 1540050,
+      "output_bytes": 842480,
+      "source_sha256": "3843e18f1edfca934a52d0de90ba31c35091b75d59020730282a336a854735f2",
+      "output_sha256": "6b9d2452ef69563108ac123b5dc020f6462224c5a382fa7ebf5c644882206ebc",
+      "rgba_sha256": "9e0f0c01dba3aaf2f2e759264fa81a4834e1ac808976fff6c2f21339cdb81144",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 502239,
+        "partially_transparent_pixels": 1069310,
+        "fully_opaque_pixels": 1803,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          23,
+          13,
+          1672,
+          941
+        ],
+        "bounds_gt_32": [
+          26,
+          15,
+          1667,
+          936
+        ],
+        "bounds_gt_0_normalized": [
+          0.01375598,
+          0.01381509,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.01555024,
+          0.01594049,
+          0.99700957,
+          0.9946865
+        ]
+      }
+    },
+    {
+      "id": "frame-2",
+      "role": "frame",
+      "source": "Grungy Halftone Browser Window-2.png",
+      "url": "/brand/landing-art/frame-2.webp",
+      "width": 1672,
+      "height": 941,
+      "source_bytes": 1452446,
+      "output_bytes": 780568,
+      "source_sha256": "0f5fa844e5b9278908f8228c9375dadfb8f4aed81da01ffae0377b6dda9f8d81",
+      "output_sha256": "e40bffeefa09bb2615f910a707296e5d6705b29cf614ba117e6a8eb52790984c",
+      "rgba_sha256": "0d2ca21281a39561d65dbf7f614f18b5dfed2c048de13c0d6c81056bd26f1349",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 562255,
+        "partially_transparent_pixels": 1008913,
+        "fully_opaque_pixels": 2184,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          41,
+          39,
+          1642,
+          915
+        ],
+        "bounds_gt_32": [
+          44,
+          61,
+          1640,
+          912
+        ],
+        "bounds_gt_0_normalized": [
+          0.02452153,
+          0.04144527,
+          0.98205742,
+          0.97236982
+        ],
+        "bounds_gt_32_normalized": [
+          0.02631579,
+          0.06482465,
+          0.98086124,
+          0.96918172
+        ]
+      }
+    },
+    {
+      "id": "frame-4",
+      "role": "frame",
+      "source": "Grungy Tilted Halftone Browser Window-4.png",
+      "url": "/brand/landing-art/frame-4.webp",
+      "width": 1672,
+      "height": 940,
+      "source_bytes": 1454335,
+      "output_bytes": 767790,
+      "source_sha256": "315c62a0f2d131a484010394b15b4b91c6185af1542f5ea37029f4569b76b0dc",
+      "output_sha256": "54f222e60aa69fedda8ae05180e00586af578978e515457ce356d6b96ad0ef26",
+      "rgba_sha256": "e88181eee9022e53b082537427b48a93e8c34cec9c40940c786fc0e94afb7843",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 555056,
+        "partially_transparent_pixels": 1014748,
+        "fully_opaque_pixels": 1876,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          13,
+          58,
+          1660,
+          904
+        ],
+        "bounds_gt_32": [
+          16,
+          80,
+          1658,
+          902
+        ],
+        "bounds_gt_0_normalized": [
+          0.00777512,
+          0.06170213,
+          0.99282297,
+          0.96170213
+        ],
+        "bounds_gt_32_normalized": [
+          0.00956938,
+          0.08510638,
+          0.99162679,
+          0.95957447
+        ]
+      }
+    },
+    {
+      "id": "frame-5",
+      "role": "frame",
+      "source": "Grungy Tilted Computer Window Frame-5.png",
+      "url": "/brand/landing-art/frame-5.webp",
+      "width": 1672,
+      "height": 941,
+      "source_bytes": 1402248,
+      "output_bytes": 755778,
+      "source_sha256": "fa145d10d4dafa306087fb520cb6f179e1fb6418a4cb3a866c679c5a732d471c",
+      "output_sha256": "b4d454d1009849b69e8eb57fd3c8b656450b4fe3d64ca99c5eb7ac9c48c3b05a",
+      "rgba_sha256": "3c66e476e5f75f9e5e9ff39af0a2dd62a4fd6241e08417dd94f7d1d7d3074762",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 517852,
+        "partially_transparent_pixels": 1054122,
+        "fully_opaque_pixels": 1378,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          20,
+          1641,
+          917
+        ],
+        "bounds_gt_32": [
+          75,
+          28,
+          1638,
+          914
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.02125399,
+          0.98145933,
+          0.97449522
+        ],
+        "bounds_gt_32_normalized": [
+          0.04485646,
+          0.02975558,
+          0.97966507,
+          0.97130712
+        ]
+      }
+    },
+    {
+      "id": "canairy-emblem",
+      "role": "emblem",
+      "source": "Winged ATM Birdcage Emblem.png",
+      "url": "/brand/landing-art/canairy-emblem.webp",
+      "width": 1298,
+      "height": 1212,
+      "source_bytes": 933532,
+      "output_bytes": 510148,
+      "source_sha256": "4eb646a496080a921d0da334244800da508c67f5ffe4cf09c73d2454eb6cef02",
+      "output_sha256": "ec4a969696e7c02cf90e81b4593de0f0fe7f313d48e9367605c1fcba75ce3782",
+      "rgba_sha256": "54d6ae8a8a9e70090874262370202835730ff21a5028f267df537f5b2f35dd05",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": true,
+        "min": 0,
+        "max": 255,
+        "fully_transparent_pixels": 684873,
+        "partially_transparent_pixels": 886924,
+        "fully_opaque_pixels": 1379,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          49,
+          1288,
+          1130
+        ],
+        "bounds_gt_32": [
+          12,
+          132,
+          1285,
+          1082
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.04042904,
+          0.99229584,
+          0.93234323
+        ],
+        "bounds_gt_32_normalized": [
+          0.00924499,
+          0.10891089,
+          0.98998459,
+          0.89273927
+        ]
+      }
+    },
+    {
+      "id": "sky-pattern",
+      "role": "texture",
+      "source": "Seamless Anime Sky Cloud Pattern.png",
+      "url": "/brand/landing-art/sky-pattern.webp",
+      "width": 1254,
+      "height": 1254,
+      "source_bytes": 2417128,
+      "output_bytes": 2023726,
+      "source_sha256": "f4453f39738d1a6a7fb2afbcb8597a925de24399b6fe734836ddc6ee769f94e0",
+      "output_sha256": "492a9a69745eb94a3041afedd72a5eb5c08c28793eb75223b3916343abf5a4cd",
+      "rgba_sha256": "87ce6a4482a393521bff360323b20d85a04a474e1fba54562c2e29c64bb383f8",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": false,
+        "min": 255,
+        "max": 255,
+        "fully_transparent_pixels": 0,
+        "partially_transparent_pixels": 0,
+        "fully_opaque_pixels": 1572516,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "bounds_gt_32": [
+          0,
+          0,
+          1254,
+          1254
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "hero-reference",
+      "role": "reference",
+      "source": "c0e07e17-3d4d-41f6-a3ce-1412310cb230.png",
+      "url": "/brand/landing-art/hero-reference.webp",
+      "width": 1983,
+      "height": 793,
+      "source_bytes": 2931347,
+      "output_bytes": 2117024,
+      "source_sha256": "ebd5dd5f55d140c58925a67a4a1d43c6ea3f14515617bdc7ecb2cb53acb7cc57",
+      "output_sha256": "ddbdaf26c49e34716586d69f108129990f45138b311ad14b9fdc2555122e512a",
+      "rgba_sha256": "d760fc268f223e1fd9c618b3e120678732ddaaa8dacaf5ac08ff7a1a976ae100",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": false,
+        "min": 255,
+        "max": 255,
+        "fully_transparent_pixels": 0,
+        "partially_transparent_pixels": 0,
+        "fully_opaque_pixels": 1572519,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1983,
+          793
+        ],
+        "bounds_gt_32": [
+          0,
+          0,
+          1983,
+          793
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "portrait-reference",
+      "role": "reference",
+      "source": "17ca3a7d-eb05-49df-917a-66d58e8ed570.png",
+      "url": "/brand/landing-art/portrait-reference.webp",
+      "width": 1122,
+      "height": 1402,
+      "source_bytes": 2671368,
+      "output_bytes": 2105094,
+      "source_sha256": "936b66325026880862c728f5000cdeeae8303bed5d68e8eadd1fd8e8e6dffb4c",
+      "output_sha256": "6ec02d6eb0115b5b99ff07006bd9394449327c2941b11c147e9617c486206ca0",
+      "rgba_sha256": "3315bfc45bf71507cc979e5b574e9b37e40541f24032cf91fe73eb3332b52dc8",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": false,
+        "min": 255,
+        "max": 255,
+        "fully_transparent_pixels": 0,
+        "partially_transparent_pixels": 0,
+        "fully_opaque_pixels": 1573044,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1122,
+          1402
+        ],
+        "bounds_gt_32": [
+          0,
+          0,
+          1122,
+          1402
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "windows-reference",
+      "role": "reference",
+      "source": "5e260dbb-1938-46de-b41a-e7c67e4653a7.png",
+      "url": "/brand/landing-art/windows-reference.webp",
+      "width": 1983,
+      "height": 793,
+      "source_bytes": 2439589,
+      "output_bytes": 1774248,
+      "source_sha256": "c31698d4d80fa3c73daf61cb1596fb7820f4006398ea4a0396c00f71c52f40bd",
+      "output_sha256": "c2599e7669eb1f117d3499169f5dc8f6439198348eaab6a0c1ec532748bddb1a",
+      "rgba_sha256": "9c0212857685f5016d36eff51a4c7d87e50dd49938b6b2c49845d70ad4d4f6de",
+      "rgba_identical": true,
+      "alpha": {
+        "has_transparency": false,
+        "min": 255,
+        "max": 255,
+        "fully_transparent_pixels": 0,
+        "partially_transparent_pixels": 0,
+        "fully_opaque_pixels": 1572519,
+        "preserved_exactly": true,
+        "bounds_gt_0": [
+          0,
+          0,
+          1983,
+          793
+        ],
+        "bounds_gt_32": [
+          0,
+          0,
+          1983,
+          793
+        ],
+        "bounds_gt_0_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bounds_gt_32_normalized": [
+          0.0,
+          0.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  ],
+  "duplicates": [
+    {
+      "source": "226fdf25-87fe-4c28-b180-b1593655c36b.png",
+      "same_as": "ChatGPT Image Oct 20, 2026, 06_45_02 PM-1.png",
+      "url": "/brand/landing-art/hero-ideas.webp",
+      "source_sha256": "785a57dc905e22cfb52d250da3e2e31d44257d76427df879a4727561dc44cd14",
+      "verification": "Source PNG files are byte-identical; one optimized asset is shared."
+    }
+  ],
+  "totals": {
+    "source_files": 19,
+    "unique_assets": 18,
+    "unique_source_bytes": 45230530,
+    "output_bytes": 27917702,
+    "all_rgba_identical": true,
+    "all_alpha_preserved": true,
+    "saved_bytes": 17312828,
+    "reduction_percent": 38.28
+  },
+  "alpha_bounds_format": "Bounds are [left, top, right, bottom] in original pixels; right/bottom are exclusive. Normalized coordinates are fractions of full image dimensions. Threshold bounds are metadata only: no pixels were cropped or altered."
+}

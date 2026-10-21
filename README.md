@@ -1,5 +1,9 @@
 # 80m UI — The Machine
 
+<p align="center">
+  <img width="160" alt="80M" src="public/brand/80m-mark-black.png" />
+</p>
+
 > The public-facing course portal and marketing site for [80m Systems](https://80m.ai). Three classes. One fully voice-controlled, locally-hosted AI agent stack you own forever.
 
 ---
@@ -51,6 +55,22 @@ This repo is the **course portal UI** + **marketing landing page** for that cour
 ├── tailwind.config.js
 └── postcss.config.js
 ```
+
+---
+
+## Brand Assets
+
+This app uses the May 2026 dithered 80M identity kit from
+`/home/falcon/Apps/code/80M-brand/assets/logos/80m-identity-2026-05-14/`.
+Use the white 80M mark on dark, colored, image, video, or animated spaces.
+Use the black 80M mark only on white or light surfaces. Agent lockups and the
+red `Agent` wordmark are reserved for Agent Desktop, not the public portfolio
+or course portal.
+
+Current app exports live in `public/brand/`:
+
+- `80m-mark-white.svg` / `80m-mark-white.png`
+- `80m-mark-black.svg` / `80m-mark-black.png`
 
 ---
 
@@ -201,7 +221,7 @@ git push origin main
 
 ## Related Repos
 
-- **80M-brand** (`/mnt/7DC21CFC5AB9C3AB/Apps/code/80M-brand/`) — Brand assets, logo, mascot images
+- **80M-brand** (`/home/falcon/Apps/code/80M-brand/`) — Brand assets, logo, mascot images
 - **Cortex Mobile** (`/home/falcon/Apps/code/cortex-mobile/`) — The mobile app that hosts the agent council
 - **Hermes Avatar Local** — Desktop voice interface for the 80m agent system
 

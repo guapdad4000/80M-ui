@@ -1,0 +1,49 @@
+.brain-fog { position: fixed; inset: 0; z-index: 2200; isolation: isolate; overflow: hidden; opacity: 1; pointer-events: none; outline: none; transition: opacity .65s ease; }
+.brain-fog[data-phase='open'] { pointer-events: auto; }
+.brain-fog[data-phase='leaving'] { opacity: 0; }
+.brain-fog__sky, .brain-fog__ui-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.brain-fog__sky { pointer-events: none; }
+.brain-fog__ui-canvas { z-index: 1; }
+.brain-fog__dom { position: absolute; inset: 0; width: 100vw; height: 100dvh; visibility: hidden; transform-origin: 0 0; color: #103e60; font-family: Inter,sans-serif; }
+.brain-fog[data-phase='open'] .brain-fog__dom { visibility: visible; }
+.brain-fog__message { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; width: 100%; height: 100%; padding: 80px 24px; }
+/* Animate the painted surface, so native snapshots never cache an invisible
+   composited child layer during the headline's arrival. */
+.brain-fog[data-phase='open'][data-renderer='html-in-canvas'] .brain-fog__ui-canvas,
+.brain-fog[data-phase='open'][data-renderer='canvas-and-dom'] .brain-fog__dom { animation: fog-message-arrive 1s ease both; }
+.brain-fog__message h2 { width: min(760px,80vw,100vh); margin: 0 0 10px; transform: rotate(-3deg); filter: drop-shadow(0 6px 12px #25496c20); }
+.brain-fog .collage-art { position: relative; display: block; width: 100%; overflow: hidden; }
+.brain-fog .collage-art img { position: absolute; max-width: none; height: auto; }
+.brain-fog__help { display: inline-flex; align-items: center; justify-content: space-between; gap: 44px; min-height: 66px; padding: 18px 32px; background: #d9ff48; color: #172119; font: 900 20px/1.25 Inter,sans-serif; text-transform: uppercase; text-decoration: none; clip-path: polygon(1% 5%,98% 0,100% 95%,3% 100%,0 40%); transform: rotate(-2deg); transition: transform .2s,background .2s; }
+.brain-fog__help > span { font-size: 29px; line-height: 1; }
+.brain-fog__help:hover { background: #edff9d; transform: translateY(-3px) rotate(1deg); }
+.brain-fog__browse { min-height: 44px; padding: 8px 12px; color: #103e60; background: #f5faff8c; border: 0; font: 700 12px/1.4 Inter,sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.brain-fog__browse:hover { background: #f5faff; }
+.brain-fog__close { position: absolute; z-index: 2; top: max(20px,env(safe-area-inset-top)); right: max(24px,env(safe-area-inset-right)); display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; border: 0; background: #f5faffc9; color: #103e60; font: 700 10px/1.4 monospace; text-transform: uppercase; letter-spacing: .03em; cursor: pointer; }
+.brain-fog__close > :last-child { font: 400 25px/1 Inter,sans-serif; }
+.brain-fog :is(a,button):focus-visible { outline: 3px solid #0c5c94; outline-offset: 5px; }
+.brain-fog__help:focus-visible { outline: none; box-shadow: inset 0 0 0 4px #0c5c94; }
+/* Keep native source content in its root paint record. Older trial builds omit
+   separately composited transform/filter/clip layers from DOM snapshots. */
+.brain-fog[data-renderer='html-in-canvas'] .brain-fog__message > :is(h2,a,button) { position: relative; filter: none; transform: none; clip-path: none; }
+.brain-fog[data-renderer='html-in-canvas'] .brain-fog__message > .brain-fog__close { position: absolute; }
+.brain-fog[data-renderer='html-in-canvas'] h2 { aspect-ratio: 1680/838; }
+@keyframes fog-message-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 767px) {
+  .brain-fog__message { padding: 70px 18px; gap: 22px; }
+  .brain-fog__message h2 { width: min(90vw,620px); margin-bottom: 12px; }
+  .brain-fog__help { min-height: 62px; padding: 17px 27px; font-size: 18px; gap: 36px; }
+  .brain-fog__close { top: max(14px,env(safe-area-inset-top)); right: max(14px,env(safe-area-inset-right)); }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .brain-fog__message { padding: 48px 20px 18px; gap: 10px; }
+  .brain-fog__message h2 { width: min(50vw,51vh); margin: 0 0 3px; }
+  .brain-fog__help { min-height: 48px; padding: 12px 24px; font-size: 16px; }
+  .brain-fog__browse { font-size: 11px; }
+  .brain-fog__close { top: 10px; right: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brain-fog { transition-duration: .15s; }
+  .brain-fog[data-phase='open'][data-renderer] :is(.brain-fog__ui-canvas,.brain-fog__dom) { animation: none; }
+  .brain-fog__help { transition: none; }
+}

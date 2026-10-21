@@ -10,6 +10,8 @@ const PORTAL_ROUTES = [
   { path: '/portal/class-04', label: 'Class 04: Content Forge' },
 ];
 
+const BRAND_MARK_WHITE = "/brand/80m-mark-white.svg";
+
 const PortalNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,9 +21,12 @@ const PortalNav = () => {
     <>
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
+        <div className="flex items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto" />
+          <div>
           <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">80M Portal</span>
           <h2 className="font-serif text-[#eae7de] text-2xl font-black">{current.label}</h2>
+          </div>
         </div>
         <button
           onClick={() => navigate('/')}

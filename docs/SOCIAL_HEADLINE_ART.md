@@ -1,0 +1,9 @@
+# Social-content collage headline
+
+Created with the built-in `image_gen.imagegen` tool. Project asset: `public/brand/landing-art/feeding-the-algorithm.webp`, encoded losslessly with generated alpha preserved. Original PNG: `/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-a511b1d3-55a2-4495-aa76-6ad46ee3a339.png`.
+
+The existing `CollageArt` component retains the accessible heading text and reserves the artwork's display bounds. The social scene's sticky duration, video anchor, supporting copy, and illustration are preserved. On phones, the illustration sits below the copy to keep the supporting text clear.
+
+## Final prompt
+
+Use case: ads-marketing. Asset type: transparent collage headline for the 80M creative studio website. Input image is a STYLE REFERENCE ONLY: match its black-and-cream torn-paper ransom-note lettering, bold mixed serif and condensed print, distressed halftone ink, photocopy wear, paper folds and scratches, rough layered edges and expressive brush-painted italic accents. Generate a NEW headline with exactly this text, correctly spelled and punctuated: "Tired of feeding the algorithm?" All words must appear once, in that order. Arrange a tightly packed roughly 4:3 landscape collage block in three readable rows: "Tired of" / "feeding the" / "algorithm?" Give "feeding" expressive brush or italic type and anchor "algorithm?" in strong printed letterforms, with varied paper scraps. Keep the whole long word algorithm intact and very legible at phone size. Some cream lettering on black scraps, some black lettering on cream scraps. Small safe margin around all torn edges; no cropped letters. The exterior and all empty space beyond the paper must be genuinely transparent. No solid black rectangle or flat background. No extra words, logos, frames, browser windows, illustrations, symbols, or watermarks.

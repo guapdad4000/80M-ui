@@ -17,6 +17,9 @@ import {
   FAQItem,
 } from './PortalShared';
 
+const BRAND_MARK_WHITE = "/brand/80m-mark-white.svg";
+const BRAND_MARK_BLACK = "/brand/80m-mark-black.svg";
+
 // --- Animation Variants ---
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -234,9 +237,12 @@ Return:
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 04</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Content Forge</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 04</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">Content Forge</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -1592,9 +1598,12 @@ Create:
     >
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 01</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Install the App</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 01</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">Install the App</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -2612,9 +2621,12 @@ OUTPUT: Return Post, Video Outline, Email Idea, and Safety Check.`
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 02</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Brief Hermes Properly</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 02</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">Brief Hermes Properly</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -3656,9 +3668,12 @@ const CourseThreeContent = ({ onClose }) => {
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 03</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Safe Remote Access</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 03</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">Safe Remote Access</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -5017,9 +5032,12 @@ to outputs/ → next question builds on previous answers.
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 05</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">Intelligence Pipeline + Agent Products</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 05</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">Intelligence Pipeline + Agent Products</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class
@@ -6329,9 +6347,12 @@ Does NOT include: [scope creep, additional tools, ongoing management]
     <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }} className="fixed inset-0 z-[100] bg-[#eae7de] flex flex-col isolate">
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 06</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">The Full System + AI Business Playbook</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 06</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">The Full System + AI Business Playbook</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class
@@ -7659,9 +7680,12 @@ Give me the exact prompts I should use to set this up with you.`;
     >
       <NoiseOverlay />
       <div className="shrink-0 w-full bg-[#111] border-b-[4px] border-[#22c55e] px-6 py-4 flex justify-between items-center z-50 shadow-xl">
-        <div>
-          <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 07</span>
-          <h2 className="font-serif text-[#eae7de] text-2xl font-black">80M Agent Desktop</h2>
+        <div className="flex min-w-0 items-center gap-4">
+          <img src={BRAND_MARK_WHITE} alt="80m" className="h-10 w-auto shrink-0" />
+          <div className="min-w-0">
+            <span className="font-mono text-[#22c55e] text-xs font-bold uppercase tracking-widest">Class 07</span>
+            <h2 className="font-serif text-[#eae7de] text-2xl font-black">80M Agent Desktop</h2>
+          </div>
         </div>
         <button onClick={onClose} className="font-sans font-black text-sm uppercase px-4 py-2 bg-[#eae7de] text-[#111] border-[2px] border-transparent hover:border-[#22c55e] transition-all">
           Exit Class ✕
@@ -8909,7 +8933,9 @@ export default function PortalPage() {
           {/* Portal Nav */}
           <nav className="p-6 md:p-8 flex justify-between items-center relative z-20">
             <div className="flex items-center gap-6">
-              <Link to="/" className="font-serif font-black text-3xl tracking-tighter uppercase text-[#111]">80m<span className="text-[#22c55e]">.</span></Link>
+              <Link to="/" className="inline-flex items-center" aria-label="80m landing">
+                <img src={BRAND_MARK_BLACK} alt="80m" className="h-12 w-auto" />
+              </Link>
               <span className="font-mono text-xs font-bold uppercase tracking-widest bg-[#111] text-[#22c55e] px-4 py-2 border-[2px] border-[#111] shadow-[4px_4px_0_0_#111]">
                 Portal
               </span>
@@ -8924,6 +8950,7 @@ export default function PortalPage() {
         {/* Hero */}
         <section className="pt-12 md:pt-24 pb-20 border-b-[4px] border-[#111] mb-20">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center">
+            <motion.img variants={fadeUp} src={BRAND_MARK_BLACK} alt="80m" className="mx-auto mb-8 h-16 w-auto md:h-20" />
             <motion.p variants={fadeUp} className="font-mono text-sm font-bold uppercase tracking-[0.2em] mb-6 text-[#555]">
               // The 80m Blueprint
             </motion.p>

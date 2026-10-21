@@ -1,0 +1,33 @@
+.artwork-window {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, calc(72vh * var(--artwork-aspect)));
+  max-width: 100%;
+  flex-shrink: 0;
+  filter: drop-shadow(3px 7px 0 rgba(9, 45, 59, .35));
+}
+.artwork-window--left { transform: rotate(-1.5deg); }
+.artwork-window--right { transform: rotate(1.4deg); }
+.artwork-window__chrome {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9px 9px 0 0;
+  z-index: 1;
+}
+.artwork-window__chrome img { position: absolute; max-width: none; height: auto; pointer-events: none; }
+.artwork-window__rim {
+  position: relative;
+  margin-top: -1px;
+  border-style: solid;
+  border-width: 0 9px 12px;
+  border-image-source: url('/brand/landing-art/frame-flat-tall.webp');
+  border-image-slice: 125 80 90 80;
+  border-image-width: 0 9px 12px;
+  background: #eae7de;
+  background-clip: padding-box;
+}
+.artwork-window__image { display: block; width: 100%; height: auto; }
+@media (max-width: 767px) {
+  .artwork-window__rim { border-width: 0 6px 9px; border-image-width: 0 6px 9px; }
+}

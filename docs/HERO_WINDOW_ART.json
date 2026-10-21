@@ -1,0 +1,95 @@
+{
+  "mode": "Native built-in image_gen.imagegen; three separate transparent generations",
+  "contentReference": "/home/falcon/Downloads/c0e07e17-3d4d-41f6-a3ce-1412310cb230.png",
+  "borderReference": "public/brand/landing-art/frame-4.webp",
+  "assets": [
+    {
+      "word": "AI",
+      "path": "public/brand/landing-art/hero-window-ai.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-27c62ff6-5dd1-408e-93bf-3505c88323bc.png",
+      "prompt": "Use case: ads-marketing. Asset: ONE individual transparent browser-window artwork for the 80M creative studio homepage. Image 1 is a content/composition reference only: recreate the concept of its AI window as a separate complete object. Image 2 is the BORDER AND MATERIAL style reference: use its much cooler, very thick distressed black-ink frame, warm cream scratches, fine halftone dots, thick beveled rim and visibly substantial dark-cyan/blue extruded bottom/left edges. Create one wide 2:1 browser window, not a scene or group of windows. The entire window object must fit inside the canvas with a small 4% transparent safety margin. Camera almost front-on with a subtle perspective that shows its physical thickness; no dramatic tilt, no cropping, no large foreshortening. Red, yellow, green round browser controls in the upper left. Inside the screen: a tightly framed monochrome city street / creative studio collage in high-contrast newspaper halftone, with the EXACT sole word 'AI' in extremely large, bold cream-white condensed letters on a dark billboard at center. 'AI' must be instantly legible even at 120px display width, dominant and uninterrupted; no tiny code, no illegible filler text. The background scene is secondary, darker and quieter than the word. All screen content is enclosed by the chunky frame. Preserve the reference's tactile worn print aesthetic, blue edge ink, cream scuffing, ink outlines and sense of thickness. True transparent alpha everywhere outside the standalone window. No sky, no black hole, no outside scene, no extra objects or windows, no glow, no drop-shadow rectangle, no watermark, no other words.",
+      "referenceImages": [
+        "/home/falcon/Downloads/c0e07e17-3d4d-41f6-a3ce-1412310cb230.png",
+        "public/brand/landing-art/frame-4.webp"
+      ]
+    },
+    {
+      "word": "DESIGN",
+      "path": "public/brand/landing-art/hero-window-design.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-bcecdce9-700a-4604-8d89-efd8f8098f69.png",
+      "prompt": "Use case: ads-marketing. Create ONE standalone transparent browser-window artwork for the 80M creative studio homepage, a sibling of image 1. Image 1 is the exact material, color, thickness and border-family STYLE reference; image 2 is the original content concept/composition reference only. Reproduce the chunky distressed black-ink browser frame with warm cream scratches, fine newspaper halftone, a heavy beveled inner rim, and visibly thick dark cyan/blue extruded edges under and beside the window. Three red/yellow/green traffic lights upper left. One wide approximately 2:1 window, complete object with 4 percent transparent safety margin, almost front-facing, slight physical perspective, no dramatic tilt or foreshortening. Its screen contains a tightly framed monochrome city-street / creative-studio photograph collage rendered as bold black-and-cream photocopy halftone. At the center, a dark billboard carries the requested word in HUGE cream-white bold condensed sans-serif letters, visually uninterrupted, single horizontal line, nearly filling the screen width and at least 60 percent of screen height. Keep the scene secondary and quieter than the word. The word must read instantly at a small mobile display size. All scene content must stay inside the frame. True transparent alpha outside the object. No sky, no black hole, no external scene, no additional windows, no extra objects, no extra words, no small fake UI labels, no watermark, no glow or background rectangle. The exact sole text is 'DESIGN'. Show a creative city block with a few low-key storefront/studio shapes, keeping DESIGN dominant. Slight blue extrusion visible along bottom and right; very subtle opposite-facing perspective from the AI sibling. Do not reproduce AI or TASTE anywhere.",
+      "referenceImages": [
+        "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-27c62ff6-5dd1-408e-93bf-3505c88323bc.png",
+        "/home/falcon/Downloads/c0e07e17-3d4d-41f6-a3ce-1412310cb230.png"
+      ]
+    },
+    {
+      "word": "TASTE",
+      "path": "public/brand/landing-art/hero-window-taste.webp",
+      "original": "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-e5101b76-3cb9-4c09-be08-0b0610357070.png",
+      "prompt": "Use case: ads-marketing. Create ONE standalone transparent browser-window artwork for the 80M creative studio homepage, a sibling of image 1. Image 1 is the exact material, color, thickness and border-family STYLE reference; image 2 is the original content concept/composition reference only. Reproduce the chunky distressed black-ink browser frame with warm cream scratches, fine newspaper halftone, a heavy beveled inner rim, and visibly thick dark cyan/blue extruded edges under and beside the window. Three red/yellow/green traffic lights upper left. One wide approximately 2:1 window, complete object with 4 percent transparent safety margin, almost front-facing, slight physical perspective, no dramatic tilt or foreshortening. Its screen contains a tightly framed monochrome city-street / creative-studio photograph collage rendered as bold black-and-cream photocopy halftone. At the center, a dark billboard carries the requested word in HUGE cream-white bold condensed sans-serif letters, visually uninterrupted, single horizontal line, nearly filling the screen width and at least 60 percent of screen height. Keep the scene secondary and quieter than the word. The word must read instantly at a small mobile display size. All scene content must stay inside the frame. True transparent alpha outside the object. No sky, no black hole, no external scene, no additional windows, no extra objects, no extra words, no small fake UI labels, no watermark, no glow or background rectangle. The exact sole text is 'TASTE'. Show a quiet city facade with a palm tree and rooftop shapes, keeping TASTE dominant. Slight blue extrusion visible along bottom and left. Match the substantial thickness and generous beveled border of the AI sibling, with a tiny variation in scuffing. Do not reproduce AI or DESIGN anywhere.",
+      "referenceImages": [
+        "/home/falcon/.codex/generated_images/01a15be9-e203-7911-ab61-36f8cf9a7e2f/exec-27c62ff6-5dd1-408e-93bf-3505c88323bc.png",
+        "/home/falcon/Downloads/c0e07e17-3d4d-41f6-a3ce-1412310cb230.png"
+      ]
+    }
+  ],
+  "dimensions": [
+    1774,
+    887
+  ],
+  "delivery": "Full-size WebP is lossless and preserves native alpha exactly. Responsive WebP encodings at 320, 480, 960, and 1280px preserve the resized alpha. Full-size generated objects are not cropped or redrawn.",
+  "integration": "HeroWindows replaces the two old hero image composites with three individually positioned raster assets. Desktop and landscape keep copy in a separate lane. Phones place all three above the headline. The background film and sticky scene lengths are unchanged.",
+  "verification": {
+    "productionBuild": "passed; existing large-bundle warning remains",
+    "focusedEslint": "passed",
+    "diffCheck": "passed",
+    "viewports": [
+      [
+        1920,
+        1080
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1152,
+        894
+      ],
+      [
+        1024,
+        768
+      ],
+      [
+        768,
+        1024
+      ],
+      [
+        430,
+        932
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        320,
+        568
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        667,
+        375
+      ]
+    ],
+    "heroChecks": "All three assets and the copy fit inside the viewport, windows do not intersect the copy, copy children do not overlap, and no horizontal page overflow. No browser errors or warnings.",
+    "reducedMotion": "passed; all three transforms remained still",
+    "actions": "Portfolio click/tap, Home focus/scroll return, and Start a project click/tap passed at 1440x900, 390x844 (DPR2), 320x568 (DPR2), and 667x375.",
+    "laterSections": "Audit, hands, contact, and booking screenshots captured at desktop and mobile. Film and scene lengths were not changed.",
+    "evidence": "/tmp/80m-hero-windows/"
+  }
+}

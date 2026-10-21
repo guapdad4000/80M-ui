@@ -13,6 +13,8 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
+const BRAND_MARK_BLACK = "/brand/80m-mark-black.svg";
+
 const PortalHome = () => {
   const courses = [
     {
@@ -31,6 +33,7 @@ const PortalHome = () => {
       <PaperBackground />
       <div className="relative z-10">
         <div className="mb-12">
+          <img src={BRAND_MARK_BLACK} alt="80m" className="mb-5 h-12 w-auto" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#555] mb-2">// 80M Portal — Master Index</p>
           <h1 className="font-serif text-5xl md:text-7xl font-black leading-[0.85] tracking-tighter uppercase">
             The<br/><span className="italic text-[#22c55e]">80M Lab</span>

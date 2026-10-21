@@ -23,6 +23,25 @@
   }
 }
 
+.film-grain {
+  inset: -64px;
+  background-repeat: repeat;
+  animation: film-grain-shift 0.4s steps(1) infinite;
+  will-change: transform;
+}
+
+@keyframes film-grain-shift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-32px, 16px, 0); }
+  50% { transform: translate3d(24px, -32px, 0); }
+  75% { transform: translate3d(-16px, -24px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .film-grain { animation: none; }
+}
+
 @keyframes crt-flicker {
   0%   { opacity: 0.98; }
   5%   { opacity: 0.85; }

@@ -1,0 +1,7 @@
+{
+  "asset": "public/brand/landing-art/start-project.webp",
+  "mode": "Native image_gen; transparent background; reference-guided generation",
+  "reference": "public/brand/landing-art/do-the-work.webp",
+  "prompt": "Use case: ads-marketing. Generate ONE new transparent title artwork for the 80M project intake page. The attached image is only a STYLE reference: torn black and warm cream magazine-paper collage, bold vintage serif letterforms mixed with expressive black brush lettering, photocopied halftone details, worn folds and scuffs, thick torn paper silhouettes. Exact text and punctuation: 'Start a project.' Layout TWO stacked lines: 'Start a' on the first line in energetic brush lettering, 'project.' much larger in bold condensed vintage serif on the second. Easy to read at small mobile sizes. Compact wide silhouette about 2.1:1. Every letter is clearly readable. A few layered scraps, restrained halftone, rough edges like the reference; the title is the whole asset. No other text, no logos, no illustrations, no window, no background rectangle or shadow panel, no watermark. Genuine transparent alpha outside the torn paper collage, with a small safe margin on every side. The black-and-cream artwork will be placed over a blue sky background.",
+  "preparation": "Lossless WebP encoding; original transparent raster retained; alpha bounds handled by CollageArt."
+}

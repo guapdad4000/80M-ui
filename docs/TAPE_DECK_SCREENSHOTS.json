@@ -1,0 +1,123 @@
+{
+  "sourceArchive": "/home/falcon/Downloads/tape-deck-screenshots.zip",
+  "sourceArchiveSha256": "52be41a353c5fc17a1d2deea88c389e9424a70e078605b20ffc6f52522032f97",
+  "screenshots": [
+    {
+      "archiveMember": "landing-page-reference/canvas.webp",
+      "asset": "/portfolio/tape-deck-canvas.webp",
+      "label": "Spatial canvas \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sourceSha256": "34215009e99dfd8c26191a98c6df14e73afee09a82110e1d00129fa1cbe51475",
+      "assetSha256": "34215009e99dfd8c26191a98c6df14e73afee09a82110e1d00129fa1cbe51475",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "landing-page-reference/library.webp",
+      "asset": "/portfolio/tape-deck-library.webp",
+      "label": "Tape library \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sourceSha256": "48018cd329f37c448f8f96d86552afd9a6a8fcf1faf285945ad342067d568a51",
+      "assetSha256": "48018cd329f37c448f8f96d86552afd9a6a8fcf1faf285945ad342067d568a51",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "landing-page-reference/project.webp",
+      "asset": "/portfolio/tape-deck-project.webp",
+      "label": "Project workspace \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sourceSha256": "95616b9b12fc908798fd985b1fe93d7d0a1dea7291a8c55a8a7369659578087a",
+      "assetSha256": "95616b9b12fc908798fd985b1fe93d7d0a1dea7291a8c55a8a7369659578087a",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "landing-page-reference/player.webp",
+      "asset": "/portfolio/tape-deck-player.webp",
+      "label": "3D tape player \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        562,
+        548
+      ],
+      "sourceSha256": "f52dfc8119ab3f5f71b883622b074c5a26c8166f744e4524425f184b493bbba6",
+      "assetSha256": "f52dfc8119ab3f5f71b883622b074c5a26c8166f744e4524425f184b493bbba6",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "landing-page-reference/listening-room.webp",
+      "asset": "/portfolio/tape-deck-listening-room.webp",
+      "label": "Listening room \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sourceSha256": "20089f0a6e30473284ef40baf94d7b9611b8051a5fe0daccb9a737874fd32a7a",
+      "assetSha256": "20089f0a6e30473284ef40baf94d7b9611b8051a5fe0daccb9a737874fd32a7a",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "landing-page-reference/share.webp",
+      "asset": "/portfolio/tape-deck-share.webp",
+      "label": "Listening links \u00b7 earlier design",
+      "context": "Earlier app interface; demo content",
+      "dimensions": [
+        1440,
+        900
+      ],
+      "sourceSha256": "1de6dad254abb3a4e5383fac78526c0d5ae57221d9b0c532cd4d74a1b284dcae",
+      "assetSha256": "1de6dad254abb3a4e5383fac78526c0d5ae57221d9b0c532cd4d74a1b284dcae",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "current-web/onboarding-desktop.png",
+      "asset": "/portfolio/tape-deck-tour-desktop.webp",
+      "label": "Guided tour \u00b7 desktop",
+      "context": "Current web capture",
+      "dimensions": [
+        1440,
+        1000
+      ],
+      "sourceSha256": "5df0449f7539c18399a5a38e0cd7488070dfc1c305a75f3ff2e037c35362fe1e",
+      "assetSha256": "4e8a26891c6f13d327a1adae8850a46cd98c89a0b14b0fa0dd044726c35ab111",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "current-web/onboarding-mobile.png",
+      "asset": "/portfolio/tape-deck-tour-mobile.webp",
+      "label": "Guided tour \u00b7 mobile",
+      "context": "Current web capture",
+      "dimensions": [
+        390,
+        939
+      ],
+      "sourceSha256": "ef4f1c5fbe32aba4cd84582916f130c52026d64a0319f0afbd1d51a1ec991b5d",
+      "assetSha256": "1917c30bf3fe7b48dccc16554c9c951f5b21ecbad87e550732a91b977d2ecc42",
+      "fullSizePixelsPreserved": true
+    },
+    {
+      "archiveMember": "current-web/landing-desktop.png",
+      "asset": "/portfolio/tape-deck-landing-desktop.webp",
+      "label": "Landing page \u00b7 desktop",
+      "context": "Current web capture",
+      "dimensions": [
+        1440,
+        3156
+      ],
+      "sourceSha256": "0a87e63ac34b59ed78b08a957bca574e83a23cc632d556f7e1956c2670d06f52",
+      "assetSha256": "b278ff62af9368d0a9681f50af7823d57cc0ddc5cabdf85569e849b691f6a6ab",
+      "fullSizePixelsPreserved": true
+    }
+  ]
+}

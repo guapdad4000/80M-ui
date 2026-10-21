@@ -1,0 +1,21 @@
+{
+  "mode": "Native built-in image_gen",
+  "assets": [
+    {
+      "path": "public/brand/brain-fog/anime-sky.webp",
+      "prompt": "Use case: stylized-concept. Create a gorgeous hand-painted anime cloudscape for the full-screen idle state of a playful creative studio website. Wide landscape 16:9 composition, premium animated-film background painting, cerulean and azure blue sky, enormous luminous soft-white cumulus clouds with cool periwinkle blue shadow planes, gentle warm cream sunlight at upper left, tiny restrained pink highlights, rich painterly brush texture and sublime airy depth. The lower half is a dreamy sea of clouds, clouds curl softly in from both left and right sides and at the top, framing a calm lighter blue opening at the center where a title and button will go. Quiet, beautiful, serene, clear daylight, saturated blue and white palette, dimensional and gently fantastical. No scene objects, no horizon buildings, no people, no birds, no stars, no sun disc, no sparkles, no text, no lettering, no logo, no borders. Full bleed opaque painted sky background, no black, no frame."
+    },
+    {
+      "path": "public/brand/brain-fog/cloud-bank.webp",
+      "prompt": "Use case: stylized-concept. ONE isolated, very wide horizontal bank of hand-painted anime cumulus clouds on genuine transparent background, designed as a compositing sprite that will drift across a website. Premium animated-film background-painting aesthetic: luminous soft-white voluminous billows with cool pale periwinkle and blue shadow planes, warm cream sunlit tops, gently textured painterly edges. A continuous irregular cloud bank, about 2.5:1 landscape silhouette, many differently sized connected billows rising and curling into one another, entire cloud formation visible with safe transparent margin on every edge. Dense opaque cloud body so it can cover content behind it, soft subtly feathered outer wisps, gorgeously shaded dimensional forms. No visible sky rectangle, no ground, no people, no objects, no text, no border, no black outline, no drop shadow. Transparent alpha around the whole irregular cloud silhouette. This will layer over a rich azure anime sky.",
+      "transparent": true
+    },
+    {
+      "path": "public/brand/landing-art/too-much-brain-fog.webp",
+      "prompt": "Use case: ads-marketing. Create ONE transparent title artwork matching the attached 80M title reference. The reference is STYLE ONLY: black and warm cream torn magazine-paper collage, bold vintage condensed serif letterforms mixed with expressive black brush lettering, photocopied halftone scraps, worn folds and scuffs, layered torn-paper silhouettes. Exact text and punctuation: 'Too much brain fog?' Layout TWO stacked lines: 'Too much' on the first line in bold expressive brush lettering, 'brain fog?' on the second line in huge bold vintage condensed serif. Make the exact phrase very readable at mobile size. Compact balanced wide silhouette around 1.8:1. A few restrained black halftone paper scraps, torn edges, very light folds and ink wear. The lettering is the whole asset, with a small safe transparent margin around it. No other text, no illustrations, no icons, no window, no background rectangle, no watermark, no cloud art. Genuine transparent alpha outside the torn paper collage. This headline will float over a blue-and-white anime cloudscape.",
+      "transparent": true,
+      "styleReference": "public/brand/landing-art/start-project.webp"
+    }
+  ],
+  "preparation": "Lossless WebP encoding with generated transparency preserved."
+}
