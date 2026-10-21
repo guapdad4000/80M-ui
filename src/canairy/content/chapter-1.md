@@ -170,7 +170,7 @@ The new question is narrower and more honest: **is this worth paying attention t
 
 Before we ask anyone for money or an email address, we want evidence that people will choose to follow along. So the funnel has three free steps and no new tools:
 
-1. **Follow the build on X** (@canairy). This is the main channel. Short daily posts with the real numbers.
+1. **Follow the build on X** ([@80mguru](https://x.com/80mguru)). This is the main channel. Short daily posts with the real numbers.
 2. **Star the repo** on GitHub. The real prompts, routines, ledger format, and templates, MIT licensed. A star is a small, public, free signal of interest.
 3. **Read Chapter 1 free.** You're reading it. If this chapter is worth your time, the rest of the playbook might be. If it isn't, we'd rather find out now.
 
