@@ -10,8 +10,8 @@ const PACK_URL = import.meta.env.VITE_PRESET_PACK_URL || '';
 const CONTACT = 'contact@80m.ai';
 const SKY = '/brand/brain-fog/anime-sky.webp';
 const MARK = '/brand/80m-mark-black.svg';
-// Set VITE_TONE2_REPO_URL once the public repo exists (MIT licence file must ship with it).
-const REPO_URL = import.meta.env.VITE_TONE2_REPO_URL || '';
+// Public MIT repo; VITE_TONE2_REPO_URL can override it.
+const REPO_URL = import.meta.env.VITE_TONE2_REPO_URL || 'https://github.com/guapdad4000/tone2';
 
 const PROOF = [
   ['Dead shadows (dark kaiju)', '99.2% → 33%'],
