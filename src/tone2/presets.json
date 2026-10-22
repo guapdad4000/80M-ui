@@ -1,0 +1,128 @@
+[
+ {
+  "no": "01",
+  "slug": "atm-receipt",
+  "name": "ATM RECEIPT",
+  "desc": "Thermal-paper 1-bit. Ink on cream, Atkinson grain. The house default.",
+  "img": "/tone2/01-atm-receipt.svg"
+ },
+ {
+  "no": "02",
+  "slug": "gold-vortex",
+  "name": "GOLD VORTEX",
+  "desc": "Two-tone Bayer in black and money gold. Loud, poster-ready.",
+  "img": "/tone2/02-gold-vortex.svg"
+ },
+ {
+  "no": "03",
+  "slug": "sky-tritone",
+  "name": "SKY TRITONE",
+  "desc": "Black, anime-sky blue, gold. Floyd-Steinberg, 2px.",
+  "img": "/tone2/03-sky-tritone.svg"
+ },
+ {
+  "no": "04",
+  "slug": "kaiju-mezzotint",
+  "name": "KAIJU MEZZOTINT",
+  "desc": "RIP mezzotint grain. Engraved-money texture for monsters and portraits.",
+  "img": "/tone2/04-kaiju-mezzotint.svg"
+ },
+ {
+  "no": "05",
+  "slug": "pulp-1974",
+  "name": "PULP 1974",
+  "desc": "Off-register 70s comic print, Ben-Day dots.",
+  "img": "/tone2/05-pulp-1974.svg"
+ },
+ {
+  "no": "06",
+  "slug": "noir-slam",
+  "name": "NOIR SLAM",
+  "desc": "Hard graphic-noir blacks for the impact frame.",
+  "img": "/tone2/06-noir-slam.svg"
+ },
+ {
+  "no": "07",
+  "slug": "crt-bluenoise",
+  "name": "CRT BLUE NOISE",
+  "desc": "Indexed palette with blue-noise dither, 3px. Looks like a dying monitor.",
+  "img": "/tone2/07-crt-bluenoise.svg"
+ },
+ {
+  "no": "08",
+  "slug": "rings-of-power",
+  "name": "RINGS OF POWER",
+  "desc": "Concentric-ring RIP spot, big 16px cells. Hypnotic.",
+  "img": "/tone2/08-rings-of-power.svg"
+ },
+ {
+  "no": "09",
+  "slug": "rosette-shop",
+  "name": "ROSETTE SHOP",
+  "desc": "Classic CMYK rosette, 108/162/90/45 angles.",
+  "img": "/tone2/09-rosette-shop.svg"
+ },
+ {
+  "no": "10",
+  "slug": "gig-poster",
+  "name": "GIG POSTER",
+  "desc": "Silkscreen two-pass poster look.",
+  "img": "/tone2/10-gig-poster.svg"
+ },
+ {
+  "no": "11",
+  "slug": "ink-melt",
+  "name": "INK MELT",
+  "desc": "Dots bleed into each other like cheap newsprint in the rain.",
+  "img": "/tone2/11-ink-melt.svg"
+ },
+ {
+  "no": "12",
+  "slug": "hex-arcade",
+  "name": "HEX ARCADE",
+  "desc": "Hexagon halftone at 18px. Arcade-cabinet side-art.",
+  "img": "/tone2/12-hex-arcade.svg"
+ },
+ {
+  "no": "13",
+  "slug": "stipple-ghost",
+  "name": "STIPPLE GHOST",
+  "desc": "Hand-stipple pointillism, 5px. Quiet, eerie.",
+  "img": "/tone2/13-stipple-ghost.svg"
+ },
+ {
+  "no": "14",
+  "slug": "misreg-cmyk",
+  "name": "MISREG CMYK",
+  "desc": "Clustered CMYK dither with the plates knocked off register.",
+  "img": "/tone2/14-misreg-cmyk.svg"
+ },
+ {
+  "no": "15",
+  "slug": "sine-scan",
+  "name": "SINE SCAN",
+  "desc": "FM sine-wave line modulation. Signal, not pixels.",
+  "img": "/tone2/15-sine-scan.svg"
+ },
+ {
+  "no": "16",
+  "slug": "cross-stitch",
+  "name": "CROSS STITCH",
+  "desc": "Cross-shaped RIP spot, 10px. Bank-note security vibe.",
+  "img": "/tone2/16-cross-stitch.svg"
+ },
+ {
+  "no": "17",
+  "slug": "dark-tee",
+  "name": "DARK TEE",
+  "desc": "Plastisol underbase separation, built for prints on black shirts.",
+  "img": "/tone2/17-dark-tee.svg"
+ },
+ {
+  "no": "18",
+  "slug": "pink-riso",
+  "name": "PINK RISO",
+  "desc": "Soy-ink risograph pop, pink-forward.",
+  "img": "/tone2/18-pink-riso.svg"
+ }
+]
